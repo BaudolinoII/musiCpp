@@ -10,7 +10,7 @@ informacion{
 		Duracion         = tono_[tiempo]
 		Extension        = tono.[tiempo]
 		AumentarSemitono = tono#[targs]
-		DisminurSemitono = tonob[targs]
+		DisminurSemitono = tono&[targs]
 		AumentarTono     = tono*[targs]
 		DisminuirTono    = tono/[targs]
 		Acorde           = "<tono,tono[targs] ..>[tiempo]"
@@ -36,6 +36,6 @@ informacion{
 		}
 	}
 	Ejemplo{
-		fire = 	"Do* Re#, MiM Fm Solb: La/M, Bb_16+ 7add6; <Do Mi_4,Sol>_32"
+		fire = 	"Do* Re#, MiM Fm Solb: La/M, Bb_16+ Fadd9; <Do Mi_4,Sol>_32"
 	}
 }
