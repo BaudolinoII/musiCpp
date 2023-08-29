@@ -10,9 +10,17 @@
 #define CRYPT_LONG 128
 
 namespace filek {
+	/// <summary>
+	/// Objeto encriptador estático. Máquina Super Cesar
+	/// </summary>
 	class scMachine {
 		private: static std::string password, curr_password;
 		private: static size_t pointer_pw, SIZE_OF_PW, MAX_PAR_SIZE;
+		/// <summary>
+		/// Recorre en n caracteres la ultima letra al inicio de la cadena
+		/// Ejemplo -> oEjempl
+		/// </summary>
+		/// <param name="times">Número de reiteraciones del proceso</param>
 		private: static void abacusPassword(const unsigned int times) {
 			std::string ordw;
 			for (unsigned int i = 0; i < times; i++) {
@@ -21,6 +29,10 @@ namespace filek {
 				curr_password.replace(0, curr_password.length(), ordw);
 			}
 		}
+		/// <summary>
+		/// Encripta la contraseña utilizandose asi misma
+		/// </summary>
+		/// <param name="key">Apuntador a cadena que contiene la contraseña, se guarda allí mismo</param>
 		private: inline static void encriptKey(std::string& key) {
 			int chara = 0;
 			std::string crypto = "";
@@ -30,9 +42,11 @@ namespace filek {
 				crypto.append(1, chara + 32);
 			}
 			key = crypto;
-				
 		}
-
+		/// <summary>
+		/// Proceso de encriptación de la palabra
+		/// </summary>
+		/// <param name="str">Apuntador a cadena que contiene la frase a encriptar, se guarda allí mismo</param>
 		public:  static void encriptWord(std::string& str) {
 			size_t chara = 0, textPointer = 0, keyPointer = 0, link = 0, pastLink = 1;
 			std::string buffer;
@@ -60,6 +74,10 @@ namespace filek {
 			}
 			str = buffer;
 		}
+		/// <summary>
+		/// Proceso de desencriptado de la palabra
+		/// </summary>
+		/// <param name="str">Apuntador a cadena que contiene la frase a desencriptar, se guarda allí mismo</param>
 		public:	 static void decriptWord(std::string& str) {
 			int keyPointer = 0, link = 0, pastLink = 1;
 			int chara = 0;
@@ -90,12 +108,19 @@ namespace filek {
 				}
 			str = unCrypto;
 		}
+		/// <summary>
+		/// Interse una contraseña al sistema
+		/// </summary>
+		/// <param name="pwd">Cadena de caracteres para funcionar como contraseña</param>
 		public:  inline static void setPassword(const std::string& pwd) {
 			password = pwd; 
 			encriptKey(password);
 			resetPassword(); 
 			SIZE_OF_PW = pwd.size();
 		}
+		/// <summary>
+		/// Proceso de Control para colocar variables estáticas
+		/// </summary>
 		public:  inline static void resetPassword() {
 			curr_password = password; pointer_pw = 0;
 		}
@@ -105,12 +130,23 @@ namespace filek {
 	size_t scMachine::SIZE_OF_PW = 0;
 	std::string scMachine::password = "";
 	std::string scMachine::curr_password = "";
-
+	/// <summary>
+	/// Sistema de Guardado de archivos. Inspirado en el trabajo de Javidx9
+	/// https://github.com/OneLoneCoder (Trabajo aún no subido a la fecha)
+	/// Cambios añadidos:
+	/// Sistema de Encriptado opcional
+	/// Sistema de comentarios removido
+	/// Soporte para programar con la llave de apertura '{' al final del renglón
+	/// </summary>
 	class dynamicfile {
 		private: std::vector<std::string> vec_info;
 		private: std::vector<std::pair<std::string, dynamicfile>> inception;
 		private: std::unordered_map<std::string, size_t> incepMap;
-
+		/// <summary>
+		/// Soporte para el empleo de arreglos dinámicos y anidados
+		/// obj["nombre"]["categora"]["subcategoria"] ... 
+		/// </summary>
+		/// <param name="name">identificador de la categoría</param>
 		public: inline dynamicfile& operator[](const std::string& name) {
 			if (this->incepMap.count(name) == 0) {
 				incepMap[name] = inception.size();
@@ -118,6 +154,13 @@ namespace filek {
 			}
 			return inception[incepMap[name]].second;
 		}
+		/// <summary>
+		/// Metodo estático para guardar el archivo dinámico en memoria de almacenamiento
+		/// </summary>
+		/// <param name="df"> apuntador del objeto archivo dinámico</param>
+		/// <param name="fileName"> Dirección/Nombre con extensión del archivo a guardar</param>
+		/// <param name="encript">(opcional) Se guardará encriptado, por defecto no</param>
+		/// <param name="split">(opcional) Caracter con el que demarcar la separacion de elementos, por defecto ','</param>
 		public: static bool writeFile(const dynamicfile& df, const std::string& fileName, const bool encript = false, const char split = ',') {
 			scMachine::resetPassword();
 			std::string splitter = std::string(1, split) + " ", buffer = ""; size_t indexGrade = 0;
@@ -162,6 +205,13 @@ namespace filek {
 			file.close();
 			return true;
 		}
+		/// <summary>
+		/// Método estático para cargar en memoria un archico dinámico
+		/// </summary>
+		/// <param name="df"> apuntador donde guardar el archivo dinámico</param>
+		/// <param name="fileName"> Dirección/Nombre con extensión del archivo a cargar</param>
+		/// <param name="encript">(opcional) Se guardó encriptado, por defecto no</param>
+		/// <param name="split">(opcional) Caracter con el que se guardó la separacion de elementos, por defecto ','</param>
 		public: static bool readFile(dynamicfile& df, const std::string& fileName, const bool decript = false, const char split = ',') {
 			scMachine::resetPassword();
 			std::ifstream file(fileName, std::ios::in);
@@ -209,11 +259,14 @@ namespace filek {
 							adjust(subString);
 							stackFile.top().get()[propName].setString(subString, tkCount);
 						}
-					} else if (buffer.find_first_of('{') != std::string::npos){
+					} else 
+						
+					if (buffer.find_first_of('{') != std::string::npos){
 						propName = buffer.substr(0, buffer.size() - 1);
 						adjust(propName);
 						stackFile.push(stackFile.top().get()[propName]);
-					} else if (buffer[0] == '}')
+					} else 
+					if (buffer[0] == '}')
 							stackFile.pop();
 					else
 							propName = buffer;
