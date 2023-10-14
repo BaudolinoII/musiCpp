@@ -16,6 +16,9 @@ std::vector<stl::note> vecNotes;
 std::mutex muxNotes;
 inst::instrument_bell instBell;
 inst::instrument_harmonica instHarm;
+inst::instrument_drumkick instKick;
+inst::instrument_drumsnare instSnare;
+inst::instrument_drumhihat instHiHat;
 
 //Funcion para eliminar todas las notas inactivas o aquellas cuyo tiempo se ha agotado
 typedef bool(*lambda)(stl::note const& item);
@@ -37,13 +40,15 @@ FTYPE MakeNoise(int nChannel, FTYPE dTime) {
 	for (stl::note& n : vecNotes){
 		bool bNoteFinished = false;
 		FTYPE dSound = 0;
-		if (n.channel == 2)
-			dSound = instBell.sound(dTime, n, bNoteFinished);
-		if (n.channel == 1)
-			dSound = instHarm.sound(dTime, n, bNoteFinished) * 0.5;
+
+		// Reproduce cada nota con su correspondiente instrumento asignado
+		if (n.channel != nullptr)
+			dSound = n.channel->sound(dTime, n, bNoteFinished);
+
+		// Adición a la mezcla del sonido
 		dMixedOutput += dSound;
 
-		if (bNoteFinished && n.off > n.on)
+		if (bNoteFinished) // El booleano retorna de acuerdo a una amplitud superior o igual a 0
 			n.active = false;
 	}
 
@@ -77,28 +82,51 @@ int main() {
 	// Enlace de la función
 	sound.SetUserFunction(MakeNoise);
 
-	char keyboard[129];
-	memset(keyboard, ' ', 127);
-	keyboard[128] = '\0';
-
-	auto clock_old_time = std::chrono::high_resolution_clock::now();
-	auto clock_real_time = std::chrono::high_resolution_clock::now();
+	std::chrono::steady_clock::time_point clock_old_time = std::chrono::high_resolution_clock::now();
+	std::chrono::steady_clock::time_point clock_real_time = std::chrono::high_resolution_clock::now();
 	double dElapsedTime = 0.0;
+	double dWallTime = 0.0;
+
+	stl::VMMM seq(90.0);//VMMM y asignacionde instrumentos
+	seq.AddInstrument(&instKick);
+	seq.AddInstrument(&instSnare);
+	seq.AddInstrument(&instHiHat);
+
+	seq.vecChannel.at(0).sBeat = L"X...X...X..X.X..";//Secuencia de bits
+	seq.vecChannel.at(1).sBeat = L"..X...X...X...X.";
+	seq.vecChannel.at(2).sBeat = L"X.X.X.X.X.X.X.XX";
 
 	while (1){
+		// Actualizacion de tiempo =======================================================================================
+		clock_real_time = std::chrono::high_resolution_clock::now();
+		auto time_last_loop = clock_real_time - clock_old_time;
+		clock_old_time = clock_real_time;
+		dElapsedTime = std::chrono::duration<FTYPE>(time_last_loop).count();
+		dWallTime += dElapsedTime;
+		FTYPE dTimeNow = sound.GetTime();
+
+		// Actualizacion de la VMMM (genera las notas y las añade al vector principal) ======================================
+		int newNotes = seq.Update(dElapsedTime);
+		muxNotes.lock();
+		for (int a = 0; a < newNotes; a++){
+			seq.vecNotes[a].on = dTimeNow;
+			vecNotes.emplace_back(seq.vecNotes[a]);
+		}
+		muxNotes.unlock();
+
 		for (int k = 0; k < 16; k++){
 			short nKeyState = GetAsyncKeyState((unsigned char)("ZSXCFVGBNJMK\xbcL\xbe\xbf"[k]));
-			double dTimeNow = sound.GetTime();
+			//double dTimeNow = sound.GetTime();
 
 			// Para evitar 2 notas del mismo tipo, se revisa
 			muxNotes.lock();
-			std::vector<stl::note>::iterator noteFound = find_if(vecNotes.begin(), vecNotes.end(), [&k](stl::note const& item) { return item.id == k; });
+			std::vector<stl::note>::iterator noteFound = find_if(vecNotes.begin(), vecNotes.end(), [&k](stl::note const& item) { return item.id == k + 64 && item.channel == &instBell; });
 			if (noteFound == vecNotes.end()){ // Si no encuentra la nota en el vector
 				if (nKeyState & 0x8000){ // Procede a crear la nota detectada
 					stl::note n;
-					n.id = k;
+					n.id = k + 64;
 					n.on = dTimeNow;
-					n.channel = 1;
+					n.channel = &instBell;//Instrumento a tocar
 					n.active = true;
 					vecNotes.emplace_back(n);
 				}
@@ -109,9 +137,8 @@ int main() {
 						noteFound->active = true;
 					}
 				}else{ // Si ha dejado de presionarse, entonces marca su tiempo final para ser terminada sin un silencio directo
-					if (noteFound->off < noteFound->on){
+					if (noteFound->off < noteFound->on)
 						noteFound->off = dTimeNow;
-					}
 				}
 			}
 			muxNotes.unlock();

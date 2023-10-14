@@ -13,7 +13,8 @@ namespace inst {
 			tmp.dDecayTime = 1.0;
 			tmp.dSustainAmplitude = 0.0;
 			tmp.dReleaseTime = 1.0;
-
+			fMaxLifeTime = 3.0;
+			name = L"Bell";
 			dVolume = 1.0;
 		}
 		public: FTYPE sound(const FTYPE dTime, stl::note n, bool& bNoteFinished) {
@@ -34,7 +35,8 @@ namespace inst {
 			tmp.dDecayTime = 0.5;
 			tmp.dSustainAmplitude = 0.8;
 			tmp.dReleaseTime = 1.0;
-
+			fMaxLifeTime = 3.0;
+			name = L"Bell8";
 			dVolume = 1.0;
 		}
 		public: FTYPE sound(const FTYPE dTime, stl::note n, bool& bNoteFinished) {
@@ -55,7 +57,8 @@ namespace inst {
 			tmp.dDecayTime = 1.0;
 			tmp.dSustainAmplitude = 0.95;
 			tmp.dReleaseTime = 0.1;
-
+			fMaxLifeTime = 3.0;
+			name = L"Harmonica";
 			dVolume = 1.0;
 		}
 		public: FTYPE sound(const FTYPE dTime, stl::note n, bool& bNoteFinished) {
@@ -70,5 +73,71 @@ namespace inst {
 
 			return dAmplitude * dSound * dVolume;
 		}
+	};
+	class instrument_drumkick : public stl::instrument_base {
+		public: instrument_drumkick() {
+			tmp.dAttackTime = 0.01;
+			tmp.dDecayTime = 0.15;
+			tmp.dSustainAmplitude = 0.0;
+			tmp.dReleaseTime = 0.0;
+			fMaxLifeTime = 1.5;
+			name = L"Drum Kick";
+			dVolume = 1.0;
+		}
+		public: FTYPE sound(const FTYPE dTime, stl::note n, bool& bNoteFinished) {
+			FTYPE dAmplitude = tmp.GetAmplitude(dTime, n.on, n.off);
+			if (fMaxLifeTime > 0.0 && dTime - n.on >= fMaxLifeTime)	bNoteFinished = true;
+
+			FTYPE dSound =
+				+0.99 * stl::osc(dTime - n.on, stl::scale(n.id - 36), stl::OSC_SINE, 1.0, 1.0)
+				+ 0.01 * stl::osc(dTime - n.on, 0, stl::OSC_NOISE);
+
+			return dAmplitude * dSound * dVolume;
+		}
+
+	};
+	class instrument_drumsnare : public stl::instrument_base {
+		public: instrument_drumsnare() {
+			tmp.dAttackTime = 0.0;
+			tmp.dDecayTime = 0.2;
+			tmp.dSustainAmplitude = 0.0;
+			tmp.dReleaseTime = 0.0;
+			fMaxLifeTime = 1.0;
+			name = L"Drum Snare";
+			dVolume = 1.0;
+		}
+		public: FTYPE sound(const FTYPE dTime, stl::note n, bool& bNoteFinished) {
+			FTYPE dAmplitude = tmp.GetAmplitude(dTime, n.on, n.off);
+			if (fMaxLifeTime > 0.0 && dTime - n.on >= fMaxLifeTime)	bNoteFinished = true;
+
+			FTYPE dSound =
+				+0.5 * stl::osc(dTime - n.on, stl::scale(n.id - 24), stl::OSC_SINE, 0.5, 1.0)
+				+ 0.5 * stl::osc(dTime - n.on, 0, stl::OSC_NOISE);
+
+			return dAmplitude * dSound * dVolume;
+		}
+
+	};
+	class instrument_drumhihat : public stl::instrument_base {
+		public: instrument_drumhihat() {
+			tmp.dAttackTime = 0.01;
+			tmp.dDecayTime = 0.05;
+			tmp.dSustainAmplitude = 0.0;
+			tmp.dReleaseTime = 0.0;
+			fMaxLifeTime = 1.0;
+			name = L"Drum HiHat";
+			dVolume = 0.5;
+		}
+		public: FTYPE sound(const FTYPE dTime, stl::note n, bool& bNoteFinished) {
+			FTYPE dAmplitude = tmp.GetAmplitude(dTime, n.on, n.off);
+			if (fMaxLifeTime > 0.0 && dTime - n.on >= fMaxLifeTime)	bNoteFinished = true;
+
+			FTYPE dSound =
+				+0.1 * stl::osc(dTime - n.on, stl::scale(n.id - 12), stl::OSC_SQUARE, 1.5, 1)
+				+ 0.9 * stl::osc(dTime - n.on, 0, stl::OSC_NOISE);
+
+			return dAmplitude * dSound * dVolume;
+		}
+
 	};
 };

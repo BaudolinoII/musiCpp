@@ -1,0 +1,30 @@
+﻿  main.cpp
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\Virtual_Instruments.h(25,1): warning C4267: 'argumento': conversión de 'size_t' a 'const int'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\Virtual_Instruments.h(26,1): warning C4267: 'argumento': conversión de 'size_t' a 'const int'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\Virtual_Instruments.h(27,1): warning C4267: 'argumento': conversión de 'size_t' a 'const int'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\Virtual_Instruments.h(47,1): warning C4267: 'argumento': conversión de 'size_t' a 'const int'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\Virtual_Instruments.h(48,1): warning C4267: 'argumento': conversión de 'size_t' a 'const int'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\Virtual_Instruments.h(49,1): warning C4267: 'argumento': conversión de 'size_t' a 'const int'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\Virtual_Instruments.h(70,1): warning C4267: 'argumento': conversión de 'size_t' a 'const int'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\Virtual_Instruments.h(71,1): warning C4267: 'argumento': conversión de 'size_t' a 'const int'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\Virtual_Instruments.h(72,1): warning C4267: 'argumento': conversión de 'size_t' a 'const int'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\Virtual_Instruments.h(92,1): warning C4267: 'argumento': conversión de 'size_t' a 'const int'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\Virtual_Instruments.h(114,1): warning C4267: 'argumento': conversión de 'size_t' a 'const int'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\Virtual_Instruments.h(136,1): warning C4267: 'argumento': conversión de 'size_t' a 'const int'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\main.cpp(109,42): warning C4267: 'inicializando': conversión de 'size_t' a 'int'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\olcNoiseMaker.h(47,18): warning C4244: 'inicializando': conversión de '__int64' a 'int'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\olcNoiseMaker.h(29): message : al compilar la función del miembro clase plantilla "bool olcNoiseMaker<short>::Create(std::wstring,unsigned int,unsigned int,unsigned int,unsigned int)"
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\olcNoiseMaker.h(24): message : Vea la referencia a la creación de una instancia de la función plantilla "bool olcNoiseMaker<short>::Create(std::wstring,unsigned int,unsigned int,unsigned int,unsigned int)" que se está compilando
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\main.cpp(64): message : Vea la referencia a la creación de una instancia de clase plantilla "olcNoiseMaker<short>" que se está compilando
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\olcNoiseMaker.h(50,1): warning C4267: '=': conversión de 'size_t' a 'DWORD'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\olcNoiseMaker.h(52,1): warning C4267: '=': conversión de 'size_t' a 'WORD'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\olcNoiseMaker.h(75,1): warning C4267: '=': conversión de 'size_t' a 'DWORD'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\olcNoiseMaker.h(184,1): warning C4267: 'inicializando': conversión de 'size_t' a 'int'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\olcNoiseMaker.h(160): message : al compilar la función del miembro clase plantilla "void olcNoiseMaker<short>::MainThread(void)"
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\olcNoiseMaker.h(81): message : Vea la referencia a la creación de una instancia de la función plantilla "void olcNoiseMaker<short>::MainThread(void)" que se está compilando
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\olcNoiseMaker.h(190,1): warning C4267: 'argumento': conversión de 'size_t' a 'int'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\olcNoiseMaker.h(192,1): warning C4267: 'argumento': conversión de 'size_t' a 'int'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\olcNoiseMaker.h(153,1): warning C4312: 'conversión de tipo': conversión de 'DWORD' a 'olcNoiseMaker<short> *' de mayor tamaño
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\olcNoiseMaker.h(152): message : al compilar la función del miembro clase plantilla "void olcNoiseMaker<short>::waveOutProcWrap(HWAVEOUT,UINT,DWORD,DWORD,DWORD)"
+C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\VitalComp\olcNoiseMaker.h(58): message : Vea la referencia a la creación de una instancia de la función plantilla "void olcNoiseMaker<short>::waveOutProcWrap(HWAVEOUT,UINT,DWORD,DWORD,DWORD)" que se está compilando
+  VitalComp.vcxproj -> C:\Users\espin\OneDrive\Documentos\Tesis\Proyecto\VitalComp\x64\Debug\VitalComp.exe

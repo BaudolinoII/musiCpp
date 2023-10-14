@@ -14,7 +14,7 @@ namespace stl {//Sound Tools: Herramientas de sonido
 		switch (nScaleID){
 			case SCALE_DEFAULT: 
 			default:
-				return 256 * pow(1.0594630943592952645618252949463, nNoteID);
+				return 8 * pow(1.0594630943592952645618252949463, nNoteID);
 		}
 	}
 	FTYPE w(FTYPE dHertz) {
@@ -44,19 +44,26 @@ namespace stl {//Sound Tools: Herramientas de sonido
 		}
 	}
 
+	class instrument_base;
+
 	typedef struct sNote {
-		size_t id, channel;		// Position in scale
+		size_t id;		// Position in scale
 		FTYPE on, off;			// Time note was activated, Time note was deactivated
 		bool active;
+		instrument_base* channel;
 
 		sNote() {
 			id = 0;
 			on = 0.0;
 			off = 0.0;
 			active = false;
-			channel = 0;
+			channel = nullptr;
 		}
 	} note;
+    typedef struct sChannel {
+		instrument_base* instrument;
+		std::wstring sBeat;
+	}channel;
 	class templateNote{ 
 		virtual FTYPE GetAmplitude(const FTYPE dTime, const FTYPE dTimeOn, const FTYPE dTimeOff) = 0;
 	};
@@ -73,7 +80,7 @@ namespace stl {//Sound Tools: Herramientas de sonido
 			FTYPE dAmplitude = 0.0;
 			FTYPE dReleaseAmplitude = 0.0;
 
-			if (dTimeOn > dTimeOff) {// Note is on
+			if (dTimeOn > dTimeOff){ // Note is on
 				FTYPE dLifeTime = dTime - dTimeOn;
 
 				if (dLifeTime <= dAttackTime)
@@ -84,7 +91,8 @@ namespace stl {//Sound Tools: Herramientas de sonido
 
 				if (dLifeTime > (dAttackTime + dDecayTime))
 					dAmplitude = dSustainAmplitude;
-			} else {// Note is off
+			}else{ // Note is off
+			
 				FTYPE dLifeTime = dTimeOff - dTimeOn;
 
 				if (dLifeTime <= dAttackTime)
@@ -100,7 +108,7 @@ namespace stl {//Sound Tools: Herramientas de sonido
 			}
 
 			// Amplitude should not be negative
-			if (dAmplitude <= 0.000)
+			if (dAmplitude <= 0.01)
 				dAmplitude = 0.0;
 
 			return dAmplitude;
@@ -108,8 +116,57 @@ namespace stl {//Sound Tools: Herramientas de sonido
 	};
 
 	class instrument_base {
-		protected: FTYPE dVolume;
+		protected: std::wstring name;
+		protected: FTYPE dVolume, fMaxLifeTime;
 		protected: stl::templateADSR tmp;
 		public: virtual FTYPE sound(const FTYPE dTime, stl::note n, bool& bNoteFinished) = 0;
+	};
+	class VMMM{ //Virtual Machine Music Maker
+		
+		public: size_t nBeats, nSubBeats, nCurrentBeat, nTotalBeats;
+		public: FTYPE fTempo, fBeatTime, fAccumulate;
+		public: std::vector<channel> vecChannel;
+		public: std::vector<note> vecNotes;
+
+		public: VMMM(FTYPE tempo = 120.0f, size_t beats = 4, size_t subbeats = 4){
+			nBeats = beats;
+			nSubBeats = subbeats;
+			fTempo = tempo;
+			fBeatTime = (60.0f / fTempo) / (float)nSubBeats;
+			nCurrentBeat = 0;
+			nTotalBeats = nSubBeats * nBeats;
+			fAccumulate = 0;
+		}
+
+		public: size_t Update(FTYPE fElapsedTime){
+			vecNotes.clear();
+			fAccumulate += fElapsedTime;
+			while (fAccumulate >= fBeatTime){
+				fAccumulate -= fBeatTime;
+				nCurrentBeat++;
+				if (nCurrentBeat >= nTotalBeats)
+					nCurrentBeat = 0;
+
+				size_t c = 0;
+				for (channel v : vecChannel){
+					if (v.sBeat[nCurrentBeat] == L'X'){
+						note n;
+						n.channel = vecChannel[c].instrument;
+						n.active = true;
+						n.id = 64;
+						vecNotes.push_back(n);
+					}
+					c++;
+				}
+			}
+			return vecNotes.size();
+		}
+
+		void AddInstrument(instrument_base* inst){
+			channel c;
+			c.instrument = inst;
+			vecChannel.push_back(c);
+		}
+
 	};
 };
