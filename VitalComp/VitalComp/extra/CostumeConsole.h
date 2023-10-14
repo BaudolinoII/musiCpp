@@ -11,17 +11,19 @@ namespace AdvCon{
 	class AdvanceConsole {
 		private: static AdvanceConsole* AC;
 		private: HANDLE hConsole; CONSOLE_SCREEN_BUFFER_INFO csbi;
-		private: COORD wArea;
+		private: COORD Size;
+
+		public: const char* ESC = "\x1b";
+		public: const char* CSI = "\x1b[";
 
 		protected: AdvanceConsole() {
 			hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 			GetConsoleScreenBufferInfo(this->hConsole, &this->csbi);
-			this->wArea = { 0,0 };
-			//DWORD status;
-			//GetConsoleMode(this->hConsole, &status); 0x0007 por defecto
+        	Size.X = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+			Size.Y = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
 		}
 		/// <summary>
-		/// Suministra el único apuntador de la clase
+		/// Suministra el Ãºnico apuntador de la clase
 		/// </summary>
 		public: inline static AdvanceConsole* getAC() {
 			if (AC == nullptr) AC = new AdvanceConsole();
@@ -54,11 +56,12 @@ namespace AdvCon{
 			SetConsoleCursorPosition(this->hConsole, { static_cast<short>(x), static_cast<short>(y) });
 		}
 		/// <summary>
-		/// 
+		///  Establece el color y la intensidad del texto
 		/// </summary>
 		/// <param name="textType">
 		/// 0.- Texto Rigido no modificable por el usuario Verde intenso
 		/// 1.- Texto Generado por el usuario Cyan Intenso
+		/// 2.- Texto Del Sistema Blanco por defecto
 		/// </param>
 		public: void setTextAttributes(const size_t textType) {
 			short attributes = 0x0000;
@@ -83,37 +86,66 @@ namespace AdvCon{
 			return GetAsyncKeyState(static_cast<int>(key)) & 0x0001;
 		}
 		/// <summary>
-		/// Estructura que contiene y administra las opciones anidadas en el menú
+		/// Dibuja un recuadro de color Verde intenso, construido a medida de la consola
+		/// </summary>
+		public: void drawMainFrame(){
+			GetConsoleScreenBufferInfo(this->hConsole, &this->csbi);
+			Size.X = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+			Size.Y = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+			std::wcout << ESC << "(0"; // Modo LÃ­nea
+	        std::wcout << CSI << "40;32ml"; // Fondo Negro // Color Verde y linea superior
+			for (size_t i = 1; i < Size.X - 1; i++)
+	            std::wcout << "q";
+			std::wcout << "k";
+
+	        for (size_t i = 1; i < Size.Y - 1; i++) { //LÃ­neas Laterales
+	            setXY(0, i);
+	            std::wcout << "x";
+	            setXY(Size.X - 1, i);
+	            std::wcout << "x";
+	        }
+	        std::wcout << "m";//LÃ­nea Inferior
+	        for (size_t i = 1; i < Size.X - 1; i++)
+	            std::wcout << "q";
+	        std::wcout << "j";
+
+	        std::wcout << CSI << "0m";
+	        std::wcout << ESC << "(B"; // RestauraciÃ³n de la Consola
+	        setXY(1, 1);
+		}
+		
+		/// <summary>
+		/// Estructura que contiene y administra las opciones anidadas en el menï¿½
 		/// </summary>
 		public: typedef struct sTitleNode {
 			private: std::string title;
 			private: std::vector<std::string> options;
 			private: bool mode;
 			/// <summary>
-			/// Contenedor de opciones, debe iniciarse con un nombre, dar el modo explorador ó captura
+			/// Contenedor de opciones, debe iniciarse con un nombre
 			/// </summary>
-			/// <param name="title">Nombre de la categoria de la opcion</param>
+			/// <param name="title">Nombre de la categoria</param>
 			/// <param name="mode">
-			/// True = modo Explorador
-			/// False = modo Captura
+			/// True = modo Explorador.- Controlado por las flechas direccionales, ESC e INTRO
+			/// False = modo Captura.- Captura texto usando las propiedades comunes de la consola
 			/// </param>
-			public: struct sTitleNode(const std::string& title, const bool mode = false) {
+			public: sTitleNode(const std::string& title, const bool mode = false) {
 				this->title = title;
 				this->mode = mode;
 			}
 			/// <summary>
-			/// Anida una opción para seleccionar, si es que tiene alguna
+			/// Anida una opciÃ³n para seleccionar, si es que tiene alguna
 			/// </summary>
-			/// <param name="option">Cadena con la opción a colocar</param>
+			/// <param name="option">Cadena con la opciÃ³n a colocar</param>
 			public: inline void setOption(const std::string& option) {
 				this->options.push_back(option);
 			}
 
-			/// <summary>
-			/// Obtiene el modo que este submenú se encuentra
-			/// </summary>
 			public: inline const bool getMode() {
 				return this->mode;
+			}
+			public: inline void switchMode(){
+				this->mode = !this->mode;
 			}
 			public: inline size_t getOptionSize() {
 				return this->options.size();
@@ -125,10 +157,6 @@ namespace AdvCon{
 				if (this->options.empty())
 					return "";
 				return this->options.at(index % this->options.size());
-			}
-			public: inline COORD getPointCoord(const size_t index, const size_t x0, const size_t y0) {
-				COORD cd = { x0 + this->title.size() + getOption(index).size(), y0 };
-				return cd;
 			}
 		}titleNode;
 	};
