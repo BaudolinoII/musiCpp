@@ -15,6 +15,7 @@
 std::vector<stl::note> vecNotes;
 std::mutex muxNotes;
 inst::instrument_bell instBell;
+inst::instrument_bell8 instBell8;
 inst::instrument_harmonica instHarm;
 inst::instrument_drumkick instKick;
 inst::instrument_drumsnare instSnare;
@@ -26,10 +27,10 @@ template<class T>
 void safe_remove(T& v, lambda f){
 	auto n = v.begin();
 	while (n != v.end())
-		if (!f(*n))
-			n = v.erase(n);
-		else
-			++n;
+		if (f(*n))//Nota activa
+			++n;//La deja pasar
+		else//Nota inactiva
+			n = v.erase(n);//Es eliminada
 }
 
 // Esta funcion es capaz de administrar la cantidad de instrumentos y notas interpretadas a la vez
@@ -48,11 +49,11 @@ FTYPE MakeNoise(int nChannel, FTYPE dTime) {
 		// Adición a la mezcla del sonido
 		dMixedOutput += dSound;
 
-		if (bNoteFinished) // El booleano retorna de acuerdo a una amplitud superior o igual a 0
-			n.active = false;
+		if (bNoteFinished) //Si el tiempo sobrepasa la vida máxima o el tiempo activo a concluido
+			n.active = false;//Entonces esta ya no está activa
 	}
 
-	safe_remove<std::vector<stl::note>>(vecNotes, [](stl::note const& item) { return item.active; });
+	safe_remove<std::vector<stl::note>>(vecNotes, [](stl::note const& item) { return item.active; });//Se descarta la nota del vector
 
 	return dMixedOutput * 0.2;
 }
@@ -87,14 +88,14 @@ int main() {
 	double dElapsedTime = 0.0;
 	double dWallTime = 0.0;
 
-	stl::VMMM seq(90.0);//VMMM y asignacionde instrumentos
-	seq.AddInstrument(&instKick);
-	seq.AddInstrument(&instSnare);
-	seq.AddInstrument(&instHiHat);
+	stl::VMMM seq(60.0);//VMMM y asignacionde instrumentos
+	seq.AddInstrument(&instBell);
+	seq.AddInstrument(&instBell8);
+	seq.AddInstrument(&instHarm);
 
-	seq.vecChannel.at(0).sBeat = L"X...X...X..X.X..";//Secuencia de bits
-	seq.vecChannel.at(1).sBeat = L"..X...X...X...X.";
-	seq.vecChannel.at(2).sBeat = L"X.X.X.X.X.X.X.XX";
+	seq.vecChannel.at(0).sBeat = "A...B...C..D.E..";//Secuencia de bits
+	seq.vecChannel.at(1).sBeat = "..D...C...B...A.";
+	seq.vecChannel.at(2).sBeat = "A.C.F.J.A.C.F.JA";
 
 	while (1){
 		// Actualizacion de tiempo =======================================================================================
