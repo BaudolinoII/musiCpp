@@ -10,19 +10,19 @@ namespace stl {//Sound Tools: Herramientas de sonido
 	const FTYPE PI = 2.0 * std::acos(0.0);
 	const size_t SCALE_DEFAULT = 0;
 
-	FTYPE scale(const int nNoteID, const int nScaleID = SCALE_DEFAULT){
-		switch (nScaleID){
-			case SCALE_DEFAULT: 
-			default:
-				return 8 * pow(1.0594630943592952645618252949463, nNoteID);
+	FTYPE scale(const int nNoteID, const int nScaleID = SCALE_DEFAULT) {
+		switch (nScaleID) {
+		case SCALE_DEFAULT:
+		default:
+			return 8 * pow(1.0594630943592952645618252949463, nNoteID);
 		}
 	}
 	FTYPE w(FTYPE dHertz) {
 		return dHertz * 2.0 * PI;
 	}
-	FTYPE osc(const FTYPE dTime, const FTYPE dHertz, const int nType = OSC_SINE, const FTYPE dLFOHertz = 0.0, const FTYPE dLFOAmplitude = 0.0, FTYPE dCustom = 50.0){
+	FTYPE osc(const FTYPE dTime, const FTYPE dHertz, const int nType = OSC_SINE, const FTYPE dLFOHertz = 0.0, const FTYPE dLFOAmplitude = 0.0, FTYPE dCustom = 50.0) {
 		FTYPE dFreq = w(dHertz) * dTime + dLFOAmplitude * dHertz * (sin(w(dLFOHertz) * dTime));// osc(dTime, dLFOHertz, OSC_SINE);
-		switch (nType){
+		switch (nType) {
 		case OSC_SINE: // Sine wave bewteen -1 and +1
 			return sin(dFreq);
 		case OSC_SQUARE: // Square wave between -1 and +1
@@ -48,32 +48,32 @@ namespace stl {//Sound Tools: Herramientas de sonido
 
 	typedef struct sNote {
 		BYTE id, status, timing; // Posicion en la nota y estado de esta y el tiempo representado por Redondas, Blancas, Negras, etc
-		FTYPE on, off;			 // Tiempo de nota activa y cuando debe acabar (Esta última será relevante cuando automaticemos el proceso)
+		FTYPE on, off, life;	 // Tiempo de nota presionada y liberada; Tiempo que permanecerá viva en generacion automática
 		bool active;			 // Bandera de activacion para ser descartada en el vector principal
 		instrument_base* channel;//Instrumento Designado
 
 		sNote() {
 			id = 0;
 			status = 0;
-			/*
-			Significado de los Bits de Status
-			7 := si es 1, El generador de notas debe esperar a otras notas  hasta recibir un estatus de 0
-			6 := si es 1, Esta nota corresponde a un silencio ignora el tono y solo aumenta la cuenta del tiempo
+			/*Significado de los Bits de Status
+			7 := si es 1, El generador de notas debe esperar a otras notas  hasta recibir un estatus de 0 :: 0xF0
+			6 := si es 0, Esta nota corresponde a un silencio ignora el tono y solo aumenta la cuenta del tiempo :: 0x80
 			5 := si es 1, Indica que esta última nota sobrepasó los ticks asignados a la frase ó es la última de esta y debe sonar distintiva
 			4 := si es 1, Indica que esta nota tiene una duración de 1.5 veces su valor asignado, si bien esta será reflejada en el byte de tiempo, se debe indicar para el instrumento
 			[3 - 0] := estos bits corresponden a los estados que puede adoptar cierta nota en determinado instrumento*/
-			timing = 0x04;
+			timing = 0;
 			on = 0.0;
 			off = 0.0;
+			life = 0.0;
 			active = false;
 			channel = nullptr;
 		}
 	} note;
-    typedef struct sChannel {
+	typedef struct sChannel {
 		instrument_base* instrument;
-		std::string sBeat;
+		BYTE* sBeat;//Apuntador a un arreglo de BYTE
 	}channel;
-	class templateNote{ 
+	class templateNote {
 		virtual FTYPE GetAmplitude(const FTYPE dTime, const FTYPE dTimeOn, const FTYPE dTimeOff) = 0;
 	};
 	class templateADSR : public templateNote {
@@ -89,7 +89,7 @@ namespace stl {//Sound Tools: Herramientas de sonido
 			FTYPE dAmplitude = 0.0;
 			FTYPE dReleaseAmplitude = 0.0;
 
-			if (dTimeOn > dTimeOff){ // Note is on
+			if (dTimeOn > dTimeOff) { // Note is on
 				FTYPE dLifeTime = dTime - dTimeOn;
 
 				if (dLifeTime <= dAttackTime)
@@ -100,8 +100,9 @@ namespace stl {//Sound Tools: Herramientas de sonido
 
 				if (dLifeTime > (dAttackTime + dDecayTime))
 					dAmplitude = dSustainAmplitude;
-			}else{ // Note is off
-			
+			}
+			else { // Note is off
+
 				FTYPE dLifeTime = dTimeOff - dTimeOn;
 
 				if (dLifeTime <= dAttackTime)
@@ -117,7 +118,7 @@ namespace stl {//Sound Tools: Herramientas de sonido
 			}
 
 			// Amplitude should not be negative
-			if (dAmplitude <= 0.01)
+			if (dAmplitude <= 0.00001)
 				dAmplitude = 0.0;
 
 			return dAmplitude;
@@ -130,49 +131,65 @@ namespace stl {//Sound Tools: Herramientas de sonido
 		protected: stl::templateADSR tmp;
 		public: virtual FTYPE sound(const FTYPE dTime, stl::note n, bool& bNoteFinished) = 0;
 	};
-	class VMMM{ //Virtual Machine Music Maker
-		
+	class VMMM { //Virtual Machine Music Maker
 		public: size_t nBeats, nSubBeats, nCurrentBeat, nTotalBeats;
-		public: FTYPE fTempo, fBeatTime, fAccumulate;
-		public: std::vector<channel> vecChannel;
+		public: FTYPE fTempo, fBeatTime, fAccumulate, fLifeTime;
+		public: channel vecChannel;
 		public: std::vector<note> vecNotes;
+		public: bool bRepeat;
 
-		public: VMMM(FTYPE tempo = 120.0f, size_t beats = 4, size_t subbeats = 4){
+		public: VMMM(FTYPE tempo = 120.0f, bool repeat = false, size_t beats = 4, size_t subbeats = 4) {
 			nBeats = beats;
 			nSubBeats = subbeats;
 			fTempo = tempo;
-			fBeatTime = (60.0f / fTempo) / (float)nSubBeats;
+			fBeatTime = 60.0f / fTempo;
+			fLifeTime = 0;
 			nCurrentBeat = 0;
 			nTotalBeats = nSubBeats * nBeats;
 			fAccumulate = 0;
+			bRepeat = repeat;
 		}
+		//Renombrarse a Generate(fInitialTime) notes invirtiendo la logica del proceso, tocando cada nota con tiempos on y off listos de salida, entregando solo el vector
+		//Donde se debe alistar una función de relleno y activación recíproca
 
-		public: size_t Update(FTYPE fElapsedTime){//Proceso genera notas de acuerdo al tiempo real
-			vecNotes.clear();//Se vacía el vector para incluir las nuevas notas
+		public: size_t Update(FTYPE fElapsedTime) {//Proceso genera notas de acuerdo al tiempo real, planea ejecutarse una sola vez con los tiempos exactos
+			vecNotes.clear();//Se asegura que el vector no tenga notas en la recamara en caso de recalcular el tiempo
 			fAccumulate += fElapsedTime;//Se acumula el tiempo transcurrido
-			while (fAccumulate >= fBeatTime){//Si el tiempo es mayor o igual al espacio entre Beats, entonces procede
-				fAccumulate -= fBeatTime;//Se decrementa el tiempo para compensar, en caso de que exista un retraso
-				nCurrentBeat++;//Recorre el beat actual
-				if (nCurrentBeat >= nTotalBeats)//Verifica si el beat está en sus totales
-					nCurrentBeat = 0;//Se reinica en dado caso, puede simplificarse con una operación de módulo
-
-				for (channel v : vecChannel)//Por cada instrumento o canal contenido
-					if (v.sBeat[nCurrentBeat] != '.'){//Si la nota se encuentra en tal estado
+			BYTE mayorBeat = 0;
+			if ((vecChannel.sBeat[nCurrentBeat] & 0xBF) | (!vecChannel.sBeat[nCurrentBeat] & !0xBF))//En caso de una cadena vacía
+				return 0;//Se frena el proceso
+			fLifeTime = fBeatTime * ((float)vecChannel.sBeat[2] / 256.0f);//Se confía que nunca se enviará una cadena vacía
+			while (fAccumulate >= fLifeTime) {//Si el tiempo es mayor o igual al espacio entre Beats, entonces procede
+				do {
+					nCurrentBeat += 3;//Avanza 3 beats de acuerdo al sistema SNT
+					if (vecChannel.sBeat[nCurrentBeat]&0xBF | !vecChannel.sBeat[nCurrentBeat] & !0xBF)//Verifica si el beat corresponde al final de la linea
+						if (bRepeat)  //Si debe seguir un ciclo
+							nCurrentBeat = 0;//Se reinica en dado caso, puede simplificarse con una operación de módulo
+						else
+							return 0;
+					if (vecChannel.sBeat[nCurrentBeat] & 0x40) {//Si el estado no es de silencio
 						note n;//Debe construirse la nota
-						n.channel = v.instrument;
+						n.channel = vecChannel.instrument;
 						n.active = true;
-						n.id = v.sBeat[nCurrentBeat] - 1;//De acuerdo a la nota tocada
+						n.id = vecChannel.sBeat[nCurrentBeat + 1];//De acuerdo a la nota tocada
+						n.life = fBeatTime * ((float)vecChannel.sBeat[nCurrentBeat + 2] / 256.0f);
 						vecNotes.push_back(n);
 					}
-				
+
+					if (vecChannel.sBeat[nCurrentBeat + 2] > mayorBeat)//En caso de encontrarse en un acorde, este tomará el mayor beat
+						mayorBeat = vecChannel.sBeat[nCurrentBeat + 2];
+					fLifeTime = fBeatTime * ((float)mayorBeat / 256.0f);
+					fAccumulate -= fLifeTime;//Se decrementa al tiempo transcurrido, funciona como un enfriamiento
+				} while (vecChannel.sBeat[nCurrentBeat] & 0x80);//Repetir las notas que se manden en el mismo tiempo
+				mayorBeat = 0;
 			}
 			return vecNotes.size();
 		}
 
-		void AddInstrument(instrument_base* inst){
-			channel c;
-			c.instrument = inst;
-			vecChannel.push_back(c);
+		public: void setInstrument(instrument_base* inst) {
+			  channel c;
+			  c.instrument = inst;
+			  vecChannel = c;
 		}
 
 	};
