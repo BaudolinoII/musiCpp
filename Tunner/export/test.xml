@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf8'?>
+<instrument>
+  <note catholic="la">
+    <template type="ADSR">
+      <operation type="Seno" amp="1.0" freq="1.0" fase="0.0" org="0.0" det="20" />
+      <operation type="SierraOpt" amp="1.0" freq="1.0" fase="0.0" org="0.0" det="20" />
+    </template>
+    <method>
+      <operation type="Triangular" amp="1.0" freq="1.0" fase="0.0" org="0.0" det="20" />
+      <operation type="Ruido" amp="1.0" freq="1.0" fase="0.0" org="0.0" det="20" />
+      <operation type="Cuadratica" amp="1.0" freq="1.0" fase="0.0" org="0.0" det="20" />
+      <operation type="Cuadratica" amp="1.0" freq="1.0" fase="0.0" org="0.0" det="20" />
+      <operation type="Seno" amp="1.0" freq="1.0" fase="0.0" org="0.0" det="20" />
+    </method>
+  </note>
+  <note catholic="si">
+    <template type="ADSR" />
+    <method />
+  </note>
+  <note catholic="do">
+    <template type="ADSR" />
+    <method />
+  </note>
+  <note catholic="re">
+    <template type="ADSR" />
+    <method />
+  </note>
+  <note catholic="mi">
+    <template type="ADSR" />
+    <method />
+  </note>
+  <note catholic="fa">
+    <template type="ADSR" />
+    <method />
+  </note>
+  <note catholic="sol">
+    <template type="ADSR" />
+    <method />
+  </note>
+</instrument>
