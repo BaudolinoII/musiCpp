@@ -4,6 +4,7 @@ from tkinter import filedialog
 from tkinter.filedialog import askopenfile
 
 from lib.osc import Oscillador as osc
+from lib.osc import Operations as ops 
 from lib.xml_man import XML_Manager
 
 class Application(tk.Frame):
@@ -12,15 +13,23 @@ class Application(tk.Frame):
 		self.master = master
 		self.cv_main = tk.Canvas(self.master)
 		self.txb_e = tk.Entry(self.master)
+		self.scroll_x = tk.Scrollbar(self.master)
+		self.scroll_y = tk.Scrollbar(self.master)
 		self.filename = '../instrumento.xml'
 		self.xman = XML_Manager(self.filename)
 
-		self.x_sim = 2160
-		self.y_sim = 1000
+		#Valores de simulacion
+		self.x_sim = 1490
+		self.y_sim = 530
 		self.center = int(self.y_sim / 2)
 		self.px_unit = 180
+		self.px_time = 180
 		self.zoom_val = 1.0
-		self.iv = [1.0, 1.0, 0.0, 0.0, 20.0]
+		self.dx_scroll = 0.0
+		self.dy_scroll = 0.0
+
+		self.iv = [1.0, 1.0, 0.0, 0.0, 20]
+		self.action_val = True
 
 		self.hot_data = []
 		self.hot_data.extend(range(0,self.x_sim))
@@ -45,30 +54,38 @@ class Application(tk.Frame):
 		
 	#Métodos gráficos
 	def draw_scale(self):
-		for i in range(0, self.y_sim + 1, osc.round(10 * self.zoom_val)):#Strips X
-				self.cv_main.create_line(0, i, self.x_sim, i, width=1, fill='ivory2')
-		pcount=0
-		for i in range(0,self.x_sim + 1, osc.round(10 * self.zoom_val)):#Strips Y
-			if(i % osc.round(180 * self.zoom_val)):#Regulares
-				self.cv_main.create_line(i, 0, i, self.y_sim, width=1, fill='ivory2')
-			else:#Cada Pi/2
-				self.cv_main.create_line(i, 0, i, self.y_sim, width=1, fill='gray')
-				if(pcount%2):#Si el contador es impar
-					self.cv_main.create_text(i + 5,self.center + 10,text="{pc}/2Pi".format(pc=pcount),fill='black',font=('Arial 12 bold'))
-				elif(pcount>0):
-					self.cv_main.create_text(i + 5,self.center + 10,text="{pc}Pi".format(pc=int(pcount/2)),fill='black',font=('Arial 12 bold'))
-				pcount+=1
-		pcount=0
-		for i in range(0, self.center + 1, osc.round(self.px_unit * self.zoom_val)):#Strips X
-			if(i):
-				self.cv_main.create_line(0, self.center + i, self.x_sim, self.center + i, width=1, fill='gray')
-				self.cv_main.create_text(15, self.center + i + 10, text="{pc}".format(pc=-pcount),fill='black',font=('Arial 12 bold'))
-			self.cv_main.create_line(0, self.center - i, self.x_sim, self.center - i, width=1, fill='gray')
-			self.cv_main.create_text(5, self.center - i+10, text="{pc}".format(pc=pcount),fill='black',font=('Arial 12 bold'))
+		dx = (osc.round_i(1000 * self.x_begin.get()) % self.px_time) * self.zoom_val
+		dy = (osc.round_i(500 * self.y_begin.get()) % self.px_unit) * self.zoom_val
+		for i in range(0, self.y_sim, osc.round_i(10 * self.zoom_val)):		#Horizontal Strips
+			self.cv_main.create_line(0, osc.surround(i + dy, self.y_sim), self.x_sim, osc.surround(i + dy, self.y_sim), width=1, fill='ivory2')
+
+		pcount = osc.round_i(1000 * self.x_begin.get() / self.px_time)	#Counter of Scale
+		for i in range(0 ,self.x_sim, osc.round_i(10 * self.zoom_val)):	#Vertical Strips
+			self.cv_main.create_line(osc.surround(i - dx, self.x_sim), 0, osc.surround(i - dx, self.x_sim), self.y_sim, width=1, fill='ivory2')#Regulares
+			if(i % osc.round_i(self.px_time * self.zoom_val) == 0 and (i - dx) > 0):#Cada Pi/2
+				self.cv_main.create_line(i - dx, 0, i - dx, self.y_sim, width=1, fill='gray')
+				if(pcount % 2):#Si el contador es impar
+					self.cv_main.create_text(i - dx + 5, self.center + 10 - dy,text="{pc}/2Pi".format(pc=pcount),
+					fill='black',font=('Arial 12 bold'))
+				elif(pcount > 0):
+					self.cv_main.create_text(i - dx + 5, self.center + 10 - dy,text="{pc}Pi".format(pc=int(pcount/2)),
+					fill='black',font=('Arial 12 bold'))
+				pcount += 1
+
+		pcount = osc.round_i(dy / self.px_unit)
+		for i in range(0, self.center + 1, osc.round_i(self.px_unit * self.zoom_val)):#Print Values
+			if(i):#Skip Cero
+				self.cv_main.create_line(0, self.center + i - dy, self.x_sim, self.center + i - dy, width=1, fill='gray')
+				self.cv_main.create_text(15, self.center + i - dy + 10, text = "{pc}".format(pc = -pcount),fill='black',font=('Arial 12 bold'))
+			self.cv_main.create_line(0, self.center - i - dy, self.x_sim, self.center - i - dy, width=1, fill='gray')
+			self.cv_main.create_text(5, self.center - i - dy + 10, text = "{pc}".format(pc = pcount),fill='black',font=('Arial 12 bold'))
 			pcount+=1
-		self.cv_main.create_line(0, self.center, self.x_sim, self.center, width=2, fill='black')	#X
-		self.cv_main.create_line(0,0,0,self.y_sim,width=2,fill='black')								#Y
-		self.draw_disc_dot(self.x_sim,self.y_sim)
+
+		ystep = osc.round_i(500 * self.y_begin.get())
+		if(self.center - ystep >= 0 and self.center - ystep < self.y_sim):
+			self.cv_main.create_line(0, self.center - ystep, self.x_sim, self.center - ystep, width=2, fill='black')	#Axis X
+		if(self.x_begin.get() == 0):
+			self.cv_main.create_line(0, 0, 0, self.y_sim, width=2, fill='black')								#Axis Y
 	def draw_cont_dot(self, x:int, y:int, y0:int, color ='red')->int:
 		if(y > y0):
 			y0 += 1
@@ -79,51 +96,68 @@ class Application(tk.Frame):
 	def draw_disc_dot(self, x:int, y:int, color ='red'):
 		self.cv_main.create_rectangle(x, y, x, y,width=1, outline=color)
 	def clear_canvas(self):
-		self.cv_main.create_rectangle(0, 0, self.x_sim, self.y_sim,fill='white',outline='white')
+		self.cv_main.create_rectangle(0, 0, self.x_sim + 1, self.y_sim + 1,fill='white',outline='white')	
 	#Dibujo de Funciones
 	def draw_data(self, values, org = 0, color='red'):
 		scl = self.px_unit * self.zoom_val
+		dy = osc.round_i(500 * self.y_begin.get()) * self.zoom_val
 		if(self.count_opt.get()):
-			last_res = self.center - (osc.round(values[org] * scl ))
-			for i in range(org,len(values),1):
-				res = self.center - (osc.round(values[i] * scl ))
-				last_res = self.draw_cont_dot(i, res, last_res, color)
+			last_res = self.center - (osc.round_i(values[0] * scl )) - dy
+			for i in range(0, len(values), 1):
+				res = self.center - (osc.round_i(values[i] * scl )) - dy
+				if(res <= self.y_sim and res >= 0):
+					last_res = self.draw_cont_dot(i, res, last_res, color)
+				else:
+					last_res = res
 		else:
-			for i in range(org,len(values),1):
-				res = self.center - (osc.round(values[i] * scl ))
-				self.draw_disc_dot(i, res, color)
+			for i in range(0, len(values), 1):
+				res = self.center - (osc.round_i(values[i] * scl )) - dy
+				if(res <= self.y_sim and res >= 0):
+					self.draw_disc_dot(i, res, color)
 	def update_hot_data(self):
-		osc.clear_array(self.hot_data)
-		input_data = [self.curr_expr.get(), self.iv[0], self.iv[1], self.iv[2], self.iv[3], 0, self.x_sim, self.zoom_val, int(self.iv[4])]
-		osc.operation(input_data, self.hot_data)
+		dx = osc.round_i(1000 * self.x_begin.get())
+		input_data = [[ops[self.curr_expr.get()].value, self.iv[0], self.iv[1], self.iv[2], self.iv[3], self.iv[4]]]
+		self.hot_data = osc.operation(input_data, dx, self.x_sim, self.zoom_val)
 	def update_warm_data(self):
-		osc.clear_array(self.warm_data)
-		if(len(self.xman.read_all_ops('la','method'))):
-			for i in self.xman.read_all_ops('la','method'):
-				method_data = [i[0], float(i[1]), float(i[2]), float(i[3]), float(i[4]), 0, self.x_sim, self.zoom_val, int(i[5])]
-				osc.operation(method_data, self.warm_data)
+		dx = osc.round_i(1000 * self.x_begin.get())
+		method_data = []
+		template_data = []
+		method_ops = self.xman.read_all_ops('la','method')
+		template_ops = self.xman.read_all_ops('la','template')
+		if(len(method_ops)):#Si existe contenido por sumar
+			for i in method_ops:
+				method_data.append([ops[i[0]].value, float(i[1]), float(i[2]), float(i[3]), float(i[4]), int(i[5])])
+			self.warm_data = osc.operation(method_data, dx, self.x_sim, self.zoom_val)
+			osc.op_arrays(self.warm_data, self.hot_data)
 
-		osc.operation(self.warm_data, self.hot_data)
-
-		if(len(self.xman.read_all_ops('la','template'))):
-			for i in self.xman.read_all_ops('la','template'):
-				template_data = [i[0], float(i[1]), float(i[2]), float(i[3]), float(i[4]), 0, self.x_sim, self.zoom_val, int(i[5])]
-				osc.operation(template_data, self.aux_data)
-			osc.op_arrays(self.warm_data, self.aux_data, False)
+		if(len(template_ops)):#Si existe contenido por
+			for i in template_ops:
+				template_data.append([ops[i[0]].value, float(i[1]), float(i[2]), float(i[3]), float(i[4]), int(i[5])])
+			self.aux_data = osc.operation(template_data, dx, self.x_sim, self.zoom_val)
+			if(len(method_ops)):
+				osc.op_arrays(self.warm_data, self.aux_data, False)
+			else:
+				self.warm_data = self.aux_data
+				osc.op_arrays(self.warm_data, self.hot_data)
 	def update_cold_data(self):
-		osc.clear_array(self.cold_data)
-		osc.clear_array(self.aux_data)
-		if(len(self.xman.read_all_ops('la','method'))):
-			for i in self.xman.read_all_ops('la','method'):
-				method_data = [i[0], float(i[1]), float(i[2]), float(i[3]), float(i[4]), 0, self.x_sim, self.zoom_val, int(i[5])]
-				osc.operation(method_data, self.cold_data)
+		dx = osc.round_i(1000 * self.x_begin.get())
+		method_data = []
+		template_data = []
+		method_ops = self.xman.read_all_ops('la','method')
+		template_ops = self.xman.read_all_ops('la','template')
+		if(len(method_ops)):#Si existe contenido por sumar
+			for i in method_ops:
+				method_data.append([ops[i[0]].value, float(i[1]), float(i[2]), float(i[3]), float(i[4]), int(i[5])])
+			self.cold_data = osc.operation(method_data, dx, self.x_sim, self.zoom_val)
 
-		if(len(self.xman.read_all_ops('la','template'))):
-			for i in self.xman.read_all_ops('la','template'):
-				template_data = [i[0], float(i[1]), float(i[2]), float(i[3]), float(i[4]), 0, self.x_sim, self.zoom_val, int(i[5])]
-				osc.operation(template_data, self.aux_data)
-			osc.op_arrays(self.cold_data, self.aux_data, False)
-		
+		if(len(template_ops)):#Si existe contenido por
+			for i in template_ops:
+				template_data.append([ops[i[0]].value, float(i[1]), float(i[2]), float(i[3]), float(i[4]), int(i[5])])
+			self.aux_data = osc.operation(template_data, dx, self.x_sim, self.zoom_val)
+			if(len(method_ops)):
+				osc.op_arrays(self.cold_data, self.aux_data, False)
+			else:
+				self.cold_data = self.aux_data
 	def refresh_screen(self,*args):
 		self.clear_canvas()
 		self.draw_scale()
@@ -134,41 +168,89 @@ class Application(tk.Frame):
 		if(self.show_hot.get() and len(self.hot_data) > 0):
 			self.draw_data(values = self.hot_data, color = 'red')
 	#Controladores
-	def entry_listener(self,*args):
-		self.iv = [1.0, 1.0, 0.0, 0.0, 20.0]
+	def value_listener(self, *args):
+		if(self.action_val):
+			self.iv = [1.0, 1.0, 0.0, 0.0, 20.0]
+			self.zoom_val = 1.0
+			try:
+				self.iv[0] = float(self.value_a.get())
+			except ValueError:
+				pass
+			try:
+				self.iv[1] = float(self.value_b.get())
+			except ValueError:
+				pass
+			try:
+				self.iv[2] = float(self.value_c.get())
+			except ValueError:
+				pass
+			try:
+				self.iv[3] = float(self.value_d.get())
+			except ValueError:
+				pass
+			try:
+				self.iv[4] = float(self.value_e.get())
+			except ValueError:
+				pass
+			try:
+				self.zoom_val = float(self.value_z.get())
+				if(self.zoom_val <= 0.0):
+					self.zoom_val = 1.0
+			except ValueError:
+				pass
+			if(self.show_hot.get() and len(self.hot_data) > 0):
+				self.update_hot_data()
+			if(self.show_warm.get() and len(self.warm_data) > 0):
+				self.update_warm_data()
+			self.refresh_screen()
+	def expr_listener(self,*args):
+		self.action_val = False
+		self.iv = [1.0, 1.0, 0.0, 0.0, 0.0]
 		self.txb_e.config(state=tk.DISABLED)
-		self.zoom_val = 1.0
-		try:
-			self.iv[0] = float(self.value_a.get())
-		except ValueError:
-			pass
-		try:
-			self.iv[1] = float(self.value_b.get())
-		except ValueError:
-			pass
-		try:
-			self.iv[2] = float(self.value_c.get())
-		except ValueError:
-			pass
-		try:
-			self.iv[3] = float(self.value_d.get())
-		except ValueError:
-			pass
-		try:
-			self.iv[4] = float(self.value_e.get())
-		except ValueError:
-			pass
-		try:
-			self.zoom_val = float(self.value_z.get())
-			if(self.zoom_val <= 0.0):
-				self.zoom_val = 1.0
-		except ValueError:
-			pass
+		self.value_a.set(value='1.0')
+		self.value_b.set(value='1.0')
+		self.value_c.set(value='0.0')
+		self.value_d.set(value='0.0')
+		self.value_e.set(value='0')
+
+		self.tag_a.set(value='Amplitud')
+		self.tag_b.set(value='Frecuencia')
+		self.tag_c.set(value='Fase')
+		self.tag_d.set(value='Origen')
+		self.tag_e.set(value='')
 
 		if(self.curr_expr.get() == "SierraAna"):
 			self.txb_e.config(state=tk.NORMAL)
-		self.update_hot_data()
-		self.update_warm_data()
+			self.iv = [1.0, 1.0, 0.0, 0.0, 20.0]
+			self.tag_e.set(value='Precision')
+			self.value_e.set(value='20')
+		if(self.curr_expr.get() == "SierraOpt"):
+			self.value_b.set(value='0.005')
+			self.iv = [1.0, 0.005, 0.0, 0.0, 0.0]
+		if(self.curr_expr.get() == "Ruido"):
+			self.tag_a.set(value='Minimo')
+			self.tag_b.set(value='Maximo')
+			self.tag_c.set(value='Origen')
+			self.tag_d.set(value='Semilla')
+			self.value_a.set(value='-1.0')
+			self.value_b.set(value='1.0')
+			self.iv = [-1.0, 1.0, 0.0, 0.0, 0.0]
+		if(self.curr_expr.get() == "Segmento"):
+			self.tag_a.set(value='Pendiente')
+			self.tag_b.set(value='Origen')
+			self.tag_c.set(value='Inicio')
+			self.tag_d.set(value='Final')
+			self.value_a.set(value='1.0')
+			self.value_b.set(value='0.0')
+			self.value_c.set(value='0.0')
+			self.value_d.set(value='100.0')
+			self.iv = [1.0, 0.0, 0.0, 100.0, 0.0]
+		self.action_val = True
+
+		if(self.show_hot.get() and len(self.hot_data) > 0):
+			self.update_hot_data()
+		if(self.show_warm.get() and len(self.warm_data) > 0):
+			self.update_warm_data()
 		self.refresh_screen()
 
 	def set_ops_sum(self):
@@ -176,13 +258,20 @@ class Application(tk.Frame):
 		'{:.2f}{}({:.2f}w + {:.2f}) +{:.2f}'.format(
 		float(self.value_a.get()), self.curr_expr.get(), float(self.value_b.get()), float(self.value_c.get()), float(self.value_d.get()) ))
 		self.xman.add_ops('la', 'method', self.curr_expr.get(), self.value_a.get(), self.value_b.get(), self.value_c.get(), self.value_d.get(), self.value_e.get())
-		self.update_cold_data()
+		
+		if(self.show_cold.get() and len(self.cold_data) > 0):
+			self.update_cold_data()
+		if(self.show_warm.get() and len(self.warm_data) > 0):
+			self.update_warm_data()
 		self.refresh_screen()
 	def del_ops_sum(self):
 		i = self.lb_sum.curselection()[0]
 		self.xman.del_ops('la', 'method', i)
 		self.lb_sum.delete(self.lb_sum.curselection())
-		self.update_cold_data()
+		if(self.show_cold.get() and len(self.cold_data) > 0):
+			self.update_cold_data()
+		if(self.show_warm.get() and len(self.warm_data) > 0):
+			self.update_warm_data()
 		self.refresh_screen()	
 	def mod_ops_sum(self):
 		a = self.lb_sum.curselection()[0]
@@ -194,7 +283,10 @@ class Application(tk.Frame):
 		self.value_d.set(xml_data[4])
 		self.value_e.set(xml_data[5])
 		self.lb_sum.delete(a)
-		self.update_cold_data()
+		if(self.show_cold.get() and len(self.cold_data) > 0):
+			self.update_cold_data()
+		if(self.show_warm.get() and len(self.warm_data) > 0):
+			self.update_warm_data()
 		self.refresh_screen()
 
 	def set_ops_prod(self):
@@ -202,13 +294,19 @@ class Application(tk.Frame):
 		'{:.2f}{}({:.2f}w + {:.2f}) +{:.2f}'.format(
 		float(self.value_a.get()), self.curr_expr.get(), float(self.value_b.get()), float(self.value_c.get()), float(self.value_d.get()) ))
 		self.xman.add_ops('la', 'template', self.curr_expr.get(), self.value_a.get(), self.value_b.get(), self.value_c.get(), self.value_d.get(), self.value_e.get())
-		self.update_cold_data()
+		if(self.show_cold.get() and len(self.cold_data) > 0):
+			self.update_cold_data()
+		if(self.show_warm.get() and len(self.warm_data) > 0):
+			self.update_warm_data()
 		self.refresh_screen()	
 	def del_ops_prod(self):
 		i = self.lb_sum.curselection()[0]
 		self.xman.del_ops('la', 'template', i)
 		self.lb_prod.delete(self.lb_prod.curselection())
-		self.update_cold_data()
+		if(self.show_cold.get() and len(self.cold_data) > 0):
+			self.update_cold_data()
+		if(self.show_warm.get() and len(self.warm_data) > 0):
+			self.update_warm_data()
 		self.refresh_screen()
 	def mod_ops_prod(self):
 		a = self.lb_prod.curselection()[0]
@@ -220,7 +318,10 @@ class Application(tk.Frame):
 		self.value_d.set(xml_data[4])
 		self.value_e.set(xml_data[5])
 		self.lb_prod.delete(a)
-		self.update_cold_data()
+		if(self.show_cold.get() and len(self.cold_data) > 0):
+			self.update_cold_data()
+		if(self.show_warm.get() and len(self.warm_data) > 0):
+			self.update_warm_data()
 		self.refresh_screen()
 
 	def save_file(self):
@@ -250,8 +351,26 @@ class Application(tk.Frame):
 				self.lb_sum.insert(self.lb_sum.size(),
 				'{:.2f}{}({:.2f}w + {:.2f}) +{:.2f}'.format(
 				float(x[1]), x[0], float(x[2]), float(x[3]), float(x[4])))
-			self.update_cold_data()
+			if(self.show_cold.get() and len(self.cold_data) > 0):
+				self.update_cold_data()
+			if(self.show_warm.get() and len(self.warm_data) > 0):
+				self.update_warm_data()
 			self.refresh_screen()
+
+	def set_x_sim(self, a, b):
+		if(	abs(float(b) - self.dx_scroll) >= 0.01):
+			self.x_begin.set(float(b))
+			if(self.show_cold.get() and len(self.cold_data) > 0):
+				self.update_cold_data()
+			self.dx_scroll = abs(osc.round_f(float(b), 2))
+		self.scroll_x.set(float(b), float(b) + 0.01)
+	def set_y_sim(self, a, b):
+		if(	abs(float(b) - self.dy_scroll) >= 0.01):
+			self.y_begin.set(float(b) - 0.5)
+			if(self.show_cold.get() and len(self.cold_data) > 0):
+				self.update_cold_data()
+			self.dy_scroll = abs(osc.round_f(float(b), 2))
+		self.scroll_y.set(float(b), float(b) + 0.01)
 
 	#Layout de la App
 	def create_vars(self): 
@@ -274,18 +393,25 @@ class Application(tk.Frame):
 		self.show_warm = tk.BooleanVar(value=True)
 		self.show_cold = tk.BooleanVar(value=True)
 
-		self.curr_expr.trace('w',self.entry_listener)
-		self.value_a.trace('w',self.entry_listener)
-		self.value_b.trace('w',self.entry_listener)
-		self.value_c.trace('w',self.entry_listener)
-		self.value_d.trace('w',self.entry_listener)
-		self.value_e.trace('w',self.entry_listener)
-		self.value_z.trace('w',self.entry_listener)
+		self.x_begin = tk.DoubleVar(value=0.0)
+		self.y_begin = tk.DoubleVar(value=0.0)
+
+		self.curr_expr.trace('w',self.expr_listener)
+
+		self.value_a.trace('w',self.value_listener)
+		self.value_b.trace('w',self.value_listener)
+		self.value_c.trace('w',self.value_listener)
+		self.value_d.trace('w',self.value_listener)
+		self.value_e.trace('w',self.value_listener)
+		self.value_z.trace('w',self.value_listener)
 
 		self.count_opt.trace('w',self.refresh_screen)
 		self.show_hot.trace('w',self.refresh_screen)
 		self.show_warm.trace('w',self.refresh_screen)
 		self.show_cold.trace('w',self.refresh_screen)
+
+		self.x_begin.trace('w',self.value_listener)
+		self.y_begin.trace('w',self.value_listener)
 	def create_widgets(self):
 		#Frames
 		self.fr_canvas = tk.Frame(self.master)
@@ -343,7 +469,7 @@ class Application(tk.Frame):
 		self.lbl_e = tk.Label(self.fr_expression, textvariable=self.tag_e)
 		self.lbl_e.place(x=615,y=10, width=95)
 
-		self.options = ["Seno","Cuadratica","Triangular","SierraOpt","SierraAna","Ruido","Segmento"]
+		self.options = ["Seno","Cuadratica","Triangular","SierraAna","SierraOpt","Ruido","Segmento"]
 		self.cbx_ops = ttk.Combobox(self.fr_expression,values=self.options,textvariable=self.curr_expr)
 		self.cbx_ops.set("Operacion")
 		self.cbx_ops.place(x=10, y=35, width=200)
@@ -380,16 +506,17 @@ class Application(tk.Frame):
 		self.sb_sum.config(command=self.lb_sum.yview)
 		
 		#Panel del Canvas
-		self.cv_main = tk.Canvas(self.fr_canvas, bg="white", height=530, width=1510)
+		self.cv_main = tk.Canvas(self.fr_canvas, bg="white", height=530, width=1490)
 		self.clear_canvas()
-		self.cv_main.grid(row=0, column=1)
-		self.scroll_x = tk.Scrollbar(self.fr_canvas, orient="horizontal", command=self.cv_main.xview)
-		self.scroll_x.grid(row=1, column=1, sticky="ew")
-		self.scroll_y = tk.Scrollbar(self.fr_canvas, orient="vertical", command=self.cv_main.yview)
-		self.scroll_y.grid(row=0, column=0, sticky="ns")
+		self.cv_main.grid(row=0, column=0)
+		self.scroll_x = tk.Scrollbar(self.fr_canvas, orient="horizontal", command = self.set_x_sim)
+		self.scroll_x.grid(row=1, column=0, sticky="ew")
+		self.scroll_y = tk.Scrollbar(self.fr_canvas, orient="vertical", command = self.set_y_sim)
+		self.scroll_y.set(0.495, 0.505)
+		self.scroll_y.grid(row=0, column=1, sticky="ns")
 
-		self.cv_main.configure(yscrollcommand=self.scroll_y.set, xscrollcommand=self.scroll_x.set)
-		self.cv_main.configure(scrollregion=self.cv_main.bbox("all"))
+		#self.cv_main.configure(yscrollcommand=self.scroll_y.set, xscrollcommand=self.scroll_x.set)
+		#self.cv_main.configure(scrollregion=self.cv_main.bbox("all"))
 
 root = tk.Tk()
 root.wm_title("Tuner by JoGEHrt V_0.2.2")

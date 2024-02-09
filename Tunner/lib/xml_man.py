@@ -51,14 +51,3 @@ class XML_Manager():
 		return self.path
 	def set_path(self,newpath):
 		self.path = newpath
-'''
-mg = XML_Manager('ejemplo_avanzado.xml')
-mg.add_ops('la','method','sin','1.0','1.0','0.0','0.0')
-mg.add_ops('la','method','sin','1.0','1.0','0.0','0.0')
-mg.add_ops('la','method','sin','1.0','1.0','0.0','0.0')
-mg.mod_ops('la','method', 1, 'sin','2.0','2.0','1.0','1.0')
-mg.del_ops('la','method', 2)
-data = mg.read_ops('la','method', 0)
-print(data)
-mg.bake()
-'''
