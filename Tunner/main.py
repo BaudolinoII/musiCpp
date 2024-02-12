@@ -4,6 +4,7 @@ from tkinter import filedialog
 from tkinter.filedialog import askopenfile
 
 from lib.osc import Oscillador as osc
+from lib.util_math import Util as ut
 from lib.osc import Operations as ops 
 from lib.xml_man import XML_Manager
 
@@ -26,7 +27,7 @@ class Application(tk.Frame):
 		self.px_time = 180
 		self.zoom_val = 1.0
 		self.dx_scroll = 0.0
-		self.dy_scroll = 0.0
+		self.dy_scroll = 0.5
 
 		self.iv = [1.0, 1.0, 0.0, 0.0, 20]
 		self.action_val = True
@@ -51,41 +52,49 @@ class Application(tk.Frame):
 		self.create_widgets()
 		self.draw_scale()
 		self.master.state('zoomed') # "1920x980"
-		
 	#Métodos gráficos
+	def get_unit(self, value, case):
+		if(case == 'R4'):
+			if(value % 2):
+				return '{}Pi'.format(int(value/2))
+			return '{}Pi/2'.format(value)
+		if(case == 'S'):
+			if(value > 1.0):
+				return '{:.1f}s'.format(value)
+			return '{}s'.format(int(value))
+		if(case == 'A'):
+			return '{}'.format(int(value))
 	def draw_scale(self):
-		dx = (osc.round_i(1000 * self.x_begin.get()) % self.px_time) * self.zoom_val
-		dy = (osc.round_i(500 * self.y_begin.get()) % self.px_unit) * self.zoom_val
-		for i in range(0, self.y_sim, osc.round_i(10 * self.zoom_val)):		#Horizontal Strips
-			self.cv_main.create_line(0, osc.surround(i + dy, self.y_sim), self.x_sim, osc.surround(i + dy, self.y_sim), width=1, fill='ivory2')
-
-		pcount = osc.round_i(1000 * self.x_begin.get() / self.px_time)	#Counter of Scale
-		for i in range(0 ,self.x_sim, osc.round_i(10 * self.zoom_val)):	#Vertical Strips
-			self.cv_main.create_line(osc.surround(i - dx, self.x_sim), 0, osc.surround(i - dx, self.x_sim), self.y_sim, width=1, fill='ivory2')#Regulares
-			if(i % osc.round_i(self.px_time * self.zoom_val) == 0 and (i - dx) > 0):#Cada Pi/2
-				self.cv_main.create_line(i - dx, 0, i - dx, self.y_sim, width=1, fill='gray')
-				if(pcount % 2):#Si el contador es impar
-					self.cv_main.create_text(i - dx + 5, self.center + 10 - dy,text="{pc}/2Pi".format(pc=pcount),
-					fill='black',font=('Arial 12 bold'))
-				elif(pcount > 0):
-					self.cv_main.create_text(i - dx + 5, self.center + 10 - dy,text="{pc}Pi".format(pc=int(pcount/2)),
-					fill='black',font=('Arial 12 bold'))
-				pcount += 1
-
-		pcount = osc.round_i(dy / self.px_unit)
-		for i in range(0, self.center + 1, osc.round_i(self.px_unit * self.zoom_val)):#Print Values
+		dx = ut.round_i(1000 * self.dx_scroll)
+		dy = ut.round_i(500 * (self.dy_scroll - 0.5))
+		for i in range(0, self.y_sim + 1, 10):		#Horizontal Strips
+			y_pos = ut.surround_i(i - dy, self.y_sim)
+			self.cv_main.create_line(0, y_pos, self.x_sim, y_pos, width=1, fill='ivory2')
+		
+		n = 1 / self.zoom_val
+		for i in range(0, self.x_sim + 1, 10):	#Vertical Strips
+			x_pos = ut.surround_i(i - dx, self.x_sim)
+			self.cv_main.create_line(x_pos, 0, x_pos, self.y_sim, width=1, fill='ivory2')#Regulares
+			if(i % self.px_time == 0 and i != 0):#Cada unidad marcada
+				self.cv_main.create_line(x_pos, 0, x_pos, self.y_sim, width=1, fill='gray')
+				self.cv_main.create_text(x_pos + 5, self.center + 10 - dy, text = self.get_unit(n,'S'), fill='black',font=('Arial 12 bold'))
+				n += 1 / self.zoom_val
+		
+		n = 0
+		for i in range(0, self.center + 1, self.px_unit):#Print Values
+			y_pos = ut.surround_i(i + dy, self.y_sim)
+			y_npos = ut.surround_i(i - dy, self.y_sim)
 			if(i):#Skip Cero
-				self.cv_main.create_line(0, self.center + i - dy, self.x_sim, self.center + i - dy, width=1, fill='gray')
-				self.cv_main.create_text(15, self.center + i - dy + 10, text = "{pc}".format(pc = -pcount),fill='black',font=('Arial 12 bold'))
-			self.cv_main.create_line(0, self.center - i - dy, self.x_sim, self.center - i - dy, width=1, fill='gray')
-			self.cv_main.create_text(5, self.center - i - dy + 10, text = "{pc}".format(pc = pcount),fill='black',font=('Arial 12 bold'))
-			pcount+=1
+				self.cv_main.create_line(0, self.center + y_npos, self.x_sim, self.center + y_npos, width=1, fill='gray')
+				self.cv_main.create_text(15, self.center + y_npos + 10, text = self.get_unit(-n,'A'),fill='black',font=('Arial 12 bold'))
+			self.cv_main.create_line(0, self.center - y_pos, self.x_sim, self.center - y_pos, width=1, fill='gray')
+			self.cv_main.create_text(15, self.center - y_pos + 10, text = self.get_unit(n,'A'),fill='black',font=('Arial 12 bold'))
+			n += 1 / self.zoom_val
 
-		ystep = osc.round_i(500 * self.y_begin.get())
-		if(self.center - ystep >= 0 and self.center - ystep < self.y_sim):
-			self.cv_main.create_line(0, self.center - ystep, self.x_sim, self.center - ystep, width=2, fill='black')	#Axis X
-		if(self.x_begin.get() == 0):
-			self.cv_main.create_line(0, 0, 0, self.y_sim, width=2, fill='black')								#Axis Y
+
+		self.cv_main.create_line(0, self.center - dy, self.x_sim, self.center - dy, width=2, fill='black')	#Axis X
+		self.cv_main.create_line(5, 0, 5, self.y_sim, width=2, fill='black')						#Axis Y
+
 	def draw_cont_dot(self, x:int, y:int, y0:int, color ='red')->int:
 		if(y > y0):
 			y0 += 1
@@ -100,26 +109,26 @@ class Application(tk.Frame):
 	#Dibujo de Funciones
 	def draw_data(self, values, org = 0, color='red'):
 		scl = self.px_unit * self.zoom_val
-		dy = osc.round_i(500 * self.y_begin.get()) * self.zoom_val
+		dy = ut.round_i(5 * self.y_begin.get()) * self.zoom_val
 		if(self.count_opt.get()):
-			last_res = self.center - (osc.round_i(values[0] * scl )) - dy
-			for i in range(0, len(values), 1):
-				res = self.center - (osc.round_i(values[i] * scl )) - dy
+			last_res = self.center - (ut.round_i(values[0] * scl )) - dy
+			for i in range(0, len(values)):
+				res = self.center - (ut.round_i(values[i] * scl )) - dy
 				if(res <= self.y_sim and res >= 0):
 					last_res = self.draw_cont_dot(i, res, last_res, color)
 				else:
 					last_res = res
 		else:
-			for i in range(0, len(values), 1):
-				res = self.center - (osc.round_i(values[i] * scl )) - dy
+			for i in range(0, len(values)):
+				res = self.center - (ut.round_i(values[i] * scl )) - dy
 				if(res <= self.y_sim and res >= 0):
 					self.draw_disc_dot(i, res, color)
 	def update_hot_data(self):
-		dx = osc.round_i(1000 * self.x_begin.get())
+		dx = ut.round_i(1000 * self.x_begin.get())
 		input_data = [[ops[self.curr_expr.get()].value, self.iv[0], self.iv[1], self.iv[2], self.iv[3], self.iv[4]]]
 		self.hot_data = osc.operation(input_data, dx, self.x_sim, self.zoom_val)
 	def update_warm_data(self):
-		dx = osc.round_i(1000 * self.x_begin.get())
+		dx = ut.round_i(1000 * self.x_begin.get())
 		method_data = []
 		template_data = []
 		method_ops = self.xman.read_all_ops('la','method')
@@ -140,7 +149,7 @@ class Application(tk.Frame):
 				self.warm_data = self.aux_data
 				osc.op_arrays(self.warm_data, self.hot_data)
 	def update_cold_data(self):
-		dx = osc.round_i(1000 * self.x_begin.get())
+		dx = ut.round_i(1000 * self.x_begin.get())
 		method_data = []
 		template_data = []
 		method_ops = self.xman.read_all_ops('la','method')
@@ -245,6 +254,9 @@ class Application(tk.Frame):
 			self.value_c.set(value='0.0')
 			self.value_d.set(value='100.0')
 			self.iv = [1.0, 0.0, 0.0, 100.0, 0.0]
+		if(self.curr_expr.get() == "SenoArmonico"):
+			self.value_b.set(value='64')
+			self.iv = [1.0, 64.0, 0.0, 0.0, 0.0]
 		self.action_val = True
 
 		if(self.show_hot.get() and len(self.hot_data) > 0):
@@ -362,14 +374,14 @@ class Application(tk.Frame):
 			self.x_begin.set(float(b))
 			if(self.show_cold.get() and len(self.cold_data) > 0):
 				self.update_cold_data()
-			self.dx_scroll = abs(osc.round_f(float(b), 2))
+			self.dx_scroll = abs(ut.round_f(float(b), 2))
 		self.scroll_x.set(float(b), float(b) + 0.01)
 	def set_y_sim(self, a, b):
 		if(	abs(float(b) - self.dy_scroll) >= 0.01):
 			self.y_begin.set(float(b) - 0.5)
 			if(self.show_cold.get() and len(self.cold_data) > 0):
 				self.update_cold_data()
-			self.dy_scroll = abs(osc.round_f(float(b), 2))
+			self.dy_scroll = abs(ut.round_f(float(b), 2))
 		self.scroll_y.set(float(b), float(b) + 0.01)
 
 	#Layout de la App
@@ -430,10 +442,11 @@ class Application(tk.Frame):
 		self.btn_load.place(y=75,width=110)
 		self.btn_delete = tk.Button(self.fr_control, text="Eliminar")
 		self.btn_delete.place(y=100,width=110)
-		self.lbl_z = tk.Label(self.fr_expression, text="Zoom")
+		self.lbl_z = tk.Label(self.fr_control, text="Zoom")
 		self.lbl_z.place(x=115,y=10, width=95)
-		self.txb_zoom = tk.Entry(self.fr_control, bd=4, textvariable=self.value_z)
-		self.txb_zoom.place(x=115,y=25, width=95)
+		self.cbx_zoom = ttk.Combobox(self.fr_control, values=["10","5","2","1","0.5","0.2","0.1"], textvariable=self.value_z)
+		self.cbx_zoom.set("1")
+		self.cbx_zoom.place(x=115, y=27, width=95)
 		self.chb_disc = tk.Checkbutton(self.fr_control, text="Discreto", variable=self.count_opt, onvalue=True, offvalue=False)
 		self.chb_disc.place(x=115,y=50)
 		self.chb_hot = tk.Checkbutton(self.fr_control, text="Op Inmediata", fg='red', variable=self.show_hot, onvalue=True, offvalue=False)
@@ -469,8 +482,7 @@ class Application(tk.Frame):
 		self.lbl_e = tk.Label(self.fr_expression, textvariable=self.tag_e)
 		self.lbl_e.place(x=615,y=10, width=95)
 
-		self.options = ["Seno","Cuadratica","Triangular","SierraAna","SierraOpt","Ruido","Segmento"]
-		self.cbx_ops = ttk.Combobox(self.fr_expression,values=self.options,textvariable=self.curr_expr)
+		self.cbx_ops = ttk.Combobox(self.fr_expression,values=["Seno","Cuadratica","Triangular","SierraAna","SierraOpt","Ruido","Segmento","SenoArmonico"],textvariable=self.curr_expr)
 		self.cbx_ops.set("Operacion")
 		self.cbx_ops.place(x=10, y=35, width=200)
 
@@ -518,7 +530,11 @@ class Application(tk.Frame):
 		#self.cv_main.configure(yscrollcommand=self.scroll_y.set, xscrollcommand=self.scroll_x.set)
 		#self.cv_main.configure(scrollregion=self.cv_main.bbox("all"))
 
-root = tk.Tk()
-root.wm_title("Tuner by JoGEHrt V_0.2.2")
-app = Application(root)
-app.mainloop()
+def main():
+	root = tk.Tk()
+	root.wm_title("Tuner by JoGEHrt V_0.2.7")
+	app = Application(root)
+	app.mainloop()
+
+if __name__ == "__main__":
+	main()

@@ -10,24 +10,33 @@ class Operations(Enum):
 	SierraOpt=4
 	Ruido=5
 	Segmento=6
-	Operacion=7
+	SenoArmonico=7
+	Operacion=-1
+	
 class Oscillador():
 	@staticmethod
+	def armonic_freq(id:int, scaleID:int = 0) ->float:
+		if (scaleID == 0):
+			return 8.0 * pow(1.0594630943592952645618252949463, id)
+	@staticmethod
+	def sin_arm_data(amp:float, id:int, fase:float, org:float, dt:int, zoom:float)->float:
+		return amp * mt.sin(Oscillador.armonic_freq(id)* dt * mt.pi/(180 * zoom) + fase) + org
+	@staticmethod
 	def sin_data(amp:float, freq:float, fase:float, org:float, dt:int, zoom:float)->float:
-		return amp * mt.sin(freq * dt * mt.pi/(360 * zoom) + fase) + org
+		return amp * mt.sin(freq * dt * mt.pi/(180 * zoom) + fase) + org
 	@staticmethod
 	def square_data(amp:float, freq:float, fase:float, org:float, dt:int, zoom:float)->float:
-		if(mt.sin(freq * dt * mt.pi/(360 * zoom) + fase) > 0):
+		if(mt.sin(freq * dt * mt.pi/(180 * zoom) + fase) > 0):
 			return (amp + org) * zoom
 		return (-amp + org) * zoom
 	@staticmethod
 	def triangle_data(amp:float, freq:float, fase:float, org:float, dt:int, zoom:float)->float:
-		return amp * mt.asin(mt.sin(freq * dt * mt.pi/(360* zoom) + fase)) * (2.0/mt.pi) + org
+		return amp * mt.asin(mt.sin(freq * dt * mt.pi/(180* zoom) + fase)) * (2.0/mt.pi) + org
 	@staticmethod
 	def saw_ana_data(amp:float, freq:float, fase:float, org:float, dt:int, zoom:float, fid:int)->float:
 		sub_res = 0
 		for j in range(1, int(fid) + 1, 1):
-			sub_res += mt.sin(j * freq * dt * mt.pi/(360* zoom)) / j
+			sub_res += mt.sin(j * freq * dt * mt.pi/(180* zoom)) / j
 		return sub_res
 	@staticmethod
 	def saw_opt_data(amp:float, freq:float, fase:float, org:float, dt:int, zoom:float) ->float:
@@ -54,6 +63,13 @@ class Oscillador():
 		for i in range(0,len(a)):
 			a[i] = n
 	@staticmethod
+	def array_esc(a,s, is_add = True):
+		for i in range(0,len(a)):
+			if(is_add):
+				a[i] += s
+			else:
+				a[i] *= s
+	@staticmethod
 	def operation(instructions, begin:int, sim:int, zoom:float):
 		osc = Oscillador()
 		data = []
@@ -77,29 +93,6 @@ class Oscillador():
 				elif(i[0] == 6):
 					if(t >= i[3] and t <= i[4]):
 						data[t] += osc.seg_data(i[1], i[2], dt, zoom)
+				elif(i[0] == 7):
+					data[t] += osc.sin_arm_data(i[1], int(i[2]), i[3], i[4], dt, zoom)
 		return data
-	@staticmethod
-	def inv_disc(a,b):
-		if(a > 0):
-			return a % b
-		while (a <= 0):
-			a += b
-		return a
-	@staticmethod
-	def surround(a,b):
-		if(a >= 0):
-			return a % b
-		while (a < 0):
-			a += b
-		return a
-	@staticmethod
-	def round_f(n:float, dec:int = 0)->float:
-		expN = n * 10 ** dec
-		if abs(expN) - abs(mt.floor(expN)) < 0.5:
-			return mt.floor(expN) / 10 ** dec
-		return mt.ceil(expN) / 10 ** dec
-	@staticmethod
-	def round_i(n:float)->int:
-		if abs(n) - abs(mt.floor(n)) < 0.5:
-			return mt.floor(n)
-		return mt.ceil(n)
