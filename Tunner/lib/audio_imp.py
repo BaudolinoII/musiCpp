@@ -2,7 +2,7 @@ import wave
 import matplotlib.pyplot as plt
 import numpy as np
 
-from osc import Oscillador as osc
+from .util_math import Util as ut
 
 class AudioFile():
 	def __init__(self):
@@ -29,9 +29,9 @@ class AudioFile():
 			begin = 0.0
 		if(time <= 0.0 or (begin + time) > self.duration_time):
 			time = self.duration_time - begin
-		begin_samp = osc.round_i(self.sample_freq * begin)
+		begin_samp = ut.round_i(self.sample_freq * begin)
 		data_sam = []
-		for i in range(0, osc.round_i(self.sample_freq * time)):
+		for i in range(0, ut.round_i(self.sample_freq * time)):
 			data_sam.append(self.data[i + begin_samp])
 		return data_sam
 	def get_duration_time(self):
@@ -45,8 +45,9 @@ class AudioFile():
 		plt.xlabel("Tiempo[s]")
 		plt.xlim(0,self.duration_time)
 		plt.show()
-
+'''
 af = AudioFile()
 af.load_archive(r'../samples/guitarraclasica.wav')
 print(len(af.get_slice_at_time(time=1.0)))
 print('Tiempo {:.2f} = {} muestras'.format(af.get_duration_time(), len(af.get_slice_at_time())))
+'''

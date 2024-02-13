@@ -7,6 +7,7 @@ from lib.osc import Oscillador as osc
 from lib.util_math import Util as ut
 from lib.osc import Operations as ops 
 from lib.xml_man import XML_Manager
+from lib.audio_imp import AudioFile
 
 class Application(tk.Frame):
 	def __init__(self, master=None):
@@ -16,8 +17,10 @@ class Application(tk.Frame):
 		self.txb_e = tk.Entry(self.master)
 		self.scroll_x = tk.Scrollbar(self.master)
 		self.scroll_y = tk.Scrollbar(self.master)
-		self.filename = '../instrumento.xml'
-		self.xman = XML_Manager(self.filename)
+		self.file_inst = '../instrumento.xml'
+		self.file_audio = '../sonido.wav'
+		self.xman = XML_Manager(self.file_inst)
+		self.af = AudioFile()
 
 		#Valores de simulacion
 		self.x_sim = 1490
@@ -33,20 +36,11 @@ class Application(tk.Frame):
 		self.action_val = True
 
 		self.hot_data = []
-		self.hot_data.extend(range(0,self.x_sim))
-		osc.clear_array(self.hot_data)
-
 		self.warm_data = []
-		self.warm_data.extend(range(0,self.x_sim))
-		osc.clear_array(self.warm_data)
-
 		self.aux_data = []
-		self.aux_data.extend(range(0,self.x_sim))
-		osc.clear_array(self.aux_data)
-
 		self.cold_data = []
-		self.cold_data.extend(range(0,self.x_sim))
-		osc.clear_array(self.cold_data)
+		self.audio_data = []
+		self.aux_aud_data = []
 
 		self.create_vars()
 		self.create_widgets()
@@ -65,8 +59,8 @@ class Application(tk.Frame):
 		if(case == 'A'):
 			return '{}'.format(int(value))
 	def draw_scale(self):
-		dx = ut.round_i(1000 * self.dx_scroll)
-		dy = ut.round_i(500 * (self.dy_scroll - 0.5))
+		dx = ut.round_i(1000 * self.dx_scroll * self.zoom_val) 
+		dy = ut.round_i(500 * (self.dy_scroll - 0.5) * self.zoom_val)
 		for i in range(0, self.y_sim + 1, 10):		#Horizontal Strips
 			y_pos = ut.surround_i(i - dy, self.y_sim)
 			self.cv_main.create_line(0, y_pos, self.x_sim, y_pos, width=1, fill='ivory2')
@@ -94,7 +88,6 @@ class Application(tk.Frame):
 
 		self.cv_main.create_line(0, self.center - dy, self.x_sim, self.center - dy, width=2, fill='black')	#Axis X
 		self.cv_main.create_line(5, 0, 5, self.y_sim, width=2, fill='black')						#Axis Y
-
 	def draw_cont_dot(self, x:int, y:int, y0:int, color ='red')->int:
 		if(y > y0):
 			y0 += 1
@@ -109,26 +102,26 @@ class Application(tk.Frame):
 	#Dibujo de Funciones
 	def draw_data(self, values, org = 0, color='red'):
 		scl = self.px_unit * self.zoom_val
-		dy = ut.round_i(5 * self.y_begin.get()) * self.zoom_val
+		dy = ut.round_i(500 * (self.dy_scroll - 0.5) * self.zoom_val)
 		if(self.count_opt.get()):
-			last_res = self.center - (ut.round_i(values[0] * scl )) - dy
+			last_res = self.center - (ut.round_i(values[0] * scl)) - dy
 			for i in range(0, len(values)):
-				res = self.center - (ut.round_i(values[i] * scl )) - dy
+				res = self.center - (ut.round_i(values[i] * scl)) - dy
 				if(res <= self.y_sim and res >= 0):
-					last_res = self.draw_cont_dot(i, res, last_res, color)
+					last_res = self.draw_cont_dot(i + 5, res, last_res, color)
 				else:
 					last_res = res
 		else:
 			for i in range(0, len(values)):
 				res = self.center - (ut.round_i(values[i] * scl )) - dy
 				if(res <= self.y_sim and res >= 0):
-					self.draw_disc_dot(i, res, color)
+					self.draw_disc_dot(i + 5, res, color)
 	def update_hot_data(self):
-		dx = ut.round_i(1000 * self.x_begin.get())
+		dx = ut.round_i(1000 * self.dx_scroll * self.zoom_val)
 		input_data = [[ops[self.curr_expr.get()].value, self.iv[0], self.iv[1], self.iv[2], self.iv[3], self.iv[4]]]
 		self.hot_data = osc.operation(input_data, dx, self.x_sim, self.zoom_val)
 	def update_warm_data(self):
-		dx = ut.round_i(1000 * self.x_begin.get())
+		dx = ut.round_i(1000 * self.dx_scroll * self.zoom_val)
 		method_data = []
 		template_data = []
 		method_ops = self.xman.read_all_ops('la','method')
@@ -149,7 +142,7 @@ class Application(tk.Frame):
 				self.warm_data = self.aux_data
 				osc.op_arrays(self.warm_data, self.hot_data)
 	def update_cold_data(self):
-		dx = ut.round_i(1000 * self.x_begin.get())
+		dx = ut.round_i(1000 * self.dx_scroll * self.zoom_val)
 		method_data = []
 		template_data = []
 		method_ops = self.xman.read_all_ops('la','method')
@@ -167,15 +160,27 @@ class Application(tk.Frame):
 				osc.op_arrays(self.cold_data, self.aux_data, False)
 			else:
 				self.cold_data = self.aux_data
+	def update_audio_data(self):
+		self.aux_aud_data = []
+		factor = 30.625
+		for i in range(0,self.x_sim):
+			if(ut.round_i(i * factor) < len(self.audio_data)):
+				self.aux_aud_data.append(self.audio_data[ut.round_i(i * factor)] /5000)
+			else:
+				pass
+
 	def refresh_screen(self,*args):
 		self.clear_canvas()
 		self.draw_scale()
+		if(self.show_audio.get() and len(self.aux_aud_data) > 0):
+			self.draw_data(values = self.aux_aud_data, color = 'green')
 		if(self.show_cold.get() and len(self.cold_data) > 0):
 			self.draw_data(values = self.cold_data, color = 'cyan')
 		if(self.show_warm.get() and len(self.warm_data) > 0):
 			self.draw_data(values = self.warm_data, color = 'yellow')
 		if(self.show_hot.get() and len(self.hot_data) > 0):
 			self.draw_data(values = self.hot_data, color = 'red')
+
 	#Controladores
 	def value_listener(self, *args):
 		if(self.action_val):
@@ -336,22 +341,20 @@ class Application(tk.Frame):
 			self.update_warm_data()
 		self.refresh_screen()
 
-	def save_file(self):
-		filename = filedialog.asksaveasfilename(initialdir='./export',
-        filetypes=[("XML data", ".xml")])
-		#print(filename)
-		if filename:
-			if filename.find('.xml') == -1:
-				filename += '.xml'
-			self.xman.set_path(filename)
+	def save_xml_file(self):
+		file_inst = filedialog.asksaveasfile_inst(initialdir='./export', filetypes=[("XML data", ".xml")])
+		#print(file_inst)
+		if file_inst:
+			if file_inst.find('.xml') == -1:
+				file_inst += '.xml'
+			self.xman.set_path(file_inst)
 			self.xman.bake()
-	def load_file(self):
-		filename = filedialog.askopenfilename()
-		#print(filename)
-		self.xman.load_archive(filename)
-		self.lb_prod.delete(0, tk.END)
-		self.lb_sum.delete(0, tk.END)
-		if filename:
+	def load_xml_file(self):
+		file_inst = filedialog.askopenfile_inst(initialdir='./export', filetypes=[("XML data", ".xml")])
+		if file_inst:
+			self.xman.load_archive(file_inst)
+			self.lb_prod.delete(0, tk.END)
+			self.lb_sum.delete(0, tk.END)
 			data = self.xman.read_all_ops('la','template')
 			for x in data:
 				self.lb_prod.insert(self.lb_prod.size(),
@@ -368,6 +371,13 @@ class Application(tk.Frame):
 			if(self.show_warm.get() and len(self.warm_data) > 0):
 				self.update_warm_data()
 			self.refresh_screen()
+
+	def load_wav_file(self):
+		path = filedialog.askopenfile(initialdir='./samples', filetypes=[("WAV audio", ".wav")])
+		if path.name:
+			self.af.load_archive(path.name)
+			self.audio_data = self.af.get_slice_at_time(time=1.0)
+			self.update_audio_data()
 
 	def set_x_sim(self, a, b):
 		if(	abs(float(b) - self.dx_scroll) >= 0.01):
@@ -401,6 +411,7 @@ class Application(tk.Frame):
 		self.tag_e = tk.StringVar(value='Precision')
 
 		self.count_opt = tk.BooleanVar(value=True)
+		self.show_audio = tk.BooleanVar(value=True)
 		self.show_hot = tk.BooleanVar(value=True)
 		self.show_warm = tk.BooleanVar(value=True)
 		self.show_cold = tk.BooleanVar(value=True)
@@ -434,14 +445,12 @@ class Application(tk.Frame):
 		self.fr_control.place(x=865,y=575, height=195, width=660)
 		
 		#Panel de Control del Canvas
-		self.btn_create = tk.Button(self.fr_control, text="Crear")
-		self.btn_create.place(y=25,width=110)
-		self.btn_safe = tk.Button(self.fr_control, text="Guardar", command=self.save_file)
-		self.btn_safe.place(y=50,width=110)
-		self.btn_load = tk.Button(self.fr_control, text="Cargar", command=self.load_file)
-		self.btn_load.place(y=75,width=110)
-		self.btn_delete = tk.Button(self.fr_control, text="Eliminar")
-		self.btn_delete.place(y=100,width=110)
+		self.btn_safe = tk.Button(self.fr_control, text="Guardar", command=self.save_xml_file)
+		self.btn_safe.place(y=25,width=110)
+		self.btn_load = tk.Button(self.fr_control, text="Cargar", command=self.load_xml_file)
+		self.btn_load.place(y=50,width=110)
+		self.btn_audio = tk.Button(self.fr_control, text="Audio", command=self.load_wav_file)
+		self.btn_audio.place(y=75,width=110)
 		self.lbl_z = tk.Label(self.fr_control, text="Zoom")
 		self.lbl_z.place(x=115,y=10, width=95)
 		self.cbx_zoom = ttk.Combobox(self.fr_control, values=["10","5","2","1","0.5","0.2","0.1"], textvariable=self.value_z)
@@ -453,11 +462,14 @@ class Application(tk.Frame):
 		self.chb_hot.select()
 		self.chb_hot.place(x=115,y=70)
 		self.chb_warm = tk.Checkbutton(self.fr_control, text="Op Posible", fg='yellow', variable=self.show_warm, onvalue=True, offvalue=False)
-		self.chb_hot.select()
+		self.chb_warm.select()
 		self.chb_warm.place(x=115,y=90)
 		self.chb_cold = tk.Checkbutton(self.fr_control, text="Op Total", fg='cyan', variable=self.show_cold, onvalue=True, offvalue=False)
-		self.chb_hot.select()
+		self.chb_cold.select()
 		self.chb_cold.place(x=115,y=110)
+		self.chb_audio = tk.Checkbutton(self.fr_control, text="Audio", fg='green', variable=self.show_audio, onvalue=True, offvalue=False)
+		self.chb_audio.select()
+		self.chb_audio.place(x=115,y=130)
 
 		#Panel de Generacion de Expresiones
 		self.txb_a = tk.Entry(self.fr_expression, bd=4, textvariable=self.value_a)
@@ -532,7 +544,7 @@ class Application(tk.Frame):
 
 def main():
 	root = tk.Tk()
-	root.wm_title("Tuner by JoGEHrt V_0.2.7")
+	root.wm_title("Tuner by JoGEHrt V_0.3.0")
 	app = Application(root)
 	app.mainloop()
 
