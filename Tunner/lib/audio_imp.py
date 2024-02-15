@@ -13,12 +13,11 @@ class AudioFile():
 		self.data = []
 		self.sample_time = 0
 
-
 	def load_archive(self, path):
 		self.archive = wave.open(path,'rb')
 		self.sample_freq = self.archive.getframerate()
 		self.n_samples = self.archive.getnframes()
-		self.signal_wave = self.archive.readframes(-1)
+		self.signal_wave = self.archive.readframes(-1)#Archivo
 		self.archive.close()
 		self.duration_time = self.n_samples/self.sample_freq
 		self.data = np.frombuffer(self.signal_wave, dtype=np.int16)
@@ -34,6 +33,16 @@ class AudioFile():
 		for i in range(0, ut.round_i(self.sample_freq * time)):
 			data_sam.append(self.data[i + begin_samp])
 		return data_sam
+	def get_slice_at_samp(self, begin:int = 0, lenght:int = -1):
+		if(begin < 0):
+			begin = 0
+		if(lenght <= 0 or (begin + lenght) > self.n_samples):
+			lenght = self.n_samples - begin
+		data_sam = []
+		for i in range(0, lenght):
+			data_sam.append(self.data[i + begin])
+		return data_sam
+
 	def get_duration_time(self):
 		return self.duration_time
 
@@ -45,9 +54,3 @@ class AudioFile():
 		plt.xlabel("Tiempo[s]")
 		plt.xlim(0,self.duration_time)
 		plt.show()
-'''
-af = AudioFile()
-af.load_archive(r'../samples/guitarraclasica.wav')
-print(len(af.get_slice_at_time(time=1.0)))
-print('Tiempo {:.2f} = {} muestras'.format(af.get_duration_time(), len(af.get_slice_at_time())))
-'''

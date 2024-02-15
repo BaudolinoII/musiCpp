@@ -13,10 +13,15 @@ class Application(tk.Frame):
 	def __init__(self, master=None):
 		super().__init__(master)
 		self.master = master
+		
 		self.cv_main = tk.Canvas(self.master)
 		self.txb_e = tk.Entry(self.master)
 		self.scroll_x = tk.Scrollbar(self.master)
 		self.scroll_y = tk.Scrollbar(self.master)
+		self.txb_ab = tk.Entry(self.master)
+		self.txb_at = tk.Entry(self.master)
+		self.btn_a_graf = tk.Button(self.master)
+
 		self.file_inst = '../instrumento.xml'
 		self.file_audio = '../sonido.wav'
 		self.xman = XML_Manager(self.file_inst)
@@ -26,12 +31,13 @@ class Application(tk.Frame):
 		self.x_sim = 1490
 		self.y_sim = 530
 		self.center = int(self.y_sim / 2)
-		self.px_unit = 180
-		self.px_time = 180
+		self.px_unit = 200
+		self.px_time = 1440
 		self.zoom_val = 1.0
 		self.dx_scroll = 0.0
 		self.dy_scroll = 0.5
-
+		self.begin_audio = 0.0
+		self.time_audio = 1.0
 		self.iv = [1.0, 1.0, 0.0, 0.0, 20]
 		self.action_val = True
 
@@ -53,41 +59,44 @@ class Application(tk.Frame):
 				return '{}Pi'.format(int(value/2))
 			return '{}Pi/2'.format(value)
 		if(case == 'S'):
-			if(value > 1.0):
-				return '{:.1f}s'.format(value)
+			if isinstance(value, float):
+				return '{:.2f}s'.format(value)
 			return '{}s'.format(int(value))
 		if(case == 'A'):
+			if isinstance(value, float):
+				return '{:.1f}'.format(value)
 			return '{}'.format(int(value))
 	def draw_scale(self):
-		dx = ut.round_i(1000 * self.dx_scroll * self.zoom_val) 
-		dy = ut.round_i(500 * (self.dy_scroll - 0.5) * self.zoom_val)
-		for i in range(0, self.y_sim + 1, 10):		#Horizontal Strips
-			y_pos = ut.surround_i(i - dy, self.y_sim)
-			self.cv_main.create_line(0, y_pos, self.x_sim, y_pos, width=1, fill='ivory2')
-		
-		n = 1 / self.zoom_val
-		for i in range(0, self.x_sim + 1, 10):	#Vertical Strips
-			x_pos = ut.surround_i(i - dx, self.x_sim)
+		dx = ut.round_i(self.x_sim * self.dx_scroll * self.zoom_val) 
+		dy = ut.round_i(self.y_sim * (self.dy_scroll - 0.5) * self.zoom_val)
+		for i in range(0, self.y_sim + 1, int(self.px_unit / 10)):		#Horizontal Strips
+			y_pos = i + ut.surround_i(-dy -34, int(self.px_unit / 2))
+			self.cv_main.create_line(5, y_pos, self.x_sim, y_pos, width=1, fill='ivory2')
+			if(i % int(self.px_unit / 2) == 0):
+				self.cv_main.create_line(5, y_pos, self.x_sim, y_pos, width=1, fill='gray')
+				n = ut.round_f((self.center - (i + dy)) / self.center, 2)
+				self.cv_main.create_text(15, y_pos + 10, text = self.get_unit(n,'A'),fill='black',font=('Arial 12 bold'))
+				
+		for i in range(0, self.x_sim + 1, int(self.px_time / 20)):	#Vertical Strips
+			x_pos = ut.surround_i(i - dx + 5, self.x_sim)
 			self.cv_main.create_line(x_pos, 0, x_pos, self.y_sim, width=1, fill='ivory2')#Regulares
-			if(i % self.px_time == 0 and i != 0):#Cada unidad marcada
+			if(i % int(self.px_time / 2) == 0 and i):
 				self.cv_main.create_line(x_pos, 0, x_pos, self.y_sim, width=1, fill='gray')
+				n = (i + dx)/(self.px_time)
 				self.cv_main.create_text(x_pos + 5, self.center + 10 - dy, text = self.get_unit(n,'S'), fill='black',font=('Arial 12 bold'))
-				n += 1 / self.zoom_val
 		
-		n = 0
-		for i in range(0, self.center + 1, self.px_unit):#Print Values
-			y_pos = ut.surround_i(i + dy, self.y_sim)
-			y_npos = ut.surround_i(i - dy, self.y_sim)
-			if(i):#Skip Cero
-				self.cv_main.create_line(0, self.center + y_npos, self.x_sim, self.center + y_npos, width=1, fill='gray')
-				self.cv_main.create_text(15, self.center + y_npos + 10, text = self.get_unit(-n,'A'),fill='black',font=('Arial 12 bold'))
-			self.cv_main.create_line(0, self.center - y_pos, self.x_sim, self.center - y_pos, width=1, fill='gray')
-			self.cv_main.create_text(15, self.center - y_pos + 10, text = self.get_unit(n,'A'),fill='black',font=('Arial 12 bold'))
-			n += 1 / self.zoom_val
-
-
+		#n = 0
+		#for i in range(0, self.center + 1, self.px_unit):#Print Values
+			#y_pos = ut.surround_i(i + dy, self.y_sim)
+			#y_npos = ut.surround_i(i - dy, self.y_sim)
+			#if(i):#Skip Cero
+			#	self.cv_main.create_line(0, self.center + y_npos, self.x_sim, self.center + y_npos, width=1, fill='gray')
+			#	self.cv_main.create_text(15, self.center + y_npos + 10, text = self.get_unit(-n,'A'),fill='black',font=('Arial 12 bold'))
+			#self.cv_main.create_line(0, self.center - y_pos, self.x_sim, self.center - y_pos, width=1, fill='gray')
+			#self.cv_main.create_text(15, self.center - y_pos + 10, text = self.get_unit(n,'A'),fill='black',font=('Arial 12 bold'))
+			#n += 1 / self.zoom_val
 		self.cv_main.create_line(0, self.center - dy, self.x_sim, self.center - dy, width=2, fill='black')	#Axis X
-		self.cv_main.create_line(5, 0, 5, self.y_sim, width=2, fill='black')						#Axis Y
+		self.cv_main.create_line(5, 0, 5, self.y_sim, width=2, fill='black')								#Axis Y
 	def draw_cont_dot(self, x:int, y:int, y0:int, color ='red')->int:
 		if(y > y0):
 			y0 += 1
@@ -102,7 +111,7 @@ class Application(tk.Frame):
 	#Dibujo de Funciones
 	def draw_data(self, values, org = 0, color='red'):
 		scl = self.px_unit * self.zoom_val
-		dy = ut.round_i(500 * (self.dy_scroll - 0.5) * self.zoom_val)
+		dy = ut.round_i(self.y_sim * (self.dy_scroll - 0.5) * self.zoom_val)
 		if(self.count_opt.get()):
 			last_res = self.center - (ut.round_i(values[0] * scl)) - dy
 			for i in range(0, len(values)):
@@ -117,11 +126,11 @@ class Application(tk.Frame):
 				if(res <= self.y_sim and res >= 0):
 					self.draw_disc_dot(i + 5, res, color)
 	def update_hot_data(self):
-		dx = ut.round_i(1000 * self.dx_scroll * self.zoom_val)
+		dx = ut.round_i(self.x_sim * self.dx_scroll * self.zoom_val) 
 		input_data = [[ops[self.curr_expr.get()].value, self.iv[0], self.iv[1], self.iv[2], self.iv[3], self.iv[4]]]
 		self.hot_data = osc.operation(input_data, dx, self.x_sim, self.zoom_val)
 	def update_warm_data(self):
-		dx = ut.round_i(1000 * self.dx_scroll * self.zoom_val)
+		dx = ut.round_i(self.x_sim * self.dx_scroll * self.zoom_val) 
 		method_data = []
 		template_data = []
 		method_ops = self.xman.read_all_ops('la','method')
@@ -142,7 +151,7 @@ class Application(tk.Frame):
 				self.warm_data = self.aux_data
 				osc.op_arrays(self.warm_data, self.hot_data)
 	def update_cold_data(self):
-		dx = ut.round_i(1000 * self.dx_scroll * self.zoom_val)
+		dx = ut.round_i(self.x_sim * self.dx_scroll * self.zoom_val)
 		method_data = []
 		template_data = []
 		method_ops = self.xman.read_all_ops('la','method')
@@ -161,13 +170,13 @@ class Application(tk.Frame):
 			else:
 				self.cold_data = self.aux_data
 	def update_audio_data(self):
+		dx = ut.round_i(self.x_sim * self.dx_scroll * self.zoom_val + self.begin_audio * 44100)  
+		self.audio_data = self.af.get_slice_at_samp(begin = dx, lenght = ut.round_i(self.time_audio * 44100))#Segmento
 		self.aux_aud_data = []
-		factor = 30.625
-		for i in range(0,self.x_sim):
-			if(ut.round_i(i * factor) < len(self.audio_data)):
-				self.aux_aud_data.append(self.audio_data[ut.round_i(i * factor)] /5000)
-			else:
-				pass
+		factor = len(self.audio_data) / (self.x_sim * self.zoom_val)
+		max_val = max(self.audio_data) / self.zoom_val
+		for i in range(0, self.x_sim):#Muestra Gráfica
+			self.aux_aud_data.append(ut.media(self.audio_data, ut.round_i(i * factor), ut.round_i(factor)) / max_val)
 
 	def refresh_screen(self,*args):
 		self.clear_canvas()
@@ -180,12 +189,13 @@ class Application(tk.Frame):
 			self.draw_data(values = self.warm_data, color = 'yellow')
 		if(self.show_hot.get() and len(self.hot_data) > 0):
 			self.draw_data(values = self.hot_data, color = 'red')
-
 	#Controladores
 	def value_listener(self, *args):
 		if(self.action_val):
 			self.iv = [1.0, 1.0, 0.0, 0.0, 20.0]
 			self.zoom_val = 1.0
+			self.begin_audio = 0.0
+			self.time_audio = 1.0
 			try:
 				self.iv[0] = float(self.value_a.get())
 			except ValueError:
@@ -212,9 +222,19 @@ class Application(tk.Frame):
 					self.zoom_val = 1.0
 			except ValueError:
 				pass
-			if(self.show_hot.get() and len(self.hot_data) > 0):
+			try:
+				self.begin_audio = float(self.value_ab.get())
+			except ValueError:
+				pass
+			try:
+				self.time_audio = float(self.value_at.get())
+			except ValueError:
+				pass
+			if(self.show_audio.get() and len(self.audio_data) > 0):
+				self.update_audio_data()
+			if(self.show_hot.get()):
 				self.update_hot_data()
-			if(self.show_warm.get() and len(self.warm_data) > 0):
+			if(self.show_warm.get()):
 				self.update_warm_data()
 			self.refresh_screen()
 	def expr_listener(self,*args):
@@ -264,9 +284,9 @@ class Application(tk.Frame):
 			self.iv = [1.0, 64.0, 0.0, 0.0, 0.0]
 		self.action_val = True
 
-		if(self.show_hot.get() and len(self.hot_data) > 0):
+		if(self.show_hot.get()):
 			self.update_hot_data()
-		if(self.show_warm.get() and len(self.warm_data) > 0):
+		if(self.show_warm.get()):
 			self.update_warm_data()
 		self.refresh_screen()
 
@@ -276,18 +296,18 @@ class Application(tk.Frame):
 		float(self.value_a.get()), self.curr_expr.get(), float(self.value_b.get()), float(self.value_c.get()), float(self.value_d.get()) ))
 		self.xman.add_ops('la', 'method', self.curr_expr.get(), self.value_a.get(), self.value_b.get(), self.value_c.get(), self.value_d.get(), self.value_e.get())
 		
-		if(self.show_cold.get() and len(self.cold_data) > 0):
+		if(self.show_cold.get()):
 			self.update_cold_data()
-		if(self.show_warm.get() and len(self.warm_data) > 0):
+		if(self.show_warm.get()):
 			self.update_warm_data()
 		self.refresh_screen()
 	def del_ops_sum(self):
 		i = self.lb_sum.curselection()[0]
 		self.xman.del_ops('la', 'method', i)
 		self.lb_sum.delete(self.lb_sum.curselection())
-		if(self.show_cold.get() and len(self.cold_data) > 0):
+		if(self.show_cold.get()):
 			self.update_cold_data()
-		if(self.show_warm.get() and len(self.warm_data) > 0):
+		if(self.show_warm.get()):
 			self.update_warm_data()
 		self.refresh_screen()	
 	def mod_ops_sum(self):
@@ -300,9 +320,9 @@ class Application(tk.Frame):
 		self.value_d.set(xml_data[4])
 		self.value_e.set(xml_data[5])
 		self.lb_sum.delete(a)
-		if(self.show_cold.get() and len(self.cold_data) > 0):
+		if(self.show_cold.get()):
 			self.update_cold_data()
-		if(self.show_warm.get() and len(self.warm_data) > 0):
+		if(self.show_warm.get()):
 			self.update_warm_data()
 		self.refresh_screen()
 
@@ -311,18 +331,18 @@ class Application(tk.Frame):
 		'{:.2f}{}({:.2f}w + {:.2f}) +{:.2f}'.format(
 		float(self.value_a.get()), self.curr_expr.get(), float(self.value_b.get()), float(self.value_c.get()), float(self.value_d.get()) ))
 		self.xman.add_ops('la', 'template', self.curr_expr.get(), self.value_a.get(), self.value_b.get(), self.value_c.get(), self.value_d.get(), self.value_e.get())
-		if(self.show_cold.get() and len(self.cold_data) > 0):
+		if(self.show_cold.get()):
 			self.update_cold_data()
-		if(self.show_warm.get() and len(self.warm_data) > 0):
+		if(self.show_warm.get()):
 			self.update_warm_data()
 		self.refresh_screen()	
 	def del_ops_prod(self):
 		i = self.lb_sum.curselection()[0]
 		self.xman.del_ops('la', 'template', i)
 		self.lb_prod.delete(self.lb_prod.curselection())
-		if(self.show_cold.get() and len(self.cold_data) > 0):
+		if(self.show_cold.get()):
 			self.update_cold_data()
-		if(self.show_warm.get() and len(self.warm_data) > 0):
+		if(self.show_warm.get()):
 			self.update_warm_data()
 		self.refresh_screen()
 	def mod_ops_prod(self):
@@ -335,15 +355,14 @@ class Application(tk.Frame):
 		self.value_d.set(xml_data[4])
 		self.value_e.set(xml_data[5])
 		self.lb_prod.delete(a)
-		if(self.show_cold.get() and len(self.cold_data) > 0):
+		if(self.show_cold.get()):
 			self.update_cold_data()
-		if(self.show_warm.get() and len(self.warm_data) > 0):
+		if(self.show_warm.get()):
 			self.update_warm_data()
 		self.refresh_screen()
 
 	def save_xml_file(self):
 		file_inst = filedialog.asksaveasfile_inst(initialdir='./export', filetypes=[("XML data", ".xml")])
-		#print(file_inst)
 		if file_inst:
 			if file_inst.find('.xml') == -1:
 				file_inst += '.xml'
@@ -366,18 +385,26 @@ class Application(tk.Frame):
 				self.lb_sum.insert(self.lb_sum.size(),
 				'{:.2f}{}({:.2f}w + {:.2f}) +{:.2f}'.format(
 				float(x[1]), x[0], float(x[2]), float(x[3]), float(x[4])))
-			if(self.show_cold.get() and len(self.cold_data) > 0):
+			if(self.show_cold.get()):
 				self.update_cold_data()
-			if(self.show_warm.get() and len(self.warm_data) > 0):
+			if(self.show_warm.get()):
 				self.update_warm_data()
 			self.refresh_screen()
 
 	def load_wav_file(self):
+		self.btn_a_graf.config(state=tk.DISABLED)
+		self.txb_ab.config(state=tk.DISABLED)
+		self.txb_at.config(state=tk.DISABLED)
 		path = filedialog.askopenfile(initialdir='./samples', filetypes=[("WAV audio", ".wav")])
 		if path.name:
 			self.af.load_archive(path.name)
-			self.audio_data = self.af.get_slice_at_time(time=1.0)
 			self.update_audio_data()
+			self.refresh_screen()
+			self.btn_a_graf.config(state=tk.NORMAL)
+			self.txb_ab.config(state=tk.NORMAL)
+			self.txb_at.config(state=tk.NORMAL)
+	def graphic_audio(self):
+		self.af.graphic_plot()
 
 	def set_x_sim(self, a, b):
 		if(	abs(float(b) - self.dx_scroll) >= 0.01):
@@ -404,6 +431,8 @@ class Application(tk.Frame):
 		self.value_d = tk.StringVar(value='0.0')
 		self.value_e = tk.StringVar(value='20')
 		self.value_z = tk.StringVar(value='1.0')
+		self.value_ab = tk.StringVar(value='0.0')
+		self.value_at = tk.StringVar(value='1.0')
 		self.tag_a = tk.StringVar(value='Amplitud')
 		self.tag_b = tk.StringVar(value='Frecuencia')
 		self.tag_c = tk.StringVar(value='Fase')
@@ -427,11 +456,14 @@ class Application(tk.Frame):
 		self.value_d.trace('w',self.value_listener)
 		self.value_e.trace('w',self.value_listener)
 		self.value_z.trace('w',self.value_listener)
+		self.value_ab.trace('w',self.value_listener)
+		self.value_at.trace('w',self.value_listener)
 
 		self.count_opt.trace('w',self.refresh_screen)
 		self.show_hot.trace('w',self.refresh_screen)
 		self.show_warm.trace('w',self.refresh_screen)
 		self.show_cold.trace('w',self.refresh_screen)
+		self.show_audio.trace('w',self.refresh_screen)
 
 		self.x_begin.trace('w',self.value_listener)
 		self.y_begin.trace('w',self.value_listener)
@@ -449,8 +481,6 @@ class Application(tk.Frame):
 		self.btn_safe.place(y=25,width=110)
 		self.btn_load = tk.Button(self.fr_control, text="Cargar", command=self.load_xml_file)
 		self.btn_load.place(y=50,width=110)
-		self.btn_audio = tk.Button(self.fr_control, text="Audio", command=self.load_wav_file)
-		self.btn_audio.place(y=75,width=110)
 		self.lbl_z = tk.Label(self.fr_control, text="Zoom")
 		self.lbl_z.place(x=115,y=10, width=95)
 		self.cbx_zoom = ttk.Combobox(self.fr_control, values=["10","5","2","1","0.5","0.2","0.1"], textvariable=self.value_z)
@@ -470,6 +500,20 @@ class Application(tk.Frame):
 		self.chb_audio = tk.Checkbutton(self.fr_control, text="Audio", fg='green', variable=self.show_audio, onvalue=True, offvalue=False)
 		self.chb_audio.select()
 		self.chb_audio.place(x=115,y=130)
+		self.lbl_audio = tk.Label(self.fr_control, text='Control de Audio')
+		self.lbl_audio.place(x=230,y=10)
+		self.lbl_ab = tk.Label(self.fr_control, text='Inicio')
+		self.lbl_ab.place(x=220,y=25)
+		self.txb_ab = tk.Entry(self.fr_control, bd=4, textvariable=self.value_ab, state=tk.DISABLED)
+		self.txb_ab.place(x=220,y=42, width=55)
+		self.lbl_at = tk.Label(self.fr_control, text='Tiempo')
+		self.lbl_at.place(x=280,y=25)
+		self.txb_at = tk.Entry(self.fr_control, bd=4, textvariable=self.value_at, state=tk.DISABLED)
+		self.txb_at.place(x=280,y=42, width=55)
+		self.btn_a_graf = tk.Button(self.fr_control, text="Graficar", state=tk.DISABLED, command=self.graphic_audio)
+		self.btn_a_graf.place(x=220,y=70, width=115)
+		self.btn_audio = tk.Button(self.fr_control, text="Cargar", command=self.load_wav_file)
+		self.btn_audio.place(x=220,y=95,width=115)
 
 		#Panel de Generacion de Expresiones
 		self.txb_a = tk.Entry(self.fr_expression, bd=4, textvariable=self.value_a)
@@ -544,7 +588,7 @@ class Application(tk.Frame):
 
 def main():
 	root = tk.Tk()
-	root.wm_title("Tuner by JoGEHrt V_0.3.0")
+	root.wm_title("Tuner by JoGEHrt V_0.3.2")
 	app = Application(root)
 	app.mainloop()
 

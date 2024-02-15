@@ -39,3 +39,11 @@ class Util():
 		while(n > 10 ** log):
 			log += 1
 		return 10 ** log
+	def media(n, begin:int, size:int)->float:
+		s = 0.0
+		for i in range(begin, begin + size):
+			if(i < len(n)):
+				s += n[i]
+			else:
+				return s / (len(n) - begin)
+		return s / size

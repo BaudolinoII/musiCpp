@@ -2,6 +2,8 @@ import math as mt
 import random as rd
 from enum import Enum
 
+RAD = mt.pi / 360.0
+
 class Operations(Enum):
 	Seno=0
 	Cuadratica=1
@@ -20,23 +22,23 @@ class Oscillador():
 			return 8.0 * pow(1.0594630943592952645618252949463, id)
 	@staticmethod
 	def sin_arm_data(amp:float, id:int, fase:float, org:float, dt:int, zoom:float)->float:
-		return amp * mt.sin(Oscillador.armonic_freq(id)* dt * mt.pi/(180 * zoom) + fase) + org
+		return amp * mt.sin(Oscillador.armonic_freq(id)* dt * RAD/zoom + fase) + org
 	@staticmethod
 	def sin_data(amp:float, freq:float, fase:float, org:float, dt:int, zoom:float)->float:
-		return amp * mt.sin(freq * dt * mt.pi/(180 * zoom) + fase) + org
+		return amp * mt.sin(freq * dt * RAD/zoom + fase) + org
 	@staticmethod
 	def square_data(amp:float, freq:float, fase:float, org:float, dt:int, zoom:float)->float:
-		if(mt.sin(freq * dt * mt.pi/(180 * zoom) + fase) > 0):
+		if(mt.sin(freq * dt * RAD/zoom + fase) > 0):
 			return (amp + org) * zoom
 		return (-amp + org) * zoom
 	@staticmethod
 	def triangle_data(amp:float, freq:float, fase:float, org:float, dt:int, zoom:float)->float:
-		return amp * mt.asin(mt.sin(freq * dt * mt.pi/(180* zoom) + fase)) * (2.0/mt.pi) + org
+		return amp * mt.asin(mt.sin(freq * dt * RAD/zoom + fase)) * (2.0/mt.pi) + org
 	@staticmethod
 	def saw_ana_data(amp:float, freq:float, fase:float, org:float, dt:int, zoom:float, fid:int)->float:
 		sub_res = 0
 		for j in range(1, int(fid) + 1, 1):
-			sub_res += mt.sin(j * freq * dt * mt.pi/(180* zoom)) / j
+			sub_res += mt.sin(j * freq * dt * RAD / zoom) / j
 		return sub_res
 	@staticmethod
 	def saw_opt_data(amp:float, freq:float, fase:float, org:float, dt:int, zoom:float) ->float:
