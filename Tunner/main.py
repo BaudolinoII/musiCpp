@@ -165,14 +165,15 @@ class Application(tk.Frame):
 				self.cold_data = self.aux_data
 	def update_audio_data(self):
 		b,l = ut.round_i(self.begin_audio * 44100), ut.round_i(self.time_audio * 44100)
-		self.audio_data = self.fou.get_amp_slice_at_samp(begin = b, lenght = l)#Segmento
+		self.fou.set_sample_area_at_sample(begin = b, lenght_sam = l, sup=1000)
+		self.audio_data = self.fou.get_amp_sample()#Segmento
 		scale = 1/max(self.audio_data)
 		self.aux_aud_data = ut.shrink(self.audio_data, self.x_sim, scale)
 	def update_fourier_data(self):
-		b,l = ut.round_i(self.begin_audio * 5000), ut.round_i(self.time_audio * 5000)
-		self.fourier_data = self.fou.get_fft_slice_at_samp(begin = b, lenght = l)#Segmento
+		b,l = ut.round_i(self.begin_audio * 44100), ut.round_i(self.time_audio * 44100)
+		self.fou.set_sample_area_at_sample(begin = b, lenght_sam = l, sup=1000)
+		self.fourier_data = self.fou.get_fft_sample()#Segmento
 		self.aux_fourier_data = ut.shrink(self.fourier_data, self.x_sim)
-
 
 	def refresh_screen(self,*args):
 		self.clear_canvas()
