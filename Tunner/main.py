@@ -50,6 +50,8 @@ class Application(tk.Frame):
 		self.cold_data = []
 		self.audio_data = []
 		self.aux_aud_data = []
+		self.fourier_data = []
+		self.aux_fourier_data = []
 
 		self.create_vars()
 		self.create_widgets()
@@ -166,10 +168,17 @@ class Application(tk.Frame):
 		self.audio_data = self.fou.get_amp_slice_at_samp(begin = b, lenght = l)#Segmento
 		scale = 1/max(self.audio_data)
 		self.aux_aud_data = ut.shrink(self.audio_data, self.x_sim, scale)
+	def update_fourier_data(self):
+		b,l = ut.round_i(self.begin_audio * 5000), ut.round_i(self.time_audio * 5000)
+		self.fourier_data = self.fou.get_fft_slice_at_samp(begin = b, lenght = l)#Segmento
+		self.aux_fourier_data = ut.shrink(self.fourier_data, self.x_sim)
+
 
 	def refresh_screen(self,*args):
 		self.clear_canvas()
 		self.draw_scale()
+		if(self.show_four.get() and len(self.aux_fourier_data) > 0):
+			self.draw_data(values = self.aux_fourier_data, color = 'purple')
 		if(self.show_audio.get() and len(self.aux_aud_data) > 0):
 			self.draw_data(values = self.aux_aud_data, color = 'green')
 		if(self.show_cold.get() and len(self.cold_data) > 0):
@@ -218,6 +227,8 @@ class Application(tk.Frame):
 				self.time_audio = float(self.value_at.get())
 			except ValueError:
 				pass
+			if(self.show_four.get() and len(self.fourier_data) > 0):
+				self.update_fourier_data()
 			if(self.show_audio.get() and len(self.audio_data) > 0):
 				self.update_audio_data()
 			if(self.show_hot.get()):
@@ -354,6 +365,7 @@ class Application(tk.Frame):
 		if path.name:
 			self.fou.load_archive(path.name)
 			self.update_audio_data()
+			self.update_fourier_data()
 			self.refresh_screen()
 			self.btn_a_graf.config(state=tk.NORMAL)
 			self.btn_armonic.config(state=tk.NORMAL)
@@ -386,8 +398,9 @@ class Application(tk.Frame):
 		self.count_opt = tk.BooleanVar(value=True)
 		self.show_audio = tk.BooleanVar(value=True)
 		self.show_hot = tk.BooleanVar(value=True)
-		self.show_warm = tk.BooleanVar(value=True)
-		self.show_cold = tk.BooleanVar(value=True)
+		self.show_warm = tk.BooleanVar(value=False)
+		self.show_cold = tk.BooleanVar(value=False)
+		self.show_four = tk.BooleanVar(value=False)
 
 		self.curr_expr.trace('w',self.expr_listener)
 
@@ -436,19 +449,17 @@ class Application(tk.Frame):
 		self.chb_disc = tk.Checkbutton(self.fr_control, text="Valor Discreto", variable=self.count_opt, onvalue=True, offvalue=False)
 		self.chb_disc.place(x=115,y=50)
 		self.chb_hot = tk.Checkbutton(self.fr_control, text="Actual", fg='red', variable=self.show_hot, onvalue=True, offvalue=False)
-		self.chb_hot.select()
 		self.chb_hot.place(x=115,y=70)
 		self.chb_warm = tk.Checkbutton(self.fr_control, text="Plantilla", fg='yellow', variable=self.show_warm, onvalue=True, offvalue=False)
-		self.chb_warm.select()
 		self.chb_warm.place(x=115,y=90)
 		self.chb_cold = tk.Checkbutton(self.fr_control, text="Modelo", fg='cyan', variable=self.show_cold, onvalue=True, offvalue=False)
-		self.chb_cold.select()
 		self.chb_cold.place(x=115,y=110)
 		
 		#Controlador de audio
 		self.chb_audio = tk.Checkbutton(self.fr_control, text="Audio", fg='green', variable=self.show_audio, onvalue=True, offvalue=False)
-		self.chb_audio.select()
 		self.chb_audio.place(x=115,y=130)
+		self.chb_four = tk.Checkbutton(self.fr_control, text="Fourier", fg='purple', variable=self.show_four, onvalue=True, offvalue=False)
+		self.chb_four.place(x=115,y=150)
 		self.lbl_audio = tk.Label(self.fr_control, text='Control de Audio')
 		self.lbl_audio.place(x=230,y=10)
 		self.lbl_ab = tk.Label(self.fr_control, text='Inicio')
@@ -547,7 +558,7 @@ class Application(tk.Frame):
 
 def main():
 	root = tk.Tk()
-	root.wm_title("Tuner by JoGEHrt V_0.4.1")
+	root.wm_title("Tuner by JoGEHrt V_0.5.5")
 	app = Application(root)
 	app.mainloop()
 
