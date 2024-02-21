@@ -8,6 +8,7 @@ from lib.util_math import Util as ut
 from lib.osc import Operations as ops 
 from lib.xml_man import XML_Manager
 from lib.audio_imp import AudioFile
+from lib.fourier import Fourier
 
 #color = '#FFFFFF'
 
@@ -23,11 +24,13 @@ class Application(tk.Frame):
 		self.txb_ab = tk.Entry(self.master)
 		self.txb_at = tk.Entry(self.master)
 		self.btn_a_graf = tk.Button(self.master)
+		self.btn_armonic = tk.Button(self.master)
 
 		self.file_inst = '../instrumento.xml'
 		self.file_audio = '../sonido.wav'
 		self.xman = XML_Manager(self.file_inst)
 		self.af = AudioFile()
+		self.fou = Fourier()
 
 		#Valores de simulacion
 		self.x_sim = 1490
@@ -36,12 +39,11 @@ class Application(tk.Frame):
 		self.px_unit = 200
 		self.px_time = 1440
 		self.zoom_val = 1.0
-
 		self.begin_audio = 0.0
 		self.time_audio = 1.0
 		self.iv = [1.0, 1.0, 0.0, 0.0, 20]
 		self.action_val = True
-
+		#Buffers
 		self.hot_data = []
 		self.warm_data = []
 		self.aux_data = []
@@ -88,22 +90,22 @@ class Application(tk.Frame):
 		if(y > y0):
 			y0 += 1
 		elif(y < y0):
-			y0 -= 1#create_rectangle(x, y, x, y) Graficar un punto
+			y0 -= 1
 		self.cv_main.create_rectangle(x, y0, x, y,width=1, outline=color)
 		return y
 	def draw_disc_dot(self, x:int, y:int, color ='red'):
 		self.cv_main.create_rectangle(x, y, x, y,width=1, outline=color)
 	def clear_canvas(self):
-		self.cv_main.delete('all')
 		self.cv_main.create_rectangle(0, 0, self.x_sim + 1, self.y_sim + 1,fill='white',outline='white')
 	def resize_canvas(self):
-		#if(self.zoom_val >= 1):
-		#	self.x_sim = int(1490 * self.zoom_val)
-		#	self.y_sim = int(530 * self.zoom_val)
-		#else:
-		self.x_sim = int(1490 / self.zoom_val)
-		self.y_sim = int(530 / self.zoom_val)
+		if(self.zoom_val >= 1):
+			self.x_sim = int(1490 * self.zoom_val)
+			self.y_sim = int(530 * self.zoom_val)
+		else:
+			self.x_sim = int(1490 / self.zoom_val)
+			self.y_sim = int(530 / self.zoom_val)
 		self.center = int(self.y_sim / 2)
+		self.cv_main.delete('all')
 		self.clear_canvas()
 		self.cv_main.configure(scrollregion=self.cv_main.bbox("all"))
 	#Dibujo de Funciones
@@ -160,13 +162,10 @@ class Application(tk.Frame):
 			else:
 				self.cold_data = self.aux_data
 	def update_audio_data(self):
-		b,l = ut.round_i(self.begin_audio * 88200), ut.round_i(self.time_audio * 88200)
-		self.audio_data = self.af.get_slice_at_samp(begin = b, lenght = l)#Segmento
-		self.aux_aud_data = []
-		factor = len(self.audio_data) / (self.x_sim * self.zoom_val)
-		max_val = max(self.audio_data) / self.zoom_val
-		for i in range(0, self.x_sim):#Muestra Gráfica
-			self.aux_aud_data.append(ut.media(self.audio_data, ut.round_i(i * factor), ut.round_i(factor)) / max_val)
+		b,l = ut.round_i(self.begin_audio * 44100), ut.round_i(self.time_audio * 44100)
+		self.audio_data = self.fou.get_amp_slice_at_samp(begin = b, lenght = l)#Segmento
+		scale = 1/max(self.audio_data)
+		self.aux_aud_data = ut.shrink(self.audio_data, self.x_sim, scale)
 
 	def refresh_screen(self,*args):
 		self.clear_canvas()
@@ -180,7 +179,7 @@ class Application(tk.Frame):
 		if(self.show_hot.get() and len(self.hot_data) > 0):
 			self.draw_data(values = self.hot_data, color = 'red')
 	#Controladores
-	def value_listener(self, *args):
+	def val_meth_list(self, *args):
 		if(self.action_val):
 			self.iv = [1.0, 1.0, 0.0, 0.0, 20.0]
 			self.zoom_val = 1.0
@@ -317,41 +316,6 @@ class Application(tk.Frame):
 			self.update_warm_data()
 		self.refresh_screen()
 
-	def set_ops_prod(self):
-		self.lb_prod.insert(self.lb_prod.size(),
-		'{:.2f}{}({:.2f}w + {:.2f}) +{:.2f}'.format(
-		float(self.value_a.get()), self.curr_expr.get(), float(self.value_b.get()), float(self.value_c.get()), float(self.value_d.get()) ))
-		self.xman.add_ops('la', 'template', self.curr_expr.get(), self.value_a.get(), self.value_b.get(), self.value_c.get(), self.value_d.get(), self.value_e.get())
-		if(self.show_cold.get()):
-			self.update_cold_data()
-		if(self.show_warm.get()):
-			self.update_warm_data()
-		self.refresh_screen()	
-	def del_ops_prod(self):
-		i = self.lb_sum.curselection()[0]
-		self.xman.del_ops('la', 'template', i)
-		self.lb_prod.delete(self.lb_prod.curselection())
-		if(self.show_cold.get()):
-			self.update_cold_data()
-		if(self.show_warm.get()):
-			self.update_warm_data()
-		self.refresh_screen()
-	def mod_ops_prod(self):
-		a = self.lb_prod.curselection()[0]
-		xml_data = self.xman.read_ops('la', 'template', a)
-		self.curr_expr.set(xml_data[0])
-		self.value_a.set(xml_data[1])
-		self.value_b.set(xml_data[2])
-		self.value_c.set(xml_data[3])
-		self.value_d.set(xml_data[4])
-		self.value_e.set(xml_data[5])
-		self.lb_prod.delete(a)
-		if(self.show_cold.get()):
-			self.update_cold_data()
-		if(self.show_warm.get()):
-			self.update_warm_data()
-		self.refresh_screen()
-
 	def save_xml_file(self):
 		file_inst = filedialog.asksaveasfile_inst(initialdir='./export', filetypes=[("XML data", ".xml")])
 		if file_inst:
@@ -388,14 +352,18 @@ class Application(tk.Frame):
 		self.txb_at.config(state=tk.DISABLED)
 		path = filedialog.askopenfile(initialdir='./samples', filetypes=[("WAV audio", ".wav")])
 		if path.name:
-			self.af.load_archive(path.name)
+			self.fou.load_archive(path.name)
 			self.update_audio_data()
 			self.refresh_screen()
 			self.btn_a_graf.config(state=tk.NORMAL)
+			self.btn_armonic.config(state=tk.NORMAL)
 			self.txb_ab.config(state=tk.NORMAL)
 			self.txb_at.config(state=tk.NORMAL)
+
 	def graphic_audio(self):
-		self.af.graphic_plot()
+		self.fou.graphic_amp_plot()
+	def graphic_armonics(self):
+		self.fou.graphic_fft_plot()
 
 	#Layout de la App
 	def create_vars(self): 
@@ -423,14 +391,14 @@ class Application(tk.Frame):
 
 		self.curr_expr.trace('w',self.expr_listener)
 
-		self.value_a.trace('w',self.value_listener)
-		self.value_b.trace('w',self.value_listener)
-		self.value_c.trace('w',self.value_listener)
-		self.value_d.trace('w',self.value_listener)
-		self.value_e.trace('w',self.value_listener)
-		self.value_z.trace('w',self.value_listener)
-		self.value_ab.trace('w',self.value_listener)
-		self.value_at.trace('w',self.value_listener)
+		self.value_a.trace('w',self.val_meth_list)
+		self.value_b.trace('w',self.val_meth_list)
+		self.value_c.trace('w',self.val_meth_list)
+		self.value_d.trace('w',self.val_meth_list)
+		self.value_e.trace('w',self.val_meth_list)
+		self.value_z.trace('w',self.val_meth_list)
+		self.value_ab.trace('w',self.val_meth_list)
+		self.value_at.trace('w',self.val_meth_list)
 
 		self.count_opt.trace('w',self.refresh_screen)
 		self.show_hot.trace('w',self.refresh_screen)
@@ -439,34 +407,45 @@ class Application(tk.Frame):
 		self.show_audio.trace('w',self.refresh_screen)
 	def create_widgets(self):
 		#Frames
+		self.nt_expression = ttk.Notebook(self.master)
+
 		self.fr_canvas = tk.Frame(self.master)
-		self.fr_canvas.place(x=10,y=20, height=550, width=1510)
-		self.fr_expression = tk.Frame(self.master)
-		self.fr_expression.place(x=10,y=575, height=195, width=850)
+		self.fr_canvas.place(x=10, height=550, width=1510)
+		self.fr_method = tk.Frame(self.nt_expression)
+		self.fr_method.place(height=230, width=850)
+		self.fr_template = tk.Frame(self.nt_expression)
+		self.fr_template.place(height=230, width=850)
 		self.fr_control = tk.Frame(self.master)
-		self.fr_control.place(x=865,y=575, height=195, width=660)
+		self.fr_control.place(x=865,y=555,height=230, width=660)
 		
-		#Panel de Control del Canvas
+		self.nt_expression.add(self.fr_template, text = "Plantilla")
+		self.nt_expression.add(self.fr_method, text = "Método")
+		self.nt_expression.place(x=10,y=555, height=230, width=850)
+		
+		#Guardado de Archivo XML
 		self.btn_safe = tk.Button(self.fr_control, text="Guardar", command=self.save_xml_file)
 		self.btn_safe.place(y=25,width=110)
 		self.btn_load = tk.Button(self.fr_control, text="Cargar", command=self.load_xml_file)
 		self.btn_load.place(y=50,width=110)
+		#Opciones del Lienzo
 		self.lbl_z = tk.Label(self.fr_control, text="Zoom")
 		self.lbl_z.place(x=115,y=10, width=95)
-		self.cbx_zoom = ttk.Combobox(self.fr_control, values=["10","5","2","1","0.5","0.2","0.1"], textvariable=self.value_z)
+		self.cbx_zoom = ttk.Combobox(self.fr_control, values=["5","2","1","0.5","0.2"], textvariable=self.value_z)
 		self.cbx_zoom.set("1")
 		self.cbx_zoom.place(x=115, y=27, width=95)
-		self.chb_disc = tk.Checkbutton(self.fr_control, text="Discreto", variable=self.count_opt, onvalue=True, offvalue=False)
+		self.chb_disc = tk.Checkbutton(self.fr_control, text="Valor Discreto", variable=self.count_opt, onvalue=True, offvalue=False)
 		self.chb_disc.place(x=115,y=50)
-		self.chb_hot = tk.Checkbutton(self.fr_control, text="Op Inmediata", fg='red', variable=self.show_hot, onvalue=True, offvalue=False)
+		self.chb_hot = tk.Checkbutton(self.fr_control, text="Actual", fg='red', variable=self.show_hot, onvalue=True, offvalue=False)
 		self.chb_hot.select()
 		self.chb_hot.place(x=115,y=70)
-		self.chb_warm = tk.Checkbutton(self.fr_control, text="Op Posible", fg='yellow', variable=self.show_warm, onvalue=True, offvalue=False)
+		self.chb_warm = tk.Checkbutton(self.fr_control, text="Plantilla", fg='yellow', variable=self.show_warm, onvalue=True, offvalue=False)
 		self.chb_warm.select()
 		self.chb_warm.place(x=115,y=90)
-		self.chb_cold = tk.Checkbutton(self.fr_control, text="Op Total", fg='cyan', variable=self.show_cold, onvalue=True, offvalue=False)
+		self.chb_cold = tk.Checkbutton(self.fr_control, text="Modelo", fg='cyan', variable=self.show_cold, onvalue=True, offvalue=False)
 		self.chb_cold.select()
 		self.chb_cold.place(x=115,y=110)
+		
+		#Controlador de audio
 		self.chb_audio = tk.Checkbutton(self.fr_control, text="Audio", fg='green', variable=self.show_audio, onvalue=True, offvalue=False)
 		self.chb_audio.select()
 		self.chb_audio.place(x=115,y=130)
@@ -480,69 +459,81 @@ class Application(tk.Frame):
 		self.lbl_at.place(x=280,y=25)
 		self.txb_at = tk.Entry(self.fr_control, bd=4, textvariable=self.value_at, state=tk.DISABLED)
 		self.txb_at.place(x=280,y=42, width=55)
-		self.btn_a_graf = tk.Button(self.fr_control, text="Graficar", state=tk.DISABLED, command=self.graphic_audio)
-		self.btn_a_graf.place(x=220,y=70, width=115)
+		self.btn_a_graf = tk.Button(self.fr_control, text="Graficar Audio", state=tk.DISABLED, command=self.graphic_audio)
+		self.btn_a_graf.place(x=220,y=95, width=115)
+		self.btn_armonic = tk.Button(self.fr_control, text="Graficar Armonicos", state=tk.DISABLED, command=self.graphic_armonics)
+		self.btn_armonic.place(x=220,y=120, width=115)
 		self.btn_audio = tk.Button(self.fr_control, text="Cargar", command=self.load_wav_file)
-		self.btn_audio.place(x=220,y=95,width=115)
+		self.btn_audio.place(x=220,y=70,width=115)
 
-		#Panel de Generacion de Expresiones
-		self.txb_a = tk.Entry(self.fr_expression, bd=4, textvariable=self.value_a)
-		self.txb_a.place(x=215,y=35, width=95)
-		self.txb_b = tk.Entry(self.fr_expression, bd=4, textvariable=self.value_b)
-		self.txb_b.place(x=315,y=35, width=95)
-		self.txb_c = tk.Entry(self.fr_expression, bd=4, textvariable=self.value_c)
-		self.txb_c.place(x=415,y=35, width=95)
-		self.txb_d = tk.Entry(self.fr_expression, bd=4, textvariable=self.value_d)
-		self.txb_d.place(x=515,y=35, width=95)
-		self.txb_e = tk.Entry(self.fr_expression, bd=4, textvariable=self.value_e, state=tk.DISABLED)
-		self.txb_e.place(x=615,y=35, width=95)
-
-		self.lbl_a = tk.Label(self.fr_expression, textvariable=self.tag_a)
-		self.lbl_a.place(x=215,y=10, width=95)
-		self.lbl_b = tk.Label(self.fr_expression, textvariable=self.tag_b)
-		self.lbl_b.place(x=315,y=10, width=95)
-		self.lbl_c = tk.Label(self.fr_expression, textvariable=self.tag_c)
-		self.lbl_c.place(x=415,y=10, width=95)
-		self.lbl_d = tk.Label(self.fr_expression, textvariable=self.tag_d)
-		self.lbl_d.place(x=515,y=10, width=95)
-		self.lbl_e = tk.Label(self.fr_expression, textvariable=self.tag_e)
-		self.lbl_e.place(x=615,y=10, width=95)
-
-		self.cbx_ops = ttk.Combobox(self.fr_expression,values=["Seno","Cuadratica","Triangular","SierraAna","SierraOpt","Ruido","Segmento","SenoArmonico"],textvariable=self.curr_expr)
+		#Panel de metodos
+		self.cbx_ops = ttk.Combobox(self.fr_method,values=["Seno","Cuadratica","Triangular","SierraAna","SierraOpt","Ruido"],textvariable=self.curr_expr)
 		self.cbx_ops.set("Operacion")
-		self.cbx_ops.place(x=10, y=35, width=200)
+		self.cbx_ops.place(x=270, y=10, width=85)
 
-		#Muestra de salida
-		self.lbl_prod = tk.Label(self.fr_expression, text="Plantilla")
-		self.lbl_prod.place(x=10,y=75)
-		self.btn_add_prod = tk.Button(self.fr_expression, text="Añadir", command=self.set_ops_prod)
-		self.btn_add_prod.place(x=165,y=75,width=85)
-		self.btn_mod_prod = tk.Button(self.fr_expression, text="Editar", command=self.mod_ops_prod)
-		self.btn_mod_prod.place(x=250,y=75,width=85)
-		self.btn_rmv_prod = tk.Button(self.fr_expression, text="Quitar", command=self.del_ops_prod)
-		self.btn_rmv_prod.place(x=335,y=75,width=85)
+		self.lbl_a = tk.Label(self.fr_method, textvariable=self.tag_a)
+		self.lbl_a.place(x=350,y=40, width=85)
+		self.txb_a = tk.Entry(self.fr_method, bd=4, textvariable=self.value_a)
+		self.txb_a.place(x=270,y=40, width=85)
 
-		self.lbl_prod = tk.Label(self.fr_expression, text="Método")
-		self.lbl_prod.place(x=430,y=75)
-		self.btn_add_sum = tk.Button(self.fr_expression, text="Añadir", command=self.set_method)
-		self.btn_add_sum.place(x=585,y=75,width=85)
-		self.btn_mod_sum = tk.Button(self.fr_expression, text="Editar", command=self.mod_method)
-		self.btn_mod_sum.place(x=670,y=75,width=85)
-		self.btn_rmv_sum = tk.Button(self.fr_expression, text="Quitar", command=self.del_method)
-		self.btn_rmv_sum.place(x=755,y=75,width=85)
-		
-		self.sb_prod = tk.Scrollbar(self.fr_expression)
-		self.sb_prod.place(x=10, y=105, height=80)
-		self.lb_prod = tk.Listbox(self.fr_expression, yscrollcommand = self.sb_prod.set)
-		self.lb_prod.place(x=25,y=105,height=80,width=395)
-		self.sb_prod.config(command=self.lb_prod.yview)
+		self.lbl_b = tk.Label(self.fr_method, textvariable=self.tag_b)
+		self.lbl_b.place(x=350,y=65, width=85)
+		self.txb_b = tk.Entry(self.fr_method, bd=4, textvariable=self.value_b)
+		self.txb_b.place(x=270,y=65, width=85)
 
-		self.sb_sum = tk.Scrollbar(self.fr_expression)
-		self.sb_sum.place(x=430, y=105, height=80)
-		self.lb_sum = tk.Listbox(self.fr_expression, yscrollcommand = self.sb_sum.set)
-		self.lb_sum.place(x=445,y=105,height=80,width=395)
+		self.lbl_c = tk.Label(self.fr_method, textvariable=self.tag_c)
+		self.lbl_c.place(x=350,y=90, width=85)
+		self.txb_c = tk.Entry(self.fr_method, bd=4, textvariable=self.value_c)
+		self.txb_c.place(x=270,y=90, width=85)
+
+		self.lbl_d = tk.Label(self.fr_method, textvariable=self.tag_d)
+		self.lbl_d.place(x=350,y=115, width=85)
+		self.txb_d = tk.Entry(self.fr_method, bd=4, textvariable=self.value_d)
+		self.txb_d.place(x=270,y=115, width=85)
+
+		self.lbl_e = tk.Label(self.fr_method, textvariable=self.tag_e)
+		self.lbl_e.place(x=350,y=140, width=85)
+		self.txb_e = tk.Entry(self.fr_method, bd=4, textvariable=self.value_e, state=tk.DISABLED)
+		self.txb_e.place(x=270,y=140, width=85)
+
+		self.btn_add_sum = tk.Button(self.fr_method, text="Añadir", command=self.set_method)
+		self.btn_add_sum.place(x=10,width=85)
+		self.btn_mod_sum = tk.Button(self.fr_method, text="Editar", command=self.mod_method)
+		self.btn_mod_sum.place(x=95,width=85)
+		self.btn_rmv_sum = tk.Button(self.fr_method, text="Quitar", command=self.del_method)
+		self.btn_rmv_sum.place(x=180,width=85)
+
+		self.sb_sum = tk.Scrollbar(self.fr_method)
+		self.sb_sum.place(x=10, y=30, height=175)
+		self.lb_sum = tk.Listbox(self.fr_method, yscrollcommand = self.sb_sum.set)
+		self.lb_sum.place(x=25, y=30, height=175, width=240)
 		self.sb_sum.config(command=self.lb_sum.yview)
-		
+
+		#Panel de plantilla
+		self.cbx_type_temp = ttk.Combobox(self.fr_template,values=["None","ADSR"])
+		self.cbx_type_temp.set("None")
+		self.cbx_type_temp.place(x=10,y=10,width=75)
+
+		self.lbl_attack = tk.Label(self.fr_template, text = 'Ascenso')
+		self.lbl_attack.place(x=10,y=35, width=50)
+		self.txb_attack = tk.Entry(self.fr_template, bd=4)
+		self.txb_attack.place(x=10,y=55, width=50)
+
+		self.lbl_decay = tk.Label(self.fr_template, text = 'Caída')
+		self.lbl_decay.place(x=70,y=35, width=50)
+		self.txb_decay = tk.Entry(self.fr_template, bd=4)
+		self.txb_decay.place(x=70,y=55, width=50)
+
+		self.lbl_sustain = tk.Label(self.fr_template, text = 'Sostén')
+		self.lbl_sustain.place(x=130,y=35, width=50)
+		self.txb_sustain = tk.Entry(self.fr_template, bd=4)
+		self.txb_sustain.place(x=130,y=55, width=50)
+
+		self.lbl_release = tk.Label(self.fr_template, text = 'Soltar')
+		self.lbl_release.place(x=190,y=35, width=50)
+		self.txb_release = tk.Entry(self.fr_template, bd=4)
+		self.txb_release.place(x=190,y=55, width=50)
+
 		#Panel del Canvas
 		self.cv_main = tk.Canvas(self.fr_canvas, bg="white", height=self.y_sim, width=self.x_sim)
 		self.cv_main.grid(row=0, column=0)

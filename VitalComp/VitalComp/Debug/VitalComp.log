@@ -1,6 +1,6 @@
 ﻿  main.cpp
-C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-experimental\VitalComp\VitalComp\olcNoiseMaker.h(52,1): warning C4267: '=': conversión de 'size_t' a 'WORD'; posible pérdida de datos
-C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-experimental\VitalComp\VitalComp\olcNoiseMaker.h(29): message : al compilar la función del miembro clase plantilla "bool olcNoiseMaker<short>::Create(std::wstring,unsigned int,unsigned int,unsigned int,unsigned int)"
-C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-experimental\VitalComp\VitalComp\olcNoiseMaker.h(24): message : Vea la referencia a la creación de una instancia de la función plantilla "bool olcNoiseMaker<short>::Create(std::wstring,unsigned int,unsigned int,unsigned int,unsigned int)" que se está compilando
-C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-experimental\VitalComp\VitalComp\main.cpp(77): message : Vea la referencia a la creación de una instancia de clase plantilla "olcNoiseMaker<short>" que se está compilando
-  VitalComp.vcxproj -> C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-experimental\VitalComp\Debug\VitalComp.exe
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VitalComp\VitalComp\olcNoiseMaker.h(52,1): warning C4267: '=': conversión de 'size_t' a 'WORD'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VitalComp\VitalComp\olcNoiseMaker.h(29): message : al compilar la función del miembro clase plantilla "bool olcNoiseMaker<short>::Create(std::wstring,unsigned int,unsigned int,unsigned int,unsigned int)"
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VitalComp\VitalComp\olcNoiseMaker.h(24): message : Vea la referencia a la creación de una instancia de la función plantilla "bool olcNoiseMaker<short>::Create(std::wstring,unsigned int,unsigned int,unsigned int,unsigned int)" que se está compilando
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VitalComp\VitalComp\main.cpp(77): message : Vea la referencia a la creación de una instancia de clase plantilla "olcNoiseMaker<short>" que se está compilando
+  VitalComp.vcxproj -> C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VitalComp\Debug\VitalComp.exe

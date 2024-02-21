@@ -168,7 +168,7 @@ int main() {
 		int newNotes = seq.Update(dElapsedTime);
 		muxNotes.lock();
 		for (int a = 0; a < newNotes; a++) {
-			seq.vecNotes[a].on = dTimeNow + seq.vecNotes[a].life;//Se le añade el tiempo que debería estar activa
+			//seq.vecNotes[a].on = dTimeNow + seq.vecNotes[a].life;//Se le añade el tiempo que debería estar activa
 			vecNotes.emplace_back(seq.vecNotes[a]);
 		}
 		muxNotes.unlock();

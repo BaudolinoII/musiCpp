@@ -38,12 +38,33 @@ class Util():
 		log = 0
 		while(n > 10 ** log):
 			log += 1
-		return 10 ** log
+		return 10 ** (log - 1)
+	@staticmethod
 	def media(n, begin:int, size:int)->float:
 		s = 0.0
 		for i in range(begin, begin + size):
 			if(i < len(n)):
 				s += n[i]
-			else:
+			elif(len(n) - begin):
 				return s / (len(n) - begin)
+			else:
+				return 0
 		return s / size
+	@staticmethod
+	def shrink(n, size:int, normal:float = 1.0):
+		if(len(n) <= size):
+			return n
+		data = []
+		ut = Util()
+		factor =  len(n) / size
+		for i in range(0, size):#Muestra Gráfica
+			data.append(ut.media(n, ut.round_i(i * factor), ut.round_i(factor)) * normal)
+		return data
+
+'''
+ut = Util()
+data = [1,2,3,4,5,6,7,8,9,10]
+sh_data = ut.shrink(n=data, size=2)
+print(data)
+print(sh_data)
+'''
