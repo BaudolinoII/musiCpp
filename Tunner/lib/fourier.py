@@ -34,7 +34,12 @@ class Fourier():
 		self.sam_f_data = self.f_data
 		self.sam_freq_x = self.freq_x
 
-	def set_sample_area_at_time(self,begin:float=0.0, time:float=-1.0, sup:int=5000):
+	def get_FFT(self, test_data, spectre:int = 1000):
+		test_lenght = len(test_data)
+		f_test_data = abs(fourier.fft(test_data))
+		return f_test_data[0:spectre]
+
+	def set_sample_area_at_time(self,begin:float=0.0, time:float=-1.0, spectre:int=5000):
 		if(begin < 0.0):
 			begin = 0.0
 		if(time <= 0.0 or (begin + time) > self.duration_time):
@@ -45,12 +50,12 @@ class Fourier():
 		self.sam_data = self.data[begin_samp:lenght_sam]
 
 		self.sam_lenght = lenght_sam
-		self.sam_freq_x = self.sample_rate * np.arange(0, sup) / lenght_sam
+		self.sam_freq_x = self.sample_rate * np.arange(0, spectre) / lenght_sam
 		self.sam_f_data = abs(fourier.fft(self.sam_data))
-		self.sam_f_data = self.sam_f_data[0:sup]
+		self.sam_f_data = self.sam_f_data[0:spectre]
 		self.sam_f_data = self.sam_f_data / ut.log_10(max(self.sam_f_data))
 		self.sam_data = self.sam_data / ut.log_10(max(self.sam_data))
-	def set_sample_area_at_sample(self,begin:int=0, lenght_sam:int=-1, sup:int=5000):
+	def set_sample_area_at_sample(self,begin:int=0, lenght_sam:int=-1, spectre:int=5000):
 		if(begin < 0):
 			begin = 0
 		if(lenght_sam <= 0 or (begin + lenght_sam) > self.lenght):
@@ -60,9 +65,9 @@ class Fourier():
 		self.sam_data = self.data[begin_samp:lenght_sam]
 		
 		self.sam_lenght = lenght_sam
-		self.sam_freq_x = self.sample_rate * np.arange(0, sup) / lenght_sam
+		self.sam_freq_x = self.sample_rate * np.arange(0, spectre) / lenght_sam
 		self.sam_f_data = abs(fourier.fft(self.sam_data))
-		self.sam_f_data = self.sam_f_data[0:sup]
+		self.sam_f_data = self.sam_f_data[0:spectre]
 		self.sam_f_data = self.sam_f_data / ut.log_10(max(self.sam_f_data))
 		self.sam_data = self.sam_data / ut.log_10(max(self.sam_data))
 
@@ -89,8 +94,12 @@ class Fourier():
 				begin = i - 1
 			before = i
 		return armonics
-	def get_dutation_time(self):
+	def get_duration_time(self):
 		return self.duration_time
+	def get_audio_size(self):
+		return self.sam_lenght
+	def get_rate(self):
+		return self.sample_rate
 
 	def graphic_fft_plot(self, is_samp = True):
 		plt.figure(figsize=(15,5))

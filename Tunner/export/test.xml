@@ -2,39 +2,47 @@
 <instrument>
   <note catholic="la">
     <template type="ADSR">
-      <operation type="Seno" amp="1.0" freq="1.0" fase="0.0" org="0.0" det="20" />
-      <operation type="SierraOpt" amp="1.0" freq="1.0" fase="0.0" org="0.0" det="20" />
+      <amplitude att="0.1" dec="0.3" sus="0.4" rel="0.2" pic="1.0" stb="0.6" res="0.4" />
     </template>
     <method>
-      <operation type="Triangular" amp="1.0" freq="1.0" fase="0.0" org="0.0" det="20" />
-      <operation type="Ruido" amp="1.0" freq="1.0" fase="0.0" org="0.0" det="20" />
-      <operation type="Cuadratica" amp="1.0" freq="1.0" fase="0.0" org="0.0" det="20" />
-      <operation type="Cuadratica" amp="1.0" freq="1.0" fase="0.0" org="0.0" det="20" />
-      <operation type="Seno" amp="1.0" freq="1.0" fase="0.0" org="0.0" det="20" />
+      <operation type="s" amp="1.0" frq="1.0" fse="0.0" org="0.0" det="0" />
+      <operation type="s" amp="1.0" frq="1.0" fse="0.0" org="0.0" det="0" />
     </method>
   </note>
   <note catholic="si">
-    <template type="ADSR" />
+    <template type="ADSR">
+      <amplitude att="0.2" dec="0.2" sus="0.4" rel="0.2" pic="1.0" stb="0.6" res="0.4" />
+    </template>
     <method />
   </note>
   <note catholic="do">
-    <template type="ADSR" />
+    <template type="ADSR">
+      <amplitude att="0.2" dec="0.2" sus="0.4" rel="0.2" pic="1.0" stb="0.6" res="0.4" />
+    </template>
     <method />
   </note>
   <note catholic="re">
-    <template type="ADSR" />
+    <template type="ADSR">
+      <amplitude att="0.2" dec="0.2" sus="0.4" rel="0.2" pic="1.0" stb="0.6" res="0.4" />
+    </template>
     <method />
   </note>
   <note catholic="mi">
-    <template type="ADSR" />
+    <template type="ADSR">
+      <amplitude att="0.2" dec="0.2" sus="0.4" rel="0.2" pic="1.0" stb="0.6" res="0.4" />
+    </template>
     <method />
   </note>
   <note catholic="fa">
-    <template type="ADSR" />
+    <template type="ADSR">
+      <amplitude att="0.2" dec="0.2" sus="0.4" rel="0.2" pic="1.0" stb="0.6" res="0.4" />
+    </template>
     <method />
   </note>
   <note catholic="sol">
-    <template type="ADSR" />
+    <template type="ADSR">
+      <amplitude att="0.2" dec="0.2" sus="0.4" rel="0.2" pic="1.0" stb="0.6" res="0.4" />
+    </template>
     <method />
   </note>
 </instrument>
