@@ -39,15 +39,21 @@ class Fourier():
 		f_test_data = abs(fourier.fft(test_data))
 		return f_test_data[0:spectre]
 
-	def set_sample_area_at_time(self,begin:float=0.0, time:float=-1.0, spectre:int=5000):
-		if(begin < 0.0):
+	def set_sample_area_at_time(self, begin:float=0.0, time:float=-1.0, spectre:int=5000):
+		if(begin < 0.0):#Seguro de no tener inicios negativos
 			begin = 0.0
-		if(time <= 0.0 or (begin + time) > self.duration_time):
-			time = self.duration_time - begin
+		if(time <= 0.0):#La duración de tiempo debe ser superior a 0
+			time = self.duration_time
+		excess = 0
+		if((begin + time) > self.duration_time): 
+			excess = begin + time - self.duration_time #El excedente debe considerarse para completar la muestra
+			time = self.duration_time - begin #En caso de exigir más, solo otorga lo que puede
+			
+		excess_sam = ut.round_i(self.sample_rate * excess)
 		begin_samp = ut.round_i(self.sample_rate * begin)
 		lenght_sam = ut.round_i(self.sample_rate * time)
 
-		self.sam_data = self.data[begin_samp:lenght_sam]
+		self.sam_data = self.data[begin_samp:lenght_sam + begin_samp]
 
 		self.sam_lenght = lenght_sam
 		self.sam_freq_x = self.sample_rate * np.arange(0, spectre) / lenght_sam
@@ -55,14 +61,20 @@ class Fourier():
 		self.sam_f_data = self.sam_f_data[0:spectre]
 		self.sam_f_data = self.sam_f_data / ut.log_10(max(self.sam_f_data))
 		self.sam_data = self.sam_data / ut.log_10(max(self.sam_data))
+		if excess_sam:#si existe exceso
+			self.sam_data = np.append(self.sam_data, np.arange(0,excess_sam) * 0.0)
+
 	def set_sample_area_at_sample(self,begin:int=0, lenght_sam:int=-1, spectre:int=5000):
 		if(begin < 0):
 			begin = 0
-		if(lenght_sam <= 0 or (begin + lenght_sam) > self.lenght):
+		if(lenght_sam <= 0):
+			lenght_sam = self.lenght
+		excess = 0
+		if((begin + lenght_sam) > self.lenght):
+			excess = begin + lenght_sam - self.lenght
 			lenght_sam = self.lenght - begin
-		begin_samp = ut.round_i(self.sample_rate * begin)
 		
-		self.sam_data = self.data[begin_samp:lenght_sam]
+		self.sam_data = self.data[begin:lenght_sam + begin]
 		
 		self.sam_lenght = lenght_sam
 		self.sam_freq_x = self.sample_rate * np.arange(0, spectre) / lenght_sam
@@ -70,6 +82,8 @@ class Fourier():
 		self.sam_f_data = self.sam_f_data[0:spectre]
 		self.sam_f_data = self.sam_f_data / ut.log_10(max(self.sam_f_data))
 		self.sam_data = self.sam_data / ut.log_10(max(self.sam_data))
+		if excess:#si existe exceso
+			self.sam_data = np.append(self.sam_data, np.arange(0,excess) * 0.0)
 
 	def get_amp_sample(self):
 		return self.sam_data

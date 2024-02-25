@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='utf8'?>
+<instrument>
+  <note catholic="la">
+    <template type="ADSR">
+      <amplitude att="0.2" dec="0.2" sus="0.4" rel="0.2" pic="1.0" stb="0.6" res="0.4" />
+    </template>
+    <method>
+      <operation type="s" amp="1.0" frq="81.0" fse="0.0" org="0.0" det="0" />
+      <operation type="s" amp="0.41" frq="147.0" fse="0.0" org="0.0" det="0" />
+    </method>
+  </note>
+  <note catholic="si">
+    <template type="ADSR">
+      <amplitude att="0.2" dec="0.2" sus="0.4" rel="0.2" pic="1.0" stb="0.6" res="0.4" />
+    </template>
+    <method />
+  </note>
+  <note catholic="do">
+    <template type="ADSR">
+      <amplitude att="0.2" dec="0.2" sus="0.4" rel="0.2" pic="1.0" stb="0.6" res="0.4" />
+    </template>
+    <method />
+  </note>
+  <note catholic="re">
+    <template type="ADSR">
+      <amplitude att="0.2" dec="0.2" sus="0.4" rel="0.2" pic="1.0" stb="0.6" res="0.4" />
+    </template>
+    <method />
+  </note>
+  <note catholic="mi">
+    <template type="ADSR">
+      <amplitude att="0.2" dec="0.2" sus="0.4" rel="0.2" pic="1.0" stb="0.6" res="0.4" />
+    </template>
+    <method />
+  </note>
+  <note catholic="fa">
+    <template type="ADSR">
+      <amplitude att="0.2" dec="0.2" sus="0.4" rel="0.2" pic="1.0" stb="0.6" res="0.4" />
+    </template>
+    <method />
+  </note>
+  <note catholic="sol">
+    <template type="ADSR">
+      <amplitude att="0.2" dec="0.2" sus="0.4" rel="0.2" pic="1.0" stb="0.6" res="0.4" />
+    </template>
+    <method />
+  </note>
+</instrument>

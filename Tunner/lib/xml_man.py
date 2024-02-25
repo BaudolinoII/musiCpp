@@ -5,7 +5,7 @@ class XML_Manager():
 		self.path = path
 		self.root = ET.Element('instrument')
 		self.notes = []
-		for tag in ['la','si','do','re','mi','fa','sol']:
+		for tag in ['la','la#','si','do','do#','re','re#','mi','fa','fa#','sol','sol#']:
 			self.notes.append(ET.SubElement(self.root, 'note',{'catholic': tag}))
 		for note in self.notes:
 			temp = ET.SubElement(note,'template',{'type':'ADSR'})
