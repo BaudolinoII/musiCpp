@@ -4,10 +4,6 @@ import numpy as np
 	
 class Oscillador():
 	@staticmethod
-	def armonic_freq(id:int, scaleID:int = 0) ->float:
-		if (scaleID == 0):
-			return 8.0 * pow(1.0594630943592952645618252949463, id)
-	@staticmethod
 	def sin_data(amp:float, freq:float, fase:float, org:float, dt:float)->float:
 		return amp * mt.sin(freq * dt + fase) + org
 	@staticmethod
@@ -67,15 +63,15 @@ class Oscillador():
 				if(i[0] == 'none'):
 					return data
 				elif(i[0] == 's'):
-					data[t] += osc.sin_data(i[1], i[2], i[3], i[4], dt)
+					data[t] += osc.sin_data(i[1], i[2], i[3] * step, i[4], dt)
 				elif(i[0] == 'q'):
-					data[t] += osc.square_data(i[1], i[2], i[3], i[4], dt)
+					data[t] += osc.square_data(i[1], i[2], i[3] * step, i[4], dt)
 				elif(i[0] == 't'):
-					data[t] += osc.triangle_data(i[1], i[2], i[3], i[4], dt)
+					data[t] += osc.triangle_data(i[1], i[2], i[3] * step, i[4], dt)
 				elif(i[0] == 'a'):
-					data[t] += osc.saw_ana_data(i[1], i[2], i[3], i[4], dt, i[5])
+					data[t] += osc.saw_ana_data(i[1], i[2], i[3] * step, i[4], dt, i[5])
 				elif(i[0] == 'o'):
-					data[t] += osc.saw_opt_data(i[1], i[2], i[3], i[4], dt)
+					data[t] += osc.saw_opt_data(i[1], i[2], i[3] * step, i[4], dt)
 				elif(i[0] == 'n'):
 					data[t] += osc.noise_data(i[1], i[2], i[3])
 

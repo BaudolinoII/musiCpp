@@ -28,7 +28,7 @@ class ADSR():
 			self.Sus_Value = SV
 		if(RV >= 0.0):
 			self.Rel_Value = RV
-	def get_template(self, lim:int = 44100, x_sim:int = 44100):
+	def get_template(self, lim:int = 44100, x_sim:int = 44100, duration:float = 1.0):
 		self.size = x_sim
 		if(lim <= self.size):
 			self.lim = lim
@@ -37,10 +37,10 @@ class ADSR():
 		
 		values = []
 
-		Attack_samp =  int(self.Attack * self.lim)
-		Decay_samp =  int(self.Decay * self.lim)
-		Sustain_samp =  int(self.Sustain * self.lim)
-		Release_samp = int(self.Release * self.lim)
+		Attack_samp =  int(self.Attack * self.lim * duration)
+		Decay_samp =  int(self.Decay * self.lim * duration)
+		Sustain_samp =  int(self.Sustain * self.lim * duration)
+		Release_samp = int(self.Release * self.lim * duration)
 
 		pend = self.Max_Value / Attack_samp
 		for i in range(0, Attack_samp):
@@ -56,13 +56,12 @@ class ADSR():
 		for i in range(Decay_samp, Sustain_samp + Decay_samp):
 			values.append(i * pend + org)
 
-		rest = Release_samp + Sustain_samp + Decay_samp + Attack_samp
-
 		pend = -self.Rel_Value / Release_samp
 		org =  self.Rel_Value - pend * Sustain_samp
 		for i in range(Sustain_samp, Release_samp + Sustain_samp):
 			values.append(i * pend + org)
 
+		rest = Release_samp + Sustain_samp + Decay_samp + Attack_samp
 		if(rest < x_sim):
 			for i in range(rest, self.size):
 				values.append(0)

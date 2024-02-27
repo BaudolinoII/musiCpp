@@ -27,8 +27,11 @@ class Application(tk.Frame):
 		self.scroll_y = tk.Scrollbar(self.master)
 		self.txb_ab = tk.Entry(self.master)
 		self.txb_at = tk.Entry(self.master)
+		self.txb_sb = tk.Entry(self.master)
+		self.txb_st = tk.Entry(self.master)
 		self.btn_a_graf = tk.Button(self.master)
 		self.btn_armonic = tk.Button(self.master)
+		self.btn_gnr_arm = tk.Button(self.master)
 
 		self.file_inst = '../instrumento.xml'
 		self.file_audio = '../sonido.wav'
@@ -39,9 +42,10 @@ class Application(tk.Frame):
 		#Valores de simulacion
 		self.begin_audio = 0.0
 		self.time_audio = 1.0
-		self.spectre = 1000
+		self.begin_spectre = 0
+		self.lenght_spectre = 1000
 		self.iv = [1.0, 1.0, 0.0, 0.0, 20]
-		self.tv = [0.2, 0.2, 0.4, 0.2, 1.0, 0.6, 0.4]
+		self.tv = [0.2, 0.2, 0.4, 0.2, 1.0, 0.6, 0.4, 1.0]
 		self.act_meth_val = True
 		self.act_temp_val = True
 		self.curr_sim = 44100
@@ -90,36 +94,34 @@ class Application(tk.Frame):
 	def update_hot_data(self):
 		input_data = [[self.get_co(self.curr_expr.get()), self.iv[0], self.iv[1], self.iv[2], self.iv[3], self.iv[4]]]
 		self.hot_data = osc.operation(input_data, self.curr_sim, self.scale)
-		self.f_hot_data = self.fou.get_FFT(self.hot_data, self.spectre)
+		self.f_hot_data = self.fou.get_FFT(self.hot_data, self.begin_spectre ,self.lenght_spectre)
 		if max(self.f_hot_data):
 			self.f_hot_data = self.f_hot_data * ( self.iv[0] / max(self.f_hot_data))
 	def update_cold_data(self):
 		method_data = []
 		method_ops = self.xman.read_all_ops(self.curr_note.get())
-		#print(list(method_ops))
 		if len(method_ops):#Si existe contenido por sumar
 			for i in method_ops:
 				method_data.append([i[0], float(i[1]), float(i[2]), float(i[3]), float(i[4]), int(i[5])])
 			self.cold_data = osc.operation(method_data, self.curr_sim, self.scale)
 			if (len(self.temp_data) and self.imp_temp.get()):
 				self.cold_data = osc.op_arrays(self.cold_data, self.temp_data, False)
-			self.f_cold_data = self.fou.get_FFT(self.cold_data, self.spectre)
+			self.f_cold_data = self.fou.get_FFT(self.cold_data, self.begin_spectre, self.lenght_spectre)
 			self.f_cold_data = self.f_cold_data / max(self.f_cold_data)
 	def update_temp_data(self):
 		self.adsr.set_parameters(self.tv[0],self.tv[1],self.tv[2],self.tv[3],self.tv[4],self.tv[5],self.tv[6])
-		self.temp_data = self.adsr.get_template(self.rate_sim, self.curr_sim)
+		self.temp_data = self.adsr.get_template(self.rate_sim, self.curr_sim, self.tv[7])
 	def update_audio_data(self):
-		b,self.curr_sim = ut.round_i(self.begin_audio * self.rate_sim), ut.round_i(self.time_audio * self.rate_sim)
-		self.fou.set_sample_area_at_sample(begin = b, lenght_sam = self.curr_sim, spectre=self.spectre)
+		b = ut.round_i(self.begin_audio * self.rate_sim)
+		self.fou.set_sample_area_at_sample(begin = b, lenght_sam = self.curr_sim, bs=self.begin_spectre, spectre=self.lenght_spectre)
 		self.audio_data = self.fou.get_amp_sample()
-		self.audio_data = self.audio_data / max(self.audio_data)
 		self.f_audio_data = self.fou.get_fft_sample()
 		self.f_audio_data = self.f_audio_data / max(self.f_audio_data)
 
 	def refresh_screen(self,*args):
 		a_samp = np.arange(0,len(self.audio_data)) / self.rate_sim
 		x_samp = np.arange(0,self.curr_sim) / self.rate_sim
-		f_samp = np.arange(0,self.spectre)
+		f_samp = np.arange(self.begin_spectre, self.lenght_spectre + self.begin_spectre)
 
 		self.ax.cla()
 		if(self.show_four.get()):
@@ -127,7 +129,7 @@ class Application(tk.Frame):
 				self.ax.plot(f_samp, self.f_audio_data, color = 'purple')
 			if(self.show_cold.get() and len(self.f_cold_data)):
 				self.ax.plot(f_samp, self.f_cold_data, color = 'orange')
-			if(self.show_hot.get() and len(self.f_hot_data)):
+			if(self.show_hot.get() and len(self.f_hot_data) and (self.curr_expr.get() != 'Operacion')):
 				self.ax.plot(f_samp, self.f_hot_data, color = 'blue')
 		else:
 			if(self.show_audio.get() and len(self.audio_data)):
@@ -143,6 +145,7 @@ class Application(tk.Frame):
 	def val_meth_list(self, *args):
 		if self.act_meth_val:
 			self.iv = [1.0, 1.0, 0.0, 0.0, 20]
+			self.tv[7] = 1.0
 			self.begin_audio = 0.0
 			self.time_audio = 1.0
 			try:
@@ -171,8 +174,20 @@ class Application(tk.Frame):
 				pass
 			try:
 				self.time_audio = float(self.value_at.get())
+				if self.time_audio > 0.0:
+					self.tv[7] = self.time_audio
 			except ValueError:
 				pass
+			try:
+				self.begin_spectre = int(self.value_sb.get())
+			except ValueError:
+				pass
+			try:
+				self.lenght_spectre = int(self.value_st.get())
+			except ValueError:
+				pass
+
+			self.curr_sim = ut.round_i(self.time_audio * self.rate_sim)
 
 			if len(self.audio_data):
 				self.update_audio_data()
@@ -183,7 +198,7 @@ class Application(tk.Frame):
 			self.refresh_screen()
 	def val_temp_list(self, *args):
 		if self.act_temp_val:
-			self.tv = [0.2, 0.2, 0.4, 0.2, 1.0, 0.6, 0.4]
+			self.tv = [0.2, 0.2, 0.4, 0.2, 1.0, 0.6, 0.4, 1.0]
 			try:
 				if float(self.value_att.get()) > 0.0:
 					self.tv[0] = float(self.value_att.get())
@@ -222,6 +237,7 @@ class Application(tk.Frame):
 
 			self.update_temp_data()
 			self.update_cold_data()
+			self.refresh_screen()
 
 	def expr_listener(self,*args):
 		self.act_meth_val = False
@@ -287,6 +303,7 @@ class Application(tk.Frame):
 		except IndexError:
 			if self.xman.get_size_ops(self.curr_note.get()) == 0:	
 				return 0
+			i = 0
 		self.xman.del_ops(self.curr_note.get(), i)
 		self.lb_sum.delete(i)
 		self.update_cold_data()
@@ -298,6 +315,7 @@ class Application(tk.Frame):
 		except IndexError:
 			if self.xman.get_size_ops(self.curr_note.get()) == 0:	
 				return 0
+			i = 0
 		xml_data = self.xman.read_ops(self.curr_note.get(), i)
 		self.curr_expr.set(self.get_co(xml_data[0]))
 		self.value_a.set(xml_data[1])
@@ -323,20 +341,20 @@ class Application(tk.Frame):
 		if file_inst:
 			self.xman.load_archive(file_inst)
 			self.lb_sum.delete(0, tk.END)
-			data = self.xman.read_all_ops(self.curr_note.get())
-			for x in data:
+			for x in self.xman.read_all_ops(self.curr_note.get()):
 				self.lb_sum.insert(self.lb_sum.size(),
 				'{:.2f}{}({:.2f}w + {:.2f}) +{:.2f}'.format(
 				float(x[1]), self.get_co(x[0]), float(x[2]), float(x[3]), float(x[4])))
 			self.load_temp(self.xman.read_temp(self.curr_note.get()))
-			if(self.show_cold.get()):
-				self.update_cold_data()
+			self.update_cold_data()
 			self.refresh_screen()
 
 	def load_wav_file(self):
-		self.btn_a_graf.config(state=tk.DISABLED)
 		self.txb_ab.config(state=tk.DISABLED)
 		self.txb_at.config(state=tk.DISABLED)
+		self.txb_sb.config(state=tk.DISABLED)
+		self.txb_st.config(state=tk.DISABLED)
+		#self.btn_gnr_arm.config(state=tk.DISABLED)
 		path = filedialog.askopenfile(initialdir='./samples', filetypes=[("WAV audio", ".wav")])
 		if path.name:
 			self.fou.load_archive(path.name)
@@ -345,22 +363,39 @@ class Application(tk.Frame):
 			self.act_meth_val = False
 			self.value_ab.set('0.0')
 			self.value_at.set('{:.2f}'.format(self.fou.get_duration_time()))
+			self.value_sb.set('0')
+			self.value_st.set('{}'.format(self.fou.get_lenght_spectre()))
 			self.time_audio = self.fou.get_duration_time()
 			self.act_meth_val = True
+			self.begin_spectre = 0
+			self.lenght_spectre = self.fou.get_lenght_spectre()
 			self.update_audio_data()
 			self.update_hot_data()
 			self.update_temp_data()
 			self.update_cold_data()
 			self.refresh_screen()
-			self.btn_a_graf.config(state=tk.NORMAL)
-			self.btn_armonic.config(state=tk.NORMAL)
 			self.txb_ab.config(state=tk.NORMAL)
 			self.txb_at.config(state=tk.NORMAL)
+			self.txb_sb.config(state=tk.NORMAL)
+			self.txb_st.config(state=tk.NORMAL)
+			#self.btn_gnr_arm.config(state=tk.NORMAL)
 
 	def graphic_audio(self):
 		self.fou.graphic_amp_plot()
 	def graphic_armonics(self):
 		self.fou.graphic_fft_plot()
+
+	def generate_armonics(self):
+		self.lb_sum.delete(0, tk.END)
+		for x in self.fou.localize_armonics(0.25):
+			self.lb_sum.insert(self.lb_sum.size(), '{:.2f}Seno({:.2f}w + 0.0) + 0.0'.format(x[1], x[0]))
+			self.xman.add_ops(self.curr_note.get(), 's', [x[1], x[0], 0.0, 0.0, 0])
+		self.update_cold_data()
+		self.refresh_screen()
+	def identify_note(self):
+		name_notes = ['la','la#','si','do','do#','re','re#','mi','fa','fa#','sol','sol#']
+		id_note = ut.find_id_note(self.fou.localize_fundamental())
+		self.curr_note.set(name_notes[id_note])
 
 	#Layout de la App
 	def create_vars(self): 
@@ -374,6 +409,8 @@ class Application(tk.Frame):
 		self.value_z = tk.StringVar(value='1.0')
 		self.value_ab = tk.StringVar(value='0.0')
 		self.value_at = tk.StringVar(value='1.0')
+		self.value_sb = tk.StringVar(value='0')
+		self.value_st = tk.StringVar(value='50000')
 		self.tag_a = tk.StringVar(value='Amplitud')
 		self.tag_b = tk.StringVar(value='Frecuencia')
 		self.tag_c = tk.StringVar(value='Fase')
@@ -408,6 +445,8 @@ class Application(tk.Frame):
 		self.value_z.trace('w',self.val_meth_list)
 		self.value_ab.trace('w',self.val_meth_list)
 		self.value_at.trace('w',self.val_meth_list)
+		self.value_sb.trace('w',self.val_meth_list)
+		self.value_st.trace('w',self.val_meth_list)
 
 		self.curr_temp.trace('w',self.val_temp_list)
 		self.imp_temp.trace('w',self.val_temp_list)
@@ -426,145 +465,164 @@ class Application(tk.Frame):
 		self.show_four.trace('w',self.refresh_screen)
 	def create_widgets(self):
 		#Frames
-		self.nt_expression = ttk.Notebook(self.master)
+		self.nt_expression = ttk.Notebook(self.master, height=280, width=850)
+		self.nt_control = ttk.Notebook(self.master, height=280, width=850)
 
-		self.fr_method = tk.Frame(self.nt_expression)
-		self.fr_method.place(height=230, width=850)
-		self.fr_template = tk.Frame(self.nt_expression)
-		self.fr_template.place(height=230, width=850)
-		self.fr_control = tk.Frame(self.master)
-		self.fr_control.place(x=865,y=805,height=230, width=660)
+		self.fr_method = tk.Frame(self.nt_expression, height=280, width=850)
+		self.fr_method.pack(expand=True)
+		self.fr_template = tk.Frame(self.nt_expression, height=280, width=850)
+		self.fr_template.pack(expand=True)
+		self.fr_xml = tk.Frame(self.nt_control,height=280, width=850)
+		self.fr_xml.pack(expand= True)
+		self.fr_draw = tk.Frame(self.nt_control,height=280, width=850)
+		self.fr_draw.pack(expand= True)
+		self.fr_audio = tk.Frame(self.nt_control,height=280, width=850)
+		self.fr_audio.pack(expand= True)
 		
 		self.nt_expression.add(self.fr_template, text = "Plantilla")
 		self.nt_expression.add(self.fr_method, text = "Método")
-		self.nt_expression.place(x=10,y=805, height=230, width=850)
+		self.nt_expression.grid(column=0, row=1, sticky='NW')
+
+		self.nt_control.add(self.fr_xml, text = "XML")
+		self.nt_control.add(self.fr_draw, text = "Gráfica")
+		self.nt_control.add(self.fr_audio, text = "Audio")
+		self.nt_control.grid(column=1, row=1, sticky='NW')
 
 		#Canvas
-		self.cv_main.get_tk_widget().place(x=10, height=800, width=1900)
+		self.cv_main.get_tk_widget().config(height=750, width=1900)
+		self.cv_main.get_tk_widget().grid(column=0, row=0, columnspan= 2,sticky='N')
 		
 		#Guardado de Archivo XML
-		self.btn_safe = tk.Button(self.fr_control, text="Guardar", command=self.save_xml_file)
-		self.btn_safe.place(y=25,width=110)
-		self.btn_load = tk.Button(self.fr_control, text="Cargar", command=self.load_xml_file)
-		self.btn_load.place(y=50,width=110)
+		self.btn_safe = tk.Button(self.fr_xml, text="Exportar", command=self.save_xml_file, width=50)
+		self.btn_safe.grid(column=0, row=0, sticky='N')
+		self.btn_load = tk.Button(self.fr_xml, text="Cargar", command=self.load_xml_file, width=50)#width=110
+		self.btn_load.grid(column=0, row=1, sticky='N')
+		self.btn_noise = tk.Button(self.fr_xml, text="Probar Sonido", width=50)#width=110
+		self.btn_noise.grid(column=0, row=2, sticky='N')
+		self.btn_keyb = tk.Button(self.fr_xml, text="Probar en Teclado", width=50)#width=110
+		self.btn_keyb.grid(column=0, row=3, sticky='N')
 		#Opciones del Lienzo
-		self.chb_hot = tk.Checkbutton(self.fr_control, text="Actual", fg='red', variable=self.show_hot, onvalue=True, offvalue=False)
-		self.chb_hot.place(x=115,y=10)
-		self.chb_cold = tk.Checkbutton(self.fr_control, text="Modelo", fg='cyan', variable=self.show_cold, onvalue=True, offvalue=False)
-		self.chb_cold.place(x=115,y=30)
-		self.chb_cold = tk.Checkbutton(self.fr_control, text="Plantilla", fg='gold', variable=self.show_temp, onvalue=True, offvalue=False)
-		self.chb_cold.place(x=115,y=50)
-		
-		#Controlador de audio
-		self.chb_audio = tk.Checkbutton(self.fr_control, text="Audio", fg='green', variable=self.show_audio, onvalue=True, offvalue=False)
-		self.chb_audio.place(x=115,y=70)
-		self.chb_four = tk.Checkbutton(self.fr_control, text="Fourier", fg='purple', variable=self.show_four, onvalue=True, offvalue=False)
-		self.chb_four.place(x=115,y=90)
-		self.lbl_audio = tk.Label(self.fr_control, text='Control de Audio')
-		self.lbl_audio.place(x=230,y=10)
-		self.lbl_ab = tk.Label(self.fr_control, text='Inicio')
-		self.lbl_ab.place(x=220,y=25)
-		self.txb_ab = tk.Entry(self.fr_control, bd=4, textvariable=self.value_ab, state=tk.DISABLED)
-		self.txb_ab.place(x=220,y=42, width=55)
-		self.lbl_at = tk.Label(self.fr_control, text='Tiempo')
-		self.lbl_at.place(x=280,y=25)
-		self.txb_at = tk.Entry(self.fr_control, bd=4, textvariable=self.value_at, state=tk.DISABLED)
-		self.txb_at.place(x=280,y=42, width=55)
-		self.btn_a_graf = tk.Button(self.fr_control, text="Graficar Audio", state=tk.DISABLED, command=self.graphic_audio)
-		self.btn_a_graf.place(x=220,y=95, width=115)
-		self.btn_armonic = tk.Button(self.fr_control, text="Graficar Armonicos", state=tk.DISABLED, command=self.graphic_armonics)
-		self.btn_armonic.place(x=220,y=120, width=115)
-		self.btn_audio = tk.Button(self.fr_control, text="Cargar", command=self.load_wav_file)
-		self.btn_audio.place(x=220,y=70,width=115)
+		self.chb_hot = tk.Checkbutton(self.fr_draw, text="Actual", fg='red', variable=self.show_hot, onvalue=True, offvalue=False)
+		self.chb_hot.grid(column = 0, row = 0, sticky='N')
+		self.chb_cold = tk.Checkbutton(self.fr_draw, text="Modelo", fg='blue', variable=self.show_cold, onvalue=True, offvalue=False)
+		self.chb_cold.grid(column = 0, row = 1, sticky='N')
+		self.chb_audio = tk.Checkbutton(self.fr_draw, text="Audio", fg='gold', variable=self.show_audio, onvalue=True, offvalue=False)
+		self.chb_audio.grid(column = 0, row = 2,sticky='N')
+		self.chb_cold = tk.Checkbutton(self.fr_draw, text="Plantilla", fg='orange', variable=self.show_temp, onvalue=True, offvalue=False)
+		self.chb_cold.grid(column = 1, row = 0, sticky='N')
+		self.chb_aplay = tk.Checkbutton(self.fr_draw, text='Aplicar', fg='green', variable=self.imp_temp, onvalue=True, offvalue=False)
+		self.chb_aplay.grid(column = 1, row	= 1, sticky='N')
+		self.chb_four = tk.Checkbutton(self.fr_draw, text="Fourier", fg='purple', variable=self.show_four, onvalue=True, offvalue=False)
+		self.chb_four.grid(column = 1, row = 2,sticky='N')
+		#Opciones de audio
+		self.btn_audio = tk.Button(self.fr_audio, text="Cargar", command=self.load_wav_file, width=50)# width=115
+		self.btn_audio.grid(column = 0, row = 0, columnspan=2,sticky='N')
+		self.btn_audio = tk.Button(self.fr_audio, text="Reproducir", state=tk.DISABLED, width=50)# width=115
+		self.btn_audio.grid(column = 0, row = 1, columnspan=2,sticky='N')
+		self.lbl_ab = tk.Label(self.fr_audio, text='Inicio Audio')
+		self.lbl_ab.grid(column=0, row=2,sticky='N')
+		self.txb_ab = tk.Entry(self.fr_audio, bd=4, textvariable=self.value_ab, state=tk.DISABLED)#width=55
+		self.txb_ab.grid(column=0, row=3,sticky='N')
+		self.lbl_at = tk.Label(self.fr_audio, text='Tiempo Audio')
+		self.lbl_at.grid(column=1, row=2,sticky='N')
+		self.txb_at = tk.Entry(self.fr_audio, bd=4, textvariable=self.value_at, state=tk.DISABLED)#width=55
+		self.txb_at.grid(column=1, row=3,sticky='N')
+		self.lbl_sb = tk.Label(self.fr_audio, text='Inicio Espectro')
+		self.lbl_sb.grid(column=0, row=4,sticky='N')
+		self.txb_sb = tk.Entry(self.fr_audio, bd=4, textvariable=self.value_sb, state=tk.DISABLED)#width=55
+		self.txb_sb.grid(column=0, row=5,sticky='N')
+		self.lbl_st = tk.Label(self.fr_audio, text='Longitud Espectro')
+		self.lbl_st.grid(column=1, row=4,sticky='N')
+		self.txb_st = tk.Entry(self.fr_audio, bd=4, textvariable=self.value_st, state=tk.DISABLED)#width=55
+		self.txb_st.grid(column=1, row=5,sticky='N')
 
-		self.cbx_note = ttk.Combobox(self.fr_control,values=['la','la#','si','do','do#','re','re#','mi','fa','fa#','sol','sol#'],textvariable=self.curr_note)
-		self.cbx_note.place(x=340, y=42, width=40)
-
-		#Panel de metodos
-		self.cbx_ops = ttk.Combobox(self.fr_method,values=["Seno","Cuadratica","Triangular","SierraAna","SierraOpt","Ruido"],textvariable=self.curr_expr)
-		self.cbx_ops.set("Operacion")
-		self.cbx_ops.place(x=270, y=10, width=85)
-
-		self.lbl_a = tk.Label(self.fr_method, textvariable=self.tag_a)
-		self.lbl_a.place(x=350,y=40, width=85)
-		self.txb_a = tk.Entry(self.fr_method, bd=4, textvariable=self.value_a)
-		self.txb_a.place(x=270,y=40, width=85)
-
-		self.lbl_b = tk.Label(self.fr_method, textvariable=self.tag_b)
-		self.lbl_b.place(x=350,y=65, width=85)
-		self.txb_b = tk.Entry(self.fr_method, bd=4, textvariable=self.value_b)
-		self.txb_b.place(x=270,y=65, width=85)
-
-		self.lbl_c = tk.Label(self.fr_method, textvariable=self.tag_c)
-		self.lbl_c.place(x=350,y=90, width=85)
-		self.txb_c = tk.Entry(self.fr_method, bd=4, textvariable=self.value_c)
-		self.txb_c.place(x=270,y=90, width=85)
-
-		self.lbl_d = tk.Label(self.fr_method, textvariable=self.tag_d)
-		self.lbl_d.place(x=350,y=115, width=85)
-		self.txb_d = tk.Entry(self.fr_method, bd=4, textvariable=self.value_d)
-		self.txb_d.place(x=270,y=115, width=85)
-
-		self.lbl_e = tk.Label(self.fr_method, textvariable=self.tag_e)
-		self.lbl_e.place(x=350,y=140, width=85)
-		self.txb_e = tk.Entry(self.fr_method, bd=4, textvariable=self.value_e, state=tk.DISABLED)
-		self.txb_e.place(x=270,y=140, width=85)
-
-		self.btn_add_sum = tk.Button(self.fr_method, text="Añadir", command=self.set_method)
-		self.btn_add_sum.place(x=10,width=85)
-		self.btn_mod_sum = tk.Button(self.fr_method, text="Editar", command=self.mod_method)
-		self.btn_mod_sum.place(x=95,width=85)
-		self.btn_rmv_sum = tk.Button(self.fr_method, text="Quitar", command=self.del_method)
-		self.btn_rmv_sum.place(x=180,width=85)
-
-		self.sb_sum = tk.Scrollbar(self.fr_method)
-		self.sb_sum.place(x=10, y=30, height=175)
-		self.lb_sum = tk.Listbox(self.fr_method, yscrollcommand = self.sb_sum.set)
-		self.lb_sum.place(x=25, y=30, height=175, width=240)
-		self.sb_sum.config(command=self.lb_sum.yview)
-
+		#self.cbx_note = ttk.Combobox(self.fr_control,values=['la','la#','si','do','do#','re','re#','mi','fa','fa#','sol','sol#'], textvariable=self.curr_note)
+		#self.cbx_note.place(x=340, y=42, width=40)
 		#Panel de plantilla
 		self.cbx_type_temp = ttk.Combobox(self.fr_template,values=["None","ADSR"], textvariable = self.curr_temp)
 		self.cbx_type_temp.set("None")
-		self.cbx_type_temp.place(x=10,y=10,width=75)
+		self.cbx_type_temp.grid(columnspan=4,sticky='N')
 
 		self.lbl_attack = tk.Label(self.fr_template, text = 'Ascenso')
-		self.lbl_attack.place(x=10,y=35, width=50)
+		self.lbl_attack.grid(column=0,row=1)
 		self.txb_attack = tk.Entry(self.fr_template, bd=4, textvariable = self.value_att)
-		self.txb_attack.place(x=10,y=55, width=50)
+		self.txb_attack.grid(column=0,row=2)
 
 		self.lbl_decay = tk.Label(self.fr_template, text = 'Caída')
-		self.lbl_decay.place(x=70,y=35, width=50)
+		self.lbl_decay.grid(column=1,row=1)
 		self.txb_decay = tk.Entry(self.fr_template, bd=4, textvariable = self.value_dec)
-		self.txb_decay.place(x=70,y=55, width=50)
+		self.txb_decay.grid(column=1,row=2)
 
 		self.lbl_sustain = tk.Label(self.fr_template, text = 'Sostén')
-		self.lbl_sustain.place(x=130,y=35, width=50)
+		self.lbl_sustain.grid(column=2,row=1)
 		self.txb_sustain = tk.Entry(self.fr_template, bd=4, textvariable = self.value_sus)
-		self.txb_sustain.place(x=130,y=55, width=50)
+		self.txb_sustain.grid(column=2,row=2)
 
 		self.lbl_release = tk.Label(self.fr_template, text = 'Liberar')
-		self.lbl_release.place(x=190,y=35, width=50)
+		self.lbl_release.grid(column=3,row=1)
 		self.txb_release = tk.Entry(self.fr_template, bd=4, textvariable = self.value_rel)
-		self.txb_release.place(x=190,y=55, width=50)
+		self.txb_release.grid(column=3,row=2)
 
 		self.lbl_pitch = tk.Label(self.fr_template, text = 'Pico')
-		self.lbl_pitch.place(x=10,y=80, width=50)
+		self.lbl_pitch.grid(column=0,row=3)
 		self.txb_pitch = tk.Entry(self.fr_template, bd=4, textvariable = self.value_pic)
-		self.txb_pitch.place(x=10,y=100, width=50)
+		self.txb_pitch.grid(column=0,row=4)
 
 		self.lbl_stable = tk.Label(self.fr_template, text = 'Estable')
-		self.lbl_stable.place(x=70,y=80, width=50)
+		self.lbl_stable.grid(column=1,row=3)
 		self.txb_stable = tk.Entry(self.fr_template, bd=4, textvariable = self.value_stb)
-		self.txb_stable.place(x=70,y=100, width=50)
+		self.txb_stable.grid(column=1,row=4)
 
 		self.lbl_rest = tk.Label(self.fr_template, text = 'Descenso')
-		self.lbl_rest.place(x=130,y=80, width=50)
+		self.lbl_rest.grid(column=2,row=3)
 		self.txb_rest = tk.Entry(self.fr_template, bd=4, textvariable = self.value_res)
-		self.txb_rest.place(x=130,y=100, width=50)
+		self.txb_rest.grid(column=2,row=4)
 
-		self.btn_applay = tk.Checkbutton(self.fr_template, text='Aplicar', variable=self.imp_temp, onvalue=True, offvalue=False)
-		self.btn_applay.place(x=250,y=55, width=50)
+		self.lbl_dur = tk.Label(self.fr_template, text = 'Duración')
+		self.lbl_dur.grid(column=3,row=3)
+		self.txb_dur = tk.Entry(self.fr_template, bd=4, textvariable = self.value_at)
+		self.txb_dur.grid(column=3,row=4)
+		#Panel de metodos
+		self.btn_add_sum = tk.Button(self.fr_method, text="Añadir", command=self.set_method)
+		self.btn_add_sum.grid(column=1,row=0, sticky='W')
+		self.btn_mod_sum = tk.Button(self.fr_method, text="Editar", command=self.mod_method)
+		self.btn_mod_sum.grid(column=2,row=0, sticky='W')
+		self.btn_rmv_sum = tk.Button(self.fr_method, text="Quitar", command=self.del_method)
+		self.btn_rmv_sum.grid(column=3,row=0, sticky='W')
+		self.btn_gnr_arm = tk.Button(self.fr_method, text="Auto-Armónicos", command=self.generate_armonics, state=tk.DISABLED)
+		self.btn_gnr_arm.grid(column=4,row=0, sticky='W')
+
+		self.sb_sum = tk.Scrollbar(self.fr_method, orient='vertical')
+		self.sb_sum.grid(column=0,row=1,rowspan=5,sticky='NS')
+		self.lb_sum = tk.Listbox(self.fr_method, yscrollcommand = self.sb_sum.set) #,height=175, width=240)
+		self.lb_sum.grid(column=1,row=1,columnspan=4, rowspan=5, sticky='WE')
+		self.sb_sum.config(command=self.lb_sum.yview)
+
+		self.cbx_ops = ttk.Combobox(self.fr_method,values=["Seno","Cuadratica","Triangular","SierraAna","SierraOpt","Ruido"],textvariable=self.curr_expr)
+		self.cbx_ops.set("Operacion")
+		self.cbx_ops.grid(column=5,row=0, columnspan=2, sticky='N')
+
+		self.lbl_a = tk.Label(self.fr_method, textvariable=self.tag_a)
+		self.lbl_a.grid(column=6,row=1,sticky='N')
+		self.txb_a = tk.Entry(self.fr_method, bd=4, textvariable=self.value_a)
+		self.txb_a.grid(column=5,row=1,sticky='N')
+		self.lbl_b = tk.Label(self.fr_method, textvariable=self.tag_b)
+		self.lbl_b.grid(column=6,row=2,sticky='N')
+		self.txb_b = tk.Entry(self.fr_method, bd=4, textvariable=self.value_b)
+		self.txb_b.grid(column=5,row=2,sticky='N')
+		self.lbl_c = tk.Label(self.fr_method, textvariable=self.tag_c)
+		self.lbl_c.grid(column=6,row=3,sticky='N')
+		self.txb_c = tk.Entry(self.fr_method, bd=4, textvariable=self.value_c)
+		self.txb_c.grid(column=5,row=3,sticky='N')
+		self.lbl_d = tk.Label(self.fr_method, textvariable=self.tag_d)
+		self.lbl_d.grid(column=6,row=4,sticky='N')
+		self.txb_d = tk.Entry(self.fr_method, bd=4, textvariable=self.value_d)
+		self.txb_d.grid(column=5,row=4,sticky='N')
+		self.lbl_e = tk.Label(self.fr_method, textvariable=self.tag_e)
+		self.lbl_e.grid(column=6,row=5,sticky='N')
+		self.txb_e = tk.Entry(self.fr_method, bd=4, textvariable=self.value_e, state=tk.DISABLED)
+		self.txb_e.grid(column=5,row=5,sticky='N')
+
 
 root = tk.Tk()
 
@@ -573,7 +631,7 @@ def close():
 	root.destroy()
 
 def main():
-	root.wm_title("Tuner by JoGEHrt V_0.6.9")
+	root.wm_title("Tuner by JoGEHrt V_0.7.5")
 	root.wm_protocol('WM_DELETE_WINDOW',close)
 	app = Application(root)
 	app.mainloop()
