@@ -4,7 +4,7 @@ class Util():
 	@staticmethod
 	def armonic_freq(id:int, scaleID:int = 0) ->float:
 		if (scaleID == 0):
-			return 8.0 * pow(1.0594630943592952645618252949463, id)
+			return pow(2, (36 + id)/12)#8.0 * pow(1.0594630943592952645618252949463, id)
 	@staticmethod
 	def find_id_note(freq:float)->int:
 		return round_i(12.0 * mt.log(freq, 2)) % 12

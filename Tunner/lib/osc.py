@@ -29,15 +29,15 @@ class Oscillador():
 		return rd.uniform(min_v, max_v) + org
 	@staticmethod
 	def op_arrays(a, b, is_add = True):
-		buf = []
+		buf = np.arange(0.0, float(len(a)), 1.0)
 		for i in range(0,len(a)):
 			if(i < len(b)):
 				if(is_add):
-					buf.append(a[i] + b[i])
+					buf[i] = a[i] + b[i]
 				else:
-					buf.append(a[i] * b[i])
+					buf[i] = a[i] * b[i]
 			else:
-				return buf
+				buf[i] = a[i]
 		return buf
 	@staticmethod
 	def clear_array(a,n=0):
@@ -53,9 +53,7 @@ class Oscillador():
 	@staticmethod
 	def operation(instructions, sim:int, step:float):
 		osc = Oscillador()
-		data = []
-		data.extend(range(0,sim))
-		osc.clear_array(data)
+		data = np.arange(0.0, float(sim), 1.0) * 0.0
 		for t in range(0, sim):
 			dt = t * step
 			#print('{:.2f}'.format(dt))

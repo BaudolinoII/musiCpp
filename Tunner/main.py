@@ -29,7 +29,7 @@ class Application(tk.Frame):
 		self.txb_at = tk.Entry(self.master)
 		self.txb_sb = tk.Entry(self.master)
 		self.txb_st = tk.Entry(self.master)
-		self.btn_a_graf = tk.Button(self.master)
+		self.btn_audio = tk.Button(self.master)
 		self.btn_armonic = tk.Button(self.master)
 		self.btn_gnr_arm = tk.Button(self.master)
 
@@ -354,6 +354,7 @@ class Application(tk.Frame):
 		self.txb_at.config(state=tk.DISABLED)
 		self.txb_sb.config(state=tk.DISABLED)
 		self.txb_st.config(state=tk.DISABLED)
+		self.btn_audio.config(state=tk.DISABLED)
 		#self.btn_gnr_arm.config(state=tk.DISABLED)
 		path = filedialog.askopenfile(initialdir='./samples', filetypes=[("WAV audio", ".wav")])
 		if path.name:
@@ -378,12 +379,11 @@ class Application(tk.Frame):
 			self.txb_at.config(state=tk.NORMAL)
 			self.txb_sb.config(state=tk.NORMAL)
 			self.txb_st.config(state=tk.NORMAL)
+			self.btn_audio.config(state=tk.NORMAL)
 			#self.btn_gnr_arm.config(state=tk.NORMAL)
 
-	def graphic_audio(self):
-		self.fou.graphic_amp_plot()
-	def graphic_armonics(self):
-		self.fou.graphic_fft_plot()
+	def get_armonic_freq(self):
+		self.value_b.set('{:.2f}'.format(ut.armonic_freq(int(self.value_id.get()))))
 
 	def generate_armonics(self):
 		self.lb_sum.delete(0, tk.END)
@@ -396,6 +396,13 @@ class Application(tk.Frame):
 		name_notes = ['la','la#','si','do','do#','re','re#','mi','fa','fa#','sol','sol#']
 		id_note = ut.find_id_note(self.fou.localize_fundamental())
 		self.curr_note.set(name_notes[id_note])
+
+	def play_sound(self):
+		self.fou.play_sound()
+	def play_waves(self):
+		self.update_cold_data()
+		if len(self.cold_data):
+			self.fou.play_wave(self.cold_data)
 
 	#Layout de la App
 	def create_vars(self): 
@@ -411,6 +418,7 @@ class Application(tk.Frame):
 		self.value_at = tk.StringVar(value='1.0')
 		self.value_sb = tk.StringVar(value='0')
 		self.value_st = tk.StringVar(value='50000')
+		self.value_id = tk.StringVar(value='0')
 		self.tag_a = tk.StringVar(value='Amplitud')
 		self.tag_b = tk.StringVar(value='Frecuencia')
 		self.tag_c = tk.StringVar(value='Fase')
@@ -497,7 +505,7 @@ class Application(tk.Frame):
 		self.btn_safe.grid(column=0, row=0, sticky='N')
 		self.btn_load = tk.Button(self.fr_xml, text="Cargar", command=self.load_xml_file, width=50)#width=110
 		self.btn_load.grid(column=0, row=1, sticky='N')
-		self.btn_noise = tk.Button(self.fr_xml, text="Probar Sonido", width=50)#width=110
+		self.btn_noise = tk.Button(self.fr_xml, text="Probar Sonido", command=self.play_waves, width=50)#width=110
 		self.btn_noise.grid(column=0, row=2, sticky='N')
 		self.btn_keyb = tk.Button(self.fr_xml, text="Probar en Teclado", width=50)#width=110
 		self.btn_keyb.grid(column=0, row=3, sticky='N')
@@ -517,7 +525,7 @@ class Application(tk.Frame):
 		#Opciones de audio
 		self.btn_audio = tk.Button(self.fr_audio, text="Cargar", command=self.load_wav_file, width=50)# width=115
 		self.btn_audio.grid(column = 0, row = 0, columnspan=2,sticky='N')
-		self.btn_audio = tk.Button(self.fr_audio, text="Reproducir", state=tk.DISABLED, width=50)# width=115
+		self.btn_audio = tk.Button(self.fr_audio, text="Reproducir", command=self.play_sound, state=tk.DISABLED, width=50)# width=115
 		self.btn_audio.grid(column = 0, row = 1, columnspan=2,sticky='N')
 		self.lbl_ab = tk.Label(self.fr_audio, text='Inicio Audio')
 		self.lbl_ab.grid(column=0, row=2,sticky='N')
@@ -623,6 +631,11 @@ class Application(tk.Frame):
 		self.txb_e = tk.Entry(self.fr_method, bd=4, textvariable=self.value_e, state=tk.DISABLED)
 		self.txb_e.grid(column=5,row=5,sticky='N')
 
+		self.btn_id = tk.Button(self.fr_method, text='ID Armonic', command = self.get_armonic_freq)
+		self.btn_id.grid(column=7,row=1,sticky='N')
+		self.txb_id = tk.Entry(self.fr_method, bd=4, textvariable=self.value_id)
+		self.txb_id.grid(column=7,row=2,sticky='N')
+
 
 root = tk.Tk()
 
@@ -631,7 +644,7 @@ def close():
 	root.destroy()
 
 def main():
-	root.wm_title("Tuner by JoGEHrt V_0.7.5")
+	root.wm_title("Tuner by JoGEHrt V_0.7.9")
 	root.wm_protocol('WM_DELETE_WINDOW',close)
 	app = Application(root)
 	app.mainloop()

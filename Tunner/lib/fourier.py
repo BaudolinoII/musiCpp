@@ -2,12 +2,14 @@ import numpy as np
 import scipy.fftpack as fourier
 import matplotlib.pyplot as plt
 import scipy.io.wavfile as waves
+import wave 
 import winsound
 
 from .util_math import Util as ut
 
 class Fourier():
 	def __init__(self):
+		self.sample_rate = 44100
 		self.lenght = 0
 		self.sam_lenght = 0
 		self.duration_time = 0.0
@@ -143,6 +145,20 @@ class Fourier():
 			return self.sam_lenght//2
 		return 50000
 
+	def play_sound(self):
+		winsound.PlaySound(self.path, winsound.SND_FILENAME) 
+	def play_wave(self, data):
+		temp_filename = ".temp/test_audio.wav"
+		audio_data = (50000 * data).astype(np.int16)
+		with wave.open(temp_filename, 'w') as wave_file:
+		    wave_file.setnchannels(1)
+		    wave_file.setsampwidth(2)
+		    wave_file.setframerate(self.sample_rate)
+		    wave_file.writeframes(audio_data.tobytes())
+
+		winsound.PlaySound(temp_filename, winsound.SND_FILENAME) 
+
+	'''
 	def graphic_fft_plot(self, is_samp = True):
 		plt.figure(figsize=(15,5))
 		if is_samp:
@@ -166,6 +182,7 @@ class Fourier():
 		plt.ylabel('Señal de Onda', fontsize='14')
 		plt.xlim(0,self.duration_time)
 		plt.show()
+	'''
 
 '''
 f = Fourier()
