@@ -32,6 +32,9 @@ class Application(tk.Frame):
 		self.btn_audio = tk.Button(self.master)
 		self.btn_armonic = tk.Button(self.master)
 		self.btn_gnr_arm = tk.Button(self.master)
+		self.cbx_note = ttk.Combobox(self.master)
+		self.sec_win = tk.Toplevel()
+		self.sec_win.destroy()
 
 		self.file_inst = '../instrumento.xml'
 		self.file_audio = '../sonido.wav'
@@ -60,11 +63,13 @@ class Application(tk.Frame):
 		self.f_cold_data = []
 		self.f_hot_data = []
 
+		self.occ_scale = ['la','la#','si','do','do#','re','re#','mi','fa','fa#','sol','sol#']
+
 		self.create_vars()
 		self.create_widgets()
 		self.master.geometry("900x860")
 		self.master.state('zoomed') # "1920x980"
-	#Dibujo de Funciones
+	#Actualizacion de valores en simulacion
 	def get_co(self, exp):
 		if exp == "Seno":
 			return 's'
@@ -104,20 +109,22 @@ class Application(tk.Frame):
 			for i in method_ops:
 				method_data.append([i[0], float(i[1]), float(i[2]), float(i[3]), float(i[4]), int(i[5])])
 			self.cold_data = osc.operation(method_data, self.curr_sim, self.scale)
-			if (len(self.temp_data) and self.imp_temp.get()):
+			if (len(self.temp_data) and (self.curr_temp.get() != 'None')):
 				self.cold_data = osc.op_arrays(self.cold_data, self.temp_data, False)
 			self.f_cold_data = self.fou.get_FFT(self.cold_data, self.begin_spectre, self.lenght_spectre)
 			self.f_cold_data = self.f_cold_data / max(self.f_cold_data)
 	def update_temp_data(self):
-		self.adsr.set_parameters(self.tv[0],self.tv[1],self.tv[2],self.tv[3],self.tv[4],self.tv[5],self.tv[6])
-		self.temp_data = self.adsr.get_template(self.rate_sim, self.curr_sim, self.tv[7])
+		if(self.curr_temp.get() == 'ADSR'):
+			self.adsr.set_parameters(self.tv[0],self.tv[1],self.tv[2],self.tv[3],self.tv[4],self.tv[5],self.tv[6])
+			self.temp_data = self.adsr.get_template(self.rate_sim, self.curr_sim, self.tv[7])
+		self.xman.set_template(self.curr_note.get(),self.curr_temp.get(), self.tv)
 	def update_audio_data(self):
 		b = ut.round_i(self.begin_audio * self.rate_sim)
 		self.fou.set_sample_area_at_sample(begin = b, lenght_sam = self.curr_sim, bs=self.begin_spectre, spectre=self.lenght_spectre)
 		self.audio_data = self.fou.get_amp_sample()
 		self.f_audio_data = self.fou.get_fft_sample()
 		self.f_audio_data = self.f_audio_data / max(self.f_audio_data)
-
+	#Escuchas de Variables
 	def refresh_screen(self,*args):
 		a_samp = np.arange(0,len(self.audio_data)) / self.rate_sim
 		x_samp = np.arange(0,self.curr_sim) / self.rate_sim
@@ -141,7 +148,6 @@ class Application(tk.Frame):
 			if(self.show_hot.get() and len(self.hot_data) and (self.curr_expr.get() != 'Operacion')):
 				self.ax.plot(x_samp, self.hot_data, color = 'red')
 		self.cv_main.draw()
-	#Controladores
 	def val_meth_list(self, *args):
 		if self.act_meth_val:
 			self.iv = [1.0, 1.0, 0.0, 0.0, 20]
@@ -238,7 +244,6 @@ class Application(tk.Frame):
 			self.update_temp_data()
 			self.update_cold_data()
 			self.refresh_screen()
-
 	def expr_listener(self,*args):
 		self.act_meth_val = False
 		self.iv = [1.0, 1.0, 0.0, 0.0, 0]
@@ -275,18 +280,30 @@ class Application(tk.Frame):
 
 		self.update_hot_data()
 		self.refresh_screen()
-	def load_temp(self, data):
-		self.act_temp_val = False
-		self.curr_temp.set(value='ASDR')
-		self.value_att.set(value=data[0])
-		self.value_dec.set(value=data[1])
-		self.value_sus.set(value=data[2])
-		self.value_rel.set(value=data[3])
-		self.value_pic.set(value=data[4])
-		self.value_stb.set(value=data[5])
-		self.act_temp_val = True
-		self.value_res.set(value=data[6])
-
+	def update_lb_meth(self, *args):
+		self.lb_sum.delete(0, tk.END)
+		for x in self.xman.read_all_ops(self.curr_note.get()):
+			self.lb_sum.insert(self.lb_sum.size(),
+			'{:.2f}{}({:.2f}w + {:.2f}) +{:.2f}'.format(
+			float(x[1]), self.get_co(x[0]), float(x[2]), float(x[3]), float(x[4])))
+		self.load_temp(self.xman.read_temp(self.curr_note.get()))
+	def update_xml_format(self, *args):
+		if self.mode_note.get():
+			self.tag_bmn.set('Individual')
+			self.cbx_note.config(state=tk.DISABLED)
+			self.curr_note.set('all')
+		else:
+			self.tag_bmn.set('Universal')
+			self.cbx_note.config(state=tk.NORMAL)
+			self.curr_note.set('la')
+	def get_armonic_freq(self, *args):
+		self.value_b.set('{:.2f}'.format(ut.armonic_freq(int(self.value_id.get()))))
+	def get_axis_id_freq(self, *args):
+		try:
+			self.tag_axis_freq.set('Frecuencia {:.2f} Hz'.format(ut.armonic_freq(int(self.axis_id_note.get()))))
+		except ValueError:
+			pass
+	#Controladores
 	def set_method(self):
 		if (self.curr_expr.get() == 'Operacion'):
 			return 0
@@ -328,8 +345,6 @@ class Application(tk.Frame):
 		self.refresh_screen()
 
 	def save_xml_file(self):
-		if self.imp_temp.get():
-			self.xman.set_template(self.curr_note.get(),self.tv)
 		file_inst = filedialog.asksaveasfilename(initialdir='./export', filetypes=[("XML data", ".xml")])
 		if file_inst:
 			if file_inst.find('.xml') == -1:
@@ -340,22 +355,28 @@ class Application(tk.Frame):
 		file_inst = filedialog.askopenfilename(initialdir='./export', filetypes=[("XML data", ".xml")])
 		if file_inst:
 			self.xman.load_archive(file_inst)
-			self.lb_sum.delete(0, tk.END)
-			for x in self.xman.read_all_ops(self.curr_note.get()):
-				self.lb_sum.insert(self.lb_sum.size(),
-				'{:.2f}{}({:.2f}w + {:.2f}) +{:.2f}'.format(
-				float(x[1]), self.get_co(x[0]), float(x[2]), float(x[3]), float(x[4])))
-			self.load_temp(self.xman.read_temp(self.curr_note.get()))
+			self.mode_note.set(self.xman.get_mode())
 			self.update_cold_data()
 			self.refresh_screen()
 
+	def load_temp(self, data):
+		self.act_temp_val = False
+		self.curr_temp.set(value=data[0])
+		self.value_att.set(value=data[1])
+		self.value_dec.set(value=data[2])
+		self.value_sus.set(value=data[3])
+		self.value_rel.set(value=data[4])
+		self.value_pic.set(value=data[5])
+		self.value_stb.set(value=data[6])
+		self.act_temp_val = True
+		self.value_res.set(value=data[7])
 	def load_wav_file(self):
 		self.txb_ab.config(state=tk.DISABLED)
 		self.txb_at.config(state=tk.DISABLED)
 		self.txb_sb.config(state=tk.DISABLED)
 		self.txb_st.config(state=tk.DISABLED)
 		self.btn_audio.config(state=tk.DISABLED)
-		#self.btn_gnr_arm.config(state=tk.DISABLED)
+		self.btn_gnr_arm.config(state=tk.DISABLED)
 		path = filedialog.askopenfile(initialdir='./samples', filetypes=[("WAV audio", ".wav")])
 		if path.name:
 			self.fou.load_archive(path.name)
@@ -380,22 +401,111 @@ class Application(tk.Frame):
 			self.txb_sb.config(state=tk.NORMAL)
 			self.txb_st.config(state=tk.NORMAL)
 			self.btn_audio.config(state=tk.NORMAL)
-			#self.btn_gnr_arm.config(state=tk.NORMAL)
+			self.btn_gnr_arm.config(state=tk.NORMAL)
 
-	def get_armonic_freq(self):
-		self.value_b.set('{:.2f}'.format(ut.armonic_freq(int(self.value_id.get()))))
+	def ask_for_ga_params(self):
+		self.sec_win = tk.Toplevel()
+		self.sec_win.title('Generar Armónicos')
+		self.sec_win.geometry('300x240')
+
+		lbl_aga_op = tk.Label(self.sec_win, text='Tipo de Operacion')
+		lbl_aga_op.grid(column=0,row=0)
+		cbx_aga_ops = ttk.Combobox(self.sec_win, values=["Seno","Cuadratica","Triangular","SierraAna","SierraOpt"], textvariable= self.op_ga)
+		cbx_aga_ops.set("Seno")
+		cbx_aga_ops.grid(column=0,row=1)
+
+		lbl_aga_fl = tk.Label(self.sec_win, text='Flud')
+		lbl_aga_fl.grid(column=1,row=0)
+		tbx_aga_fl = tk.Entry(self.sec_win, textvariable = self.value_flud)
+		tbx_aga_fl.grid(column=1,row=1)
+
+		btn_aga_ga = tk.Button(self.sec_win, text='Generar', command=self.generate_armonics)
+		btn_aga_ga.grid(column=0,row=2)
+		btn_aga_ex = tk.Button(self.sec_win, text='Cancelar', command=self.sec_win.destroy)
+		btn_aga_ex.grid(column=1,row=2)
+	def ask_for_cf_params(self):
+		self.sec_win = tk.Toplevel()
+		self.sec_win.title('Generar Notas')
+		self.sec_win.geometry('300x240')
+
+		lbl_notes = tk.Label(self.sec_win,text='Nota Base')
+		lbl_notes.grid(column=0, row=0, sticky='N')
+		ax_notes = tk.Entry(self.sec_win, textvariable=self.axis_id_note)
+		ax_notes.grid(column=0, row=1, sticky='N')
+		lbl_freq = tk.Label(self.sec_win,textvariable=self.tag_axis_freq)
+		lbl_freq.grid(column=0, row=2, sticky='N')
+
+		if not self.mode_note.get():
+			lbl_tag = tk.Label(self.sec_win,text='Etiqueta')
+			lbl_tag.grid(column=1, row=0, sticky='N')
+			ax_notes = ttk.Combobox(self.sec_win,
+			values=self.occ_scale, textvariable=self.axis_tag_note)
+			ax_notes.grid(column=1, row=1, sticky='N')
+
+		lbl_notes = tk.Label(self.sec_win,text='Precision')
+		lbl_notes.grid(column=0, row=3, sticky='N')
+		ax_notes = tk.Entry(self.sec_win, textvariable=self.pres_gn)
+		ax_notes.grid(column=0, row=4 ,sticky='N')
+
+		self.chb_hot = tk.Checkbutton(self.sec_win, text="Plantilla Total", variable=self.with_temp, onvalue=True, offvalue=False)
+		self.chb_hot.grid(column = 1, row = 2, sticky='N')
+
+		lbl_aga_op = tk.Label(self.sec_win, text='Tipo de Operacion')
+		lbl_aga_op.grid(column=1,row=3)
+		cbx_aga_ops = ttk.Combobox(self.sec_win, values=["Seno","Cuadratica","Triangular","SierraAna","SierraOpt"], textvariable= self.op_ga)
+		cbx_aga_ops.set("Seno")
+		cbx_aga_ops.grid(column=1,row=4)
+
+		btn_gnr_nts = tk.Button(self.sec_win,text='Generar',command=self.generate_notes)
+		btn_gnr_nts.grid(column=0, row=5, sticky='N')
+		btn_gnr_nts = tk.Button(self.sec_win,text='Cancelar',command=self.sec_win.destroy)
+		btn_gnr_nts.grid(column=1, row=5, sticky='N')
+
+	def generate_notes(self):
+		if self.mode_note.get():
+			self.xman.del_all_ops('all')
+			if self.with_temp.get():
+					self.xman.set_template('all','ADSR',[0.2, 0.2, 0.4, 0.2, 1.0, 0.6, 0.4, 1.0])
+			for i in range(0, int(self.pres_gn.get())):
+				self.xman.add_ops('all', self.get_co(self.op_ga.get()), 
+				[float(1.0 / (2.0 ** i)), ut.armonic_freq(int(self.axis_id_note.get()) + (12 * i)), 0.0, 0.0, 10])
+		else:
+			begin = self.occ_scale.index(self.axis_tag_note.get())
+			for note in self.occ_scale:
+				self.xman.del_all_ops(note)
+				if self.with_temp.get():
+						self.xman.set_template(note,'ADSR',[0.2, 0.2, 0.4, 0.2, 1.0, 0.6, 0.4, 1.0])
+				for i in range(0, int(self.pres_gn.get())):
+					self.xman.add_ops(note, self.get_co(self.op_ga.get()), 
+					[float(1.0 / (2.0 ** i)), ut.armonic_freq(int(self.axis_id_note.get()) + begin + (12 * i)), 0.0, 0.0, 10])
+		self.update_lb_meth()
+		self.axis_id_note.set(value='0')
+		self.axis_tag_note.set(value='la')
+		self.tag_axis_freq.set(value='Frecuencia 0.0 Hz')
+		self.pres_gn.set(value='1')
+		self.with_temp.set(value=False)
+		self.op_ga.set(value='Seno')
+		self.sec_win.destroy()
 
 	def generate_armonics(self):
 		self.lb_sum.delete(0, tk.END)
-		for x in self.fou.localize_armonics(0.25):
-			self.lb_sum.insert(self.lb_sum.size(), '{:.2f}Seno({:.2f}w + 0.0) + 0.0'.format(x[1], x[0]))
-			self.xman.add_ops(self.curr_note.get(), 's', [x[1], x[0], 0.0, 0.0, 0])
+		self.xman.del_all_ops(self.curr_note.get())
+		for x in self.fou.localize_armonics(float(self.value_flud.get())):
+			self.lb_sum.insert(self.lb_sum.size(), '{:.2f}{}({:.2f}w + 0.0) + 0.0'.format(x[1], self.op_ga.get(), x[0]))
+			self.xman.add_ops(self.curr_note.get(), self.get_co(self.op_ga.get()), [x[1], x[0], 0.0, 0.0, 10])
 		self.update_cold_data()
 		self.refresh_screen()
+		self.sec_win.destroy()
+		self.value_flud.set(value='0.25')
+		self.op_ga.set(value='Seno')
 	def identify_note(self):
-		name_notes = ['la','la#','si','do','do#','re','re#','mi','fa','fa#','sol','sol#']
+		name_notes = self.occ_scale
 		id_note = ut.find_id_note(self.fou.localize_fundamental())
 		self.curr_note.set(name_notes[id_note])
+
+	def switch_note_mode(self):
+		self.xman.set_init(not self.mode_note.get())
+		self.mode_note.set(not self.mode_note.get())
 
 	def play_sound(self):
 		self.fou.play_sound()
@@ -406,25 +516,26 @@ class Application(tk.Frame):
 
 	#Layout de la App
 	def create_vars(self): 
-		# Declaración de variables de control  
+		# Operaciones Trigonométricas
 		self.curr_expr = tk.StringVar(value='Operacion')
 		self.value_a = tk.StringVar(value='1.0')
 		self.value_b = tk.StringVar(value='1.0')
 		self.value_c = tk.StringVar(value='0.0')
 		self.value_d = tk.StringVar(value='0.0')
 		self.value_e = tk.StringVar(value='20')
-		self.value_z = tk.StringVar(value='1.0')
+		#Simulacion de tiempo audio y espectro
 		self.value_ab = tk.StringVar(value='0.0')
 		self.value_at = tk.StringVar(value='1.0')
 		self.value_sb = tk.StringVar(value='0')
 		self.value_st = tk.StringVar(value='50000')
-		self.value_id = tk.StringVar(value='0')
+		#Etiquetas Variables
 		self.tag_a = tk.StringVar(value='Amplitud')
 		self.tag_b = tk.StringVar(value='Frecuencia')
 		self.tag_c = tk.StringVar(value='Fase')
 		self.tag_d = tk.StringVar(value='Origen')
 		self.tag_e = tk.StringVar(value='Precision')
-
+		self.tag_bmn = tk.StringVar(value='Individual')
+		#Valores de Plantilla
 		self.curr_temp = tk.StringVar(value='None')
 		self.value_att = tk.StringVar(value='0.2')
 		self.value_dec = tk.StringVar(value='0.2')
@@ -433,31 +544,44 @@ class Application(tk.Frame):
 		self.value_pic = tk.StringVar(value='1.0')
 		self.value_stb = tk.StringVar(value='0.6')
 		self.value_res = tk.StringVar(value='0.4')
-
-		self.curr_note = tk.StringVar(value='la')
-
+		#Operadores de Generación XML
+		self.curr_note = tk.StringVar(value='all')
+		self.value_id = tk.StringVar(value='0')
+		self.mode_note = tk.BooleanVar(value=True)
+		#Panel de Generacion de Armónicos
+		self.value_flud = tk.StringVar(value='0.25')
+		self.op_ga = tk.StringVar(value='Seno')
+		#Panel de Generacion de Notas
+		self.axis_id_note = tk.StringVar(value='0')
+		self.axis_tag_note = tk.StringVar(value='la')
+		self.tag_axis_freq = tk.StringVar(value='Frecuencia 0.0 Hz')
+		self.pres_gn = tk.StringVar(value='1')
+		self.with_temp = tk.BooleanVar(value=False)
+		#Valiables de Dibujo
 		self.show_audio = tk.BooleanVar(value=True)
 		self.show_hot = tk.BooleanVar(value=True)
 		self.show_cold = tk.BooleanVar(value=False)
 		self.show_temp = tk.BooleanVar(value=False)
 		self.show_four = tk.BooleanVar(value=False)
-		self.imp_temp = tk.BooleanVar(value=False)
+		
 
+		self.curr_note.trace('w',self.update_lb_meth)
 		self.curr_expr.trace('w',self.expr_listener)
+		self.mode_note.trace('w',self.update_xml_format)
+		self.axis_id_note.trace('w',self.get_axis_id_freq)
 
 		self.value_a.trace('w',self.val_meth_list)
 		self.value_b.trace('w',self.val_meth_list)
 		self.value_c.trace('w',self.val_meth_list)
 		self.value_d.trace('w',self.val_meth_list)
 		self.value_e.trace('w',self.val_meth_list)
-		self.value_z.trace('w',self.val_meth_list)
+
 		self.value_ab.trace('w',self.val_meth_list)
 		self.value_at.trace('w',self.val_meth_list)
 		self.value_sb.trace('w',self.val_meth_list)
 		self.value_st.trace('w',self.val_meth_list)
 
 		self.curr_temp.trace('w',self.val_temp_list)
-		self.imp_temp.trace('w',self.val_temp_list)
 		self.value_att.trace('w',self.val_temp_list)
 		self.value_dec.trace('w',self.val_temp_list)
 		self.value_sus.trace('w',self.val_temp_list)
@@ -501,14 +625,18 @@ class Application(tk.Frame):
 		self.cv_main.get_tk_widget().grid(column=0, row=0, columnspan= 2,sticky='N')
 		
 		#Guardado de Archivo XML
-		self.btn_safe = tk.Button(self.fr_xml, text="Exportar", command=self.save_xml_file, width=50)
+		self.btn_safe = tk.Button(self.fr_xml, text="Exportar", command=self.save_xml_file, width=25)
 		self.btn_safe.grid(column=0, row=0, sticky='N')
-		self.btn_load = tk.Button(self.fr_xml, text="Cargar", command=self.load_xml_file, width=50)#width=110
+		self.btn_load = tk.Button(self.fr_xml, text="Cargar", command=self.load_xml_file, width=25)#width=110
 		self.btn_load.grid(column=0, row=1, sticky='N')
-		self.btn_noise = tk.Button(self.fr_xml, text="Probar Sonido", command=self.play_waves, width=50)#width=110
+		self.btn_noise = tk.Button(self.fr_xml, text="Probar Sonido", command=self.play_waves, width=25)#width=110
 		self.btn_noise.grid(column=0, row=2, sticky='N')
-		self.btn_keyb = tk.Button(self.fr_xml, text="Probar en Teclado", width=50)#width=110
+		self.btn_keyb = tk.Button(self.fr_xml, text="Probar en Teclado", width=25)#width=110
 		self.btn_keyb.grid(column=0, row=3, sticky='N')
+		self.btn_swc_mn = tk.Button(self.fr_xml, textvariable=self.tag_bmn, command=self.switch_note_mode, width=25)
+		self.btn_swc_mn.grid(column=1, row=0, sticky='N')
+		self.btn_agn = tk.Button(self.fr_xml, text="Rellenar Notas", command=self.ask_for_cf_params, width=25)#width=110
+		self.btn_agn.grid(column=1, row=1, sticky='N')
 		#Opciones del Lienzo
 		self.chb_hot = tk.Checkbutton(self.fr_draw, text="Actual", fg='red', variable=self.show_hot, onvalue=True, offvalue=False)
 		self.chb_hot.grid(column = 0, row = 0, sticky='N')
@@ -518,10 +646,8 @@ class Application(tk.Frame):
 		self.chb_audio.grid(column = 0, row = 2,sticky='N')
 		self.chb_cold = tk.Checkbutton(self.fr_draw, text="Plantilla", fg='orange', variable=self.show_temp, onvalue=True, offvalue=False)
 		self.chb_cold.grid(column = 1, row = 0, sticky='N')
-		self.chb_aplay = tk.Checkbutton(self.fr_draw, text='Aplicar', fg='green', variable=self.imp_temp, onvalue=True, offvalue=False)
-		self.chb_aplay.grid(column = 1, row	= 1, sticky='N')
 		self.chb_four = tk.Checkbutton(self.fr_draw, text="Fourier", fg='purple', variable=self.show_four, onvalue=True, offvalue=False)
-		self.chb_four.grid(column = 1, row = 2,sticky='N')
+		self.chb_four.grid(column = 1, row = 1,sticky='N')
 		#Opciones de audio
 		self.btn_audio = tk.Button(self.fr_audio, text="Cargar", command=self.load_wav_file, width=50)# width=115
 		self.btn_audio.grid(column = 0, row = 0, columnspan=2,sticky='N')
@@ -544,8 +670,6 @@ class Application(tk.Frame):
 		self.txb_st = tk.Entry(self.fr_audio, bd=4, textvariable=self.value_st, state=tk.DISABLED)#width=55
 		self.txb_st.grid(column=1, row=5,sticky='N')
 
-		#self.cbx_note = ttk.Combobox(self.fr_control,values=['la','la#','si','do','do#','re','re#','mi','fa','fa#','sol','sol#'], textvariable=self.curr_note)
-		#self.cbx_note.place(x=340, y=42, width=40)
 		#Panel de plantilla
 		self.cbx_type_temp = ttk.Combobox(self.fr_template,values=["None","ADSR"], textvariable = self.curr_temp)
 		self.cbx_type_temp.set("None")
@@ -597,7 +721,7 @@ class Application(tk.Frame):
 		self.btn_mod_sum.grid(column=2,row=0, sticky='W')
 		self.btn_rmv_sum = tk.Button(self.fr_method, text="Quitar", command=self.del_method)
 		self.btn_rmv_sum.grid(column=3,row=0, sticky='W')
-		self.btn_gnr_arm = tk.Button(self.fr_method, text="Auto-Armónicos", command=self.generate_armonics, state=tk.DISABLED)
+		self.btn_gnr_arm = tk.Button(self.fr_method, text="Auto-Armónicos", command=self.ask_for_ga_params, state=tk.DISABLED)
 		self.btn_gnr_arm.grid(column=4,row=0, sticky='W')
 
 		self.sb_sum = tk.Scrollbar(self.fr_method, orient='vertical')
@@ -609,6 +733,10 @@ class Application(tk.Frame):
 		self.cbx_ops = ttk.Combobox(self.fr_method,values=["Seno","Cuadratica","Triangular","SierraAna","SierraOpt","Ruido"],textvariable=self.curr_expr)
 		self.cbx_ops.set("Operacion")
 		self.cbx_ops.grid(column=5,row=0, columnspan=2, sticky='N')
+
+		self.cbx_note = ttk.Combobox(self.fr_method,values=self.occ_scale, textvariable=self.curr_note)
+		self.cbx_note.config(state=tk.DISABLED)
+		self.cbx_note.grid(column=7, row=3, sticky='E')
 
 		self.lbl_a = tk.Label(self.fr_method, textvariable=self.tag_a)
 		self.lbl_a.grid(column=6,row=1,sticky='N')
@@ -644,7 +772,7 @@ def close():
 	root.destroy()
 
 def main():
-	root.wm_title("Tuner by JoGEHrt V_0.7.9")
+	root.wm_title("Tuner by JoGEHrt V_0.8.2")
 	root.wm_protocol('WM_DELETE_WINDOW',close)
 	app = Application(root)
 	app.mainloop()

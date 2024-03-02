@@ -66,7 +66,7 @@ namespace inst {
 			bNoteFinished = (fMaxLifeTime > 0.0 && dTime - n.on >= fMaxLifeTime);// || (dAmplitude == 0.0);
 			//Si existe tiempo de vida y el tiempo transcurrido desde el encendido es mayor a la vida, entonces la nota se desactiva ó si la amplitud retorna 0 o negativo
 			FTYPE dSound =
-				//+ 1.0  * stl::osc(n.on - dTime, stl::scale(n.id-12), stl::OSC_SAW_ANA, 5.0, 0.001, 100)
+				+ 1.0  * stl::osc(n.on - dTime, stl::scale(n.id-12), stl::OSC_SAW_ANA, 5.0, 0.001, 100)
 				+1.00 * stl::osc(n.on - dTime, stl::scale(n.id), stl::OSC_SQUARE, 5.0, 0.001)
 				+ 0.50 * stl::osc(n.on - dTime, stl::scale(n.id + 12), stl::OSC_SQUARE)
 				+ 0.05 * stl::osc(n.on - dTime, stl::scale(n.id + 24), stl::OSC_NOISE);

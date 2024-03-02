@@ -149,10 +149,10 @@ class Fourier():
 		winsound.PlaySound(self.path, winsound.SND_FILENAME) 
 	def play_wave(self, data):
 		temp_filename = ".temp/test_audio.wav"
-		audio_data = (50000 * data).astype(np.int16)
+		audio_data = (32767 * data).astype(np.int16)
 		with wave.open(temp_filename, 'w') as wave_file:
 		    wave_file.setnchannels(1)
-		    wave_file.setsampwidth(2)
+		    wave_file.setsampwidth(4)
 		    wave_file.setframerate(self.sample_rate)
 		    wave_file.writeframes(audio_data.tobytes())
 

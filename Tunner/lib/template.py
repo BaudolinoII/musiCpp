@@ -67,20 +67,4 @@ class ADSR():
 				values.append(0)
 
 		return values
-	def graphic_plot(self):
-		temp = ADSR()
-		y_val = temp.get_template(self.lim, self.size)
-		#print(len(y_val))
-		x_val = np.arange(0,len(y_val)) / len(y_val)
-
-		plt.figure(figsize=(15,5))
-		plt.plot(x_val, y_val)
-		plt.title("Modelo_ADSR")
-		plt.ylabel("Amplitud")
-		plt.xlabel("Tiempo[s]")
-		plt.show()
-'''
-temp = ADSR()
-tmp = temp.get_template(44100, 50000)
-temp.graphic_plot()
-'''
+	
