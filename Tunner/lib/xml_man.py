@@ -52,8 +52,8 @@ class XML_Manager():
 		ET.SubElement(subject, 'operation',{'type':'{}'.format(op_type),
 											'amp':'{}'.format(val[0]),
 											'frq':'{}'.format(val[1]),
-											'fse':'{}'.format(val[2]),
-											'org':'{}'.format(val[3]),
+											'vam':'{}'.format(val[2]),
+											'vfq':'{}'.format(val[3]),
 											'det':'{}'.format(val[4])})
 	def mod_ops(self, tag, index, op_type, val):
 		subject = self.root.findall("./note[@from='{}']/method/".format(tag))[index]

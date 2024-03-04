@@ -292,7 +292,7 @@ class Application(tk.Frame):
 		for x in self.xman.read_all_ops(self.curr_note.get()):
 			self.lb_sum.insert(self.lb_sum.size(),
 			'{:.2f}{}({:.2f}wt + args); args = {:.2f} * {:.2f} * Seno({:.2f}wt)'.format(
-			float(x[1]), self.get_co(x[0]), float(x[2]), float(x[2]), float(x[3]), float(x[4])))
+			float(x[1]), self.get_co(x[0]), float(x[2]), float(x[1]), float(x[3]), float(x[4])))
 		self.load_temp(self.xman.read_temp(self.curr_note.get()))
 	def update_xml_format(self, *args):
 		if self.mode_note.get():
@@ -472,7 +472,7 @@ class Application(tk.Frame):
 		if self.mode_note.get():
 			self.xman.del_all_ops('all')
 			if self.with_temp.get():
-					self.xman.set_template('all','ADSR',[0.2, 0.2, 0.4, 0.2, 1.0, 0.6, 0.4, 1.0])
+					self.xman.set_template('all','ADSR',[0.2, 0.2, 0.4, 0.2, 1.0, 0.6, 0.4])
 			for i in range(0, int(self.pres_gn.get())):
 				self.xman.add_ops('all', self.get_co(self.op_ga.get()), 
 				[float(1.0 / (2.0 ** i)), ut.armonic_freq(int(self.axis_id_note.get()) + (12 * i)), 0.0, 0.0, 10])
@@ -481,7 +481,7 @@ class Application(tk.Frame):
 			for note in self.occ_scale:
 				self.xman.del_all_ops(note)
 				if self.with_temp.get():
-						self.xman.set_template(note,'ADSR',[0.2, 0.2, 0.4, 0.2, 1.0, 0.6, 0.4, 1.0])
+						self.xman.set_template(note,'ADSR',[0.2, 0.2, 0.4, 0.2, 1.0, 0.6, 0.4])
 				for i in range(0, int(self.pres_gn.get())):
 					self.xman.add_ops(note, self.get_co(self.op_ga.get()), 
 					[float(1.0 / (2.0 ** i)), ut.armonic_freq(int(self.axis_id_note.get()) + begin + (12 * i)), 0.0, 0.0, 10])
