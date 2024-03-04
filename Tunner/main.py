@@ -45,15 +45,17 @@ class Application(tk.Frame):
 		#Valores de simulacion
 		self.begin_audio = 0.0
 		self.time_audio = 1.0
+		self.time_sim = 1.0
+		self.curr_sim = 44100
 		self.begin_spectre = 0
 		self.lenght_spectre = 1000
+
 		self.iv = [1.0, 1.0, 0.0, 0.0, 20]
-		self.tv = [0.2, 0.2, 0.4, 0.2, 1.0, 0.6, 0.4, 1.0]
+		self.tv = [0.2, 0.2, 0.4, 0.2, 1.0, 0.6, 0.4]
 		self.act_meth_val = True
 		self.act_temp_val = True
-		self.curr_sim = 44100
-		self.rate_sim = 44100
-		self.scale = (2 * np.pi) / self.rate_sim
+
+		self.rate_sample = 44100
 		#Buffers		
 		self.hot_data = []
 		self.cold_data = []
@@ -69,7 +71,9 @@ class Application(tk.Frame):
 		self.create_widgets()
 		self.master.geometry("900x860")
 		self.master.state('zoomed') # "1920x980"
-	#Actualizacion de valores en simulacion
+	#Métodos Complementarios
+	def push_graphic(self, data, scalar = 1.0, color_grap='red'):
+		self.ax.plot(np.arange(0.0, float(len(data)), 1.0) / scalar, data, color=color_grap)
 	def get_co(self, exp):
 		if exp == "Seno":
 			return 's'
@@ -96,9 +100,10 @@ class Application(tk.Frame):
 		if exp == "n":
 			return 'Ruido'
 		return 'none'
+	#Actualizacion de valores en simulacion
 	def update_hot_data(self):
 		input_data = [[self.get_co(self.curr_expr.get()), self.iv[0], self.iv[1], self.iv[2], self.iv[3], self.iv[4]]]
-		self.hot_data = osc.operation(input_data, self.curr_sim, self.scale)
+		self.hot_data = osc.operation(input_data, self.curr_sim, self.rate_sample)
 		self.f_hot_data = self.fou.get_FFT(self.hot_data, self.begin_spectre ,self.lenght_spectre)
 		if max(self.f_hot_data):
 			self.f_hot_data = self.f_hot_data * ( self.iv[0] / max(self.f_hot_data))
@@ -108,7 +113,7 @@ class Application(tk.Frame):
 		if len(method_ops):#Si existe contenido por sumar
 			for i in method_ops:
 				method_data.append([i[0], float(i[1]), float(i[2]), float(i[3]), float(i[4]), int(i[5])])
-			self.cold_data = osc.operation(method_data, self.curr_sim, self.scale)
+			self.cold_data = osc.operation(method_data, self.curr_sim, self.rate_sample)
 			if (len(self.temp_data) and (self.curr_temp.get() != 'None')):
 				self.cold_data = osc.op_arrays(self.cold_data, self.temp_data, False)
 			self.f_cold_data = self.fou.get_FFT(self.cold_data, self.begin_spectre, self.lenght_spectre)
@@ -116,44 +121,43 @@ class Application(tk.Frame):
 	def update_temp_data(self):
 		if(self.curr_temp.get() == 'ADSR'):
 			self.adsr.set_parameters(self.tv[0],self.tv[1],self.tv[2],self.tv[3],self.tv[4],self.tv[5],self.tv[6])
-			self.temp_data = self.adsr.get_template(self.rate_sim, self.curr_sim, self.tv[7])
+			self.temp_data = self.adsr.get_template(self.curr_sim)
 		self.xman.set_template(self.curr_note.get(),self.curr_temp.get(), self.tv)
 	def update_audio_data(self):
-		b = ut.round_i(self.begin_audio * self.rate_sim)
-		self.fou.set_sample_area_at_sample(begin = b, lenght_sam = self.curr_sim, bs=self.begin_spectre, spectre=self.lenght_spectre)
+		b, a_sim = ut.round_i(self.begin_audio * self.rate_sample), ut.round_i(self.time_audio * self.rate_sample)
+		if(self.time_audio > self.fou.get_duration_time()):
+			a_sim = ut.round_i(self.fou.get_duration_time() * self.rate_sample)
+		self.fou.set_sample_area_at_sample(begin = b, lenght_sam = self.a_sim, bs=self.begin_spectre, spectre=self.lenght_spectre)
 		self.audio_data = self.fou.get_amp_sample()
 		self.f_audio_data = self.fou.get_fft_sample()
 		self.f_audio_data = self.f_audio_data / max(self.f_audio_data)
 	#Escuchas de Variables
 	def refresh_screen(self,*args):
-		a_samp = np.arange(0,len(self.audio_data)) / self.rate_sim
-		x_samp = np.arange(0,self.curr_sim) / self.rate_sim
-		f_samp = np.arange(self.begin_spectre, self.lenght_spectre + self.begin_spectre)
-
 		self.ax.cla()
 		if(self.show_four.get()):
 			if(self.show_audio.get() and len(self.f_audio_data)):
-				self.ax.plot(f_samp, self.f_audio_data, color = 'purple')
+				self.push_graphic(self.f_audio_data, 1.0, 'purple')
 			if(self.show_cold.get() and len(self.f_cold_data)):
-				self.ax.plot(f_samp, self.f_cold_data, color = 'orange')
+				self.push_graphic(self.f_cold_data, 1.0, 'orange')
 			if(self.show_hot.get() and len(self.f_hot_data) and (self.curr_expr.get() != 'Operacion')):
-				self.ax.plot(f_samp, self.f_hot_data, color = 'blue')
+				self.push_graphic(self.f_hot_data, 1.0, 'blue')
 		else:
 			if(self.show_audio.get() and len(self.audio_data)):
-				self.ax.plot(a_samp, self.audio_data, color = 'green')
+				self.push_graphic(self.audio_data, self.rate_sample, 'green')
 			if(self.show_cold.get() and len(self.cold_data)):
-				self.ax.plot(x_samp, self.cold_data, color = 'cyan')
+				self.push_graphic(self.cold_data, self.rate_sample, 'cyan')
 			if(self.show_temp.get() and len(self.temp_data)):
-				self.ax.plot(x_samp, self.temp_data, color = 'gold')
+				self.push_graphic(self.temp_data, self.rate_sample, 'gold')
 			if(self.show_hot.get() and len(self.hot_data) and (self.curr_expr.get() != 'Operacion')):
-				self.ax.plot(x_samp, self.hot_data, color = 'red')
+				self.push_graphic(self.hot_data, self.rate_sample,'red')
 		self.cv_main.draw()
+	
 	def val_meth_list(self, *args):
 		if self.act_meth_val:
 			self.iv = [1.0, 1.0, 0.0, 0.0, 20]
-			self.tv[7] = 1.0
 			self.begin_audio = 0.0
 			self.time_audio = 1.0
+			self.time_sim = 1.0
 			try:
 				self.iv[0] = float(self.value_a.get())
 			except ValueError:
@@ -180,8 +184,10 @@ class Application(tk.Frame):
 				pass
 			try:
 				self.time_audio = float(self.value_at.get())
-				if self.time_audio > 0.0:
-					self.tv[7] = self.time_audio
+			except ValueError:
+				pass
+			try:
+				self.time_sim = float(self.value_sd.get())
 			except ValueError:
 				pass
 			try:
@@ -193,7 +199,7 @@ class Application(tk.Frame):
 			except ValueError:
 				pass
 
-			self.curr_sim = ut.round_i(self.time_audio * self.rate_sim)
+			self.curr_sim = ut.round_i(self.time_sim * self.rate_sample)
 
 			if len(self.audio_data):
 				self.update_audio_data()
@@ -204,39 +210,39 @@ class Application(tk.Frame):
 			self.refresh_screen()
 	def val_temp_list(self, *args):
 		if self.act_temp_val:
-			self.tv = [0.2, 0.2, 0.4, 0.2, 1.0, 0.6, 0.4, 1.0]
+			self.tv = [0.2, 0.2, 0.4, 0.2, 1.0, 0.6, 0.4]
 			try:
-				if float(self.value_att.get()) > 0.0:
+				if float(self.value_att.get()) >= 0.0:
 					self.tv[0] = float(self.value_att.get())
 			except ValueError:
 				pass
 			try:
-				if float(self.value_dec.get()) > 0.0:
+				if float(self.value_dec.get()) >= 0.0:
 					self.tv[1] = float(self.value_dec.get())
 			except ValueError:
 				pass
 			try:
-				if float(self.value_sus.get()) > 0.0:
+				if float(self.value_sus.get()) >= 0.0:
 					self.tv[2] = float(self.value_sus.get())
 			except ValueError:
 				pass
 			try:
-				if float(self.value_rel.get()) > 0.0:
+				if float(self.value_rel.get()) >= 0.0:
 					self.tv[3] = float(self.value_rel.get())
 			except ValueError:
 				pass
 			try:
-				if float(self.value_pic.get()) > 0.0:
+				if float(self.value_pic.get()) >= 0.0:
 					self.tv[4] = float(self.value_pic.get())
 			except ValueError:
 				pass
 			try:
-				if float(self.value_stb.get()) > 0.0:
+				if float(self.value_stb.get()) >= 0.0:
 					self.tv[5] = float(self.value_stb.get())
 			except ValueError:
 				pass
 			try:
-				if float(self.value_res.get()) > 0.0:
+				if float(self.value_res.get()) >= 0.0:
 					self.tv[6] = float(self.value_res.get())
 			except ValueError:
 				pass
@@ -256,8 +262,8 @@ class Application(tk.Frame):
 
 		self.tag_a.set(value='Amplitud')
 		self.tag_b.set(value='Frecuencia')
-		self.tag_c.set(value='Fase')
-		self.tag_d.set(value='Origen')
+		self.tag_c.set(value='Amp_Vibrato')
+		self.tag_d.set(value='Freq_Vibrato')
 		self.tag_e.set(value='')
 
 		if(self.curr_expr.get() == "SierraAna"):
@@ -280,12 +286,13 @@ class Application(tk.Frame):
 
 		self.update_hot_data()
 		self.refresh_screen()
+
 	def update_lb_meth(self, *args):
 		self.lb_sum.delete(0, tk.END)
 		for x in self.xman.read_all_ops(self.curr_note.get()):
 			self.lb_sum.insert(self.lb_sum.size(),
-			'{:.2f}{}({:.2f}w + {:.2f}) +{:.2f}'.format(
-			float(x[1]), self.get_co(x[0]), float(x[2]), float(x[3]), float(x[4])))
+			'{:.2f}{}({:.2f}wt + args); args = {:.2f} * {:.2f} * Seno({:.2f}wt)'.format(
+			float(x[1]), self.get_co(x[0]), float(x[2]), float(x[2]), float(x[3]), float(x[4])))
 		self.load_temp(self.xman.read_temp(self.curr_note.get()))
 	def update_xml_format(self, *args):
 		if self.mode_note.get():
@@ -307,10 +314,8 @@ class Application(tk.Frame):
 	def set_method(self):
 		if (self.curr_expr.get() == 'Operacion'):
 			return 0
-		self.lb_sum.insert(self.lb_sum.size(),'{:.2f}{}({:.2f}w + {:.2f}) +{:.2f}'.format(
-		float(self.value_a.get()), self.curr_expr.get(), float(self.value_b.get()), float(self.value_c.get()), float(self.value_d.get()) ))
 		self.xman.add_ops(self.curr_note.get(), self.get_co(self.curr_expr.get()), self.iv)
-		
+		self.update_lb_meth()
 		self.update_cold_data()
 		self.refresh_screen()
 	def del_method(self):
@@ -322,7 +327,7 @@ class Application(tk.Frame):
 				return 0
 			i = 0
 		self.xman.del_ops(self.curr_note.get(), i)
-		self.lb_sum.delete(i)
+		self.update_lb_meth()
 		self.update_cold_data()
 		self.refresh_screen()	
 	def mod_method(self):
@@ -340,7 +345,7 @@ class Application(tk.Frame):
 		self.value_c.set(xml_data[3])
 		self.value_d.set(xml_data[4])
 		self.value_e.set(xml_data[5])
-		self.lb_sum.delete(i)
+		self.update_lb_meth()
 		self.update_cold_data()
 		self.refresh_screen()
 
@@ -380,15 +385,17 @@ class Application(tk.Frame):
 		path = filedialog.askopenfile(initialdir='./samples', filetypes=[("WAV audio", ".wav")])
 		if path.name:
 			self.fou.load_archive(path.name)
-			self.rate_sim = self.fou.get_rate()
-			self.scale = (2 * np.pi) / self.rate_sim
+			self.rate_sample = self.fou.get_rate()
 			self.act_meth_val = False
 			self.value_ab.set('0.0')
 			self.value_at.set('{:.2f}'.format(self.fou.get_duration_time()))
+			self.value_sd.set('{:.2f}'.format(self.fou.get_duration_time()))
 			self.value_sb.set('0')
 			self.value_st.set('{}'.format(self.fou.get_lenght_spectre()))
-			self.time_audio = self.fou.get_duration_time()
 			self.act_meth_val = True
+			self.time_audio = self.fou.get_duration_time()
+			self.time_sim = self.time_audio
+			self.curr_sim = ut.round_i(self.time_sim * self.rate_sample)
 			self.begin_spectre = 0
 			self.lenght_spectre = self.fou.get_lenght_spectre()
 			self.update_audio_data()
@@ -486,13 +493,11 @@ class Application(tk.Frame):
 		self.with_temp.set(value=False)
 		self.op_ga.set(value='Seno')
 		self.sec_win.destroy()
-
 	def generate_armonics(self):
-		self.lb_sum.delete(0, tk.END)
 		self.xman.del_all_ops(self.curr_note.get())
 		for x in self.fou.localize_armonics(float(self.value_flud.get())):
-			self.lb_sum.insert(self.lb_sum.size(), '{:.2f}{}({:.2f}w + 0.0) + 0.0'.format(x[1], self.op_ga.get(), x[0]))
 			self.xman.add_ops(self.curr_note.get(), self.get_co(self.op_ga.get()), [x[1], x[0], 0.0, 0.0, 10])
+		self.update_lb_meth()
 		self.update_cold_data()
 		self.refresh_screen()
 		self.sec_win.destroy()
@@ -522,10 +527,11 @@ class Application(tk.Frame):
 		self.value_b = tk.StringVar(value='1.0')
 		self.value_c = tk.StringVar(value='0.0')
 		self.value_d = tk.StringVar(value='0.0')
-		self.value_e = tk.StringVar(value='20')
-		#Simulacion de tiempo audio y espectro
+		self.value_e = tk.StringVar(value='10')
+		#Simulacion de tiempo audio, simulación y espectro
 		self.value_ab = tk.StringVar(value='0.0')
 		self.value_at = tk.StringVar(value='1.0')
+		self.value_sd = tk.StringVar(value='1.0')
 		self.value_sb = tk.StringVar(value='0')
 		self.value_st = tk.StringVar(value='50000')
 		#Etiquetas Variables
@@ -578,6 +584,7 @@ class Application(tk.Frame):
 
 		self.value_ab.trace('w',self.val_meth_list)
 		self.value_at.trace('w',self.val_meth_list)
+		self.value_sd.trace('w',self.val_meth_list)
 		self.value_sb.trace('w',self.val_meth_list)
 		self.value_st.trace('w',self.val_meth_list)
 
@@ -710,10 +717,6 @@ class Application(tk.Frame):
 		self.txb_rest = tk.Entry(self.fr_template, bd=4, textvariable = self.value_res)
 		self.txb_rest.grid(column=2,row=4)
 
-		self.lbl_dur = tk.Label(self.fr_template, text = 'Duración')
-		self.lbl_dur.grid(column=3,row=3)
-		self.txb_dur = tk.Entry(self.fr_template, bd=4, textvariable = self.value_at)
-		self.txb_dur.grid(column=3,row=4)
 		#Panel de metodos
 		self.btn_add_sum = tk.Button(self.fr_method, text="Añadir", command=self.set_method)
 		self.btn_add_sum.grid(column=1,row=0, sticky='W')
@@ -764,6 +767,10 @@ class Application(tk.Frame):
 		self.txb_id = tk.Entry(self.fr_method, bd=4, textvariable=self.value_id)
 		self.txb_id.grid(column=7,row=2,sticky='N')
 
+		self.lbl_dur = tk.Label(self.fr_method, text = 'Duración')
+		self.lbl_dur.grid(column=8,row=1)
+		self.txb_dur = tk.Entry(self.fr_method, bd=4, textvariable = self.value_sd)
+		self.txb_dur.grid(column=8,row=2)
 
 root = tk.Tk()
 
@@ -772,7 +779,7 @@ def close():
 	root.destroy()
 
 def main():
-	root.wm_title("Tuner by JoGEHrt V_0.8.2")
+	root.wm_title("Tuner by JoGEHrt V_0.9.3")
 	root.wm_protocol('WM_DELETE_WINDOW',close)
 	app = Application(root)
 	app.mainloop()

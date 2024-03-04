@@ -4,29 +4,29 @@ import numpy as np
 	
 class Oscillador():
 	@staticmethod
-	def sin_data(amp:float, freq:float, fase:float, org:float, dt:float)->float:
-		return amp * mt.sin(freq * dt + fase) + org
+	def sin_data(amp:float, freq:float, dt:float)->float:
+		return amp * mt.sin(freq * dt)
 	@staticmethod
-	def square_data(amp:float, freq:float, fase:float, org:float, dt:float)->float:
-		if(mt.sin(freq * dt + fase) > 0):
-			return amp + org
-		return -amp + org
+	def square_data(amp:float, freq:float, dt:float)->float:
+		if(mt.sin(freq * dt) > 0):
+			return amp
+		return -amp
 	@staticmethod
-	def triangle_data(amp:float, freq:float, fase:float, org:float, dt:float)->float:
-		return amp * mt.asin(mt.sin(freq * dt + fase)) * (2.0/mt.pi) + org
+	def triangle_data(amp:float, freq:float, dt:float)->float:
+		return amp * mt.asin(mt.sin(freq * dt)) * (2.0/mt.pi)
 	@staticmethod
-	def saw_ana_data(amp:float, freq:float, fase:float, org:float, dt:float, fid:int)->float:
+	def saw_ana_data(amp:float, freq:float, dt:float, fid:int)->float:
 		sub_res = 0
 		for j in range(1, int(fid) + 1, 1):
 			sub_res += mt.sin(j * freq * dt) / j
-		return sub_res
+		return amp * sub_res
 	@staticmethod
-	def saw_opt_data(amp:float, freq:float, fase:float, org:float, dt:float) ->float:
+	def saw_opt_data(amp:float, freq:float, dt:float) ->float:
 		if(freq != 0.0):
-			return amp * (2.0/mt.pi) * (freq * mt.pi * mt.fmod(dt, 1/freq) - (mt.pi/2.0) + fase) + org
+			return amp * (2.0/mt.pi) * (freq * mt.pi * mt.fmod(dt, 1/freq) - (mt.pi/2.0))
 	@staticmethod
-	def noise_data(min_v:float, max_v:float, org:float):
-		return rd.uniform(min_v, max_v) + org
+	def noise_data(min_v:float, max_v:float):
+		return rd.uniform(min_v, max_v)
 	@staticmethod
 	def op_arrays(a, b, is_add = True):
 		buf = np.arange(0.0, float(len(a)), 1.0)
@@ -51,26 +51,31 @@ class Oscillador():
 			else:
 				a[i] *= s
 	@staticmethod
-	def operation(instructions, sim:int, step:float):
+	def operation(instructions, x_sim:int, sample_rate:int):
 		osc = Oscillador()
-		data = np.arange(0.0, float(sim), 1.0) * 0.0
-		for t in range(0, sim):
-			dt = t * step
-			#print('{:.2f}'.format(dt))
+		data = np.arange(0.0, float(x_sim)) * 0.0
+		steps = np.arange(0.0, float(x_sim)) / float(sample_rate)
+		index = 0
+		for t in steps:
+			dt = t * 2.0 * np.pi #FTYPE dFreq = w(dHertz) * dTime 
 			for i in instructions:
+				if(i[3] != 0.0):# +  dLFOAmplitude * dHertz * (sin(w(dLFOHertz) * dTime));
+					dt += i[3] * t * mt.sin(t * i[4]) 
 				if(i[0] == 'none'):
 					return data
 				elif(i[0] == 's'):
-					data[t] += osc.sin_data(i[1], i[2], i[3] * step, i[4], dt)
+					data[index] += osc.sin_data(i[1], i[2], dt)
 				elif(i[0] == 'q'):
-					data[t] += osc.square_data(i[1], i[2], i[3] * step, i[4], dt)
+					data[index] += osc.square_data(i[1], i[2], dt)
 				elif(i[0] == 't'):
-					data[t] += osc.triangle_data(i[1], i[2], i[3] * step, i[4], dt)
+					data[index] += osc.triangle_data(i[1], i[2], dt)
 				elif(i[0] == 'a'):
-					data[t] += osc.saw_ana_data(i[1], i[2], i[3] * step, i[4], dt, i[5])
+					data[index] += osc.saw_ana_data(i[1], i[2], dt, i[5])
 				elif(i[0] == 'o'):
-					data[t] += osc.saw_opt_data(i[1], i[2], i[3] * step, i[4], dt)
+					data[index] += osc.saw_opt_data(i[1], i[2], dt)
 				elif(i[0] == 'n'):
-					data[t] += osc.noise_data(i[1], i[2], i[3])
+					data[index] += osc.noise_data(i[1], i[2])
+			index += 1
+
 
 		return data

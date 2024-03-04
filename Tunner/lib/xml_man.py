@@ -60,8 +60,8 @@ class XML_Manager():
 		subject.set('type','{}'.format(op_type))
 		subject.set('amp','{}'.format(val[0]))
 		subject.set('frq','{}'.format(val[1]))
-		subject.set('fse','{}'.format(val[2]))
-		subject.set('org','{}'.format(val[3]))
+		subject.set('vam','{}'.format(val[2]))
+		subject.set('vfq','{}'.format(val[3]))
 		subject.set('det','{}'.format(val[4]))
 	def del_ops(self, tag, index):
 		subject = self.root.findall("./note[@from='{}']/method/".format(tag))[index]
@@ -73,7 +73,7 @@ class XML_Manager():
 
 	def read_ops(self, tag, index):
 		sub = self.root.findall("./note[@from='{}']/method/".format(tag))[index]
-		return [sub.get('type'),sub.get('amp'),sub.get('frq'),sub.get('fse'),sub.get('org'),sub.get('det')]
+		return [sub.get('type'),sub.get('amp'),sub.get('frq'),sub.get('vam'),sub.get('vfq'),sub.get('det')]
 	def read_temp(self, tag):
 		type_t = self.root.find("./note[@from='{}']/template".format(tag))
 		if(type_t.get('type') == 'None'):
@@ -83,7 +83,7 @@ class XML_Manager():
 	def read_all_ops(self, tag):
 		xml_data = []
 		for sub in self.root.findall("./note[@from='{}']/method/".format(tag)):
-			xml_data.append([sub.get('type'),sub.get('amp'),sub.get('frq'),sub.get('fse'),sub.get('org'),sub.get('det')])
+			xml_data.append([sub.get('type'),sub.get('amp'),sub.get('frq'),sub.get('vam'),sub.get('vfq'),sub.get('det')])
 		return xml_data
 
 	def get_size_ops(self, tag):
