@@ -10,19 +10,23 @@ class XML_Manager():
 		self.root = ET.parse(self.path).getroot()
 
 	def set_init(self, is_gen = True):
+		self.root = ET.Element('instrument',{'name':'inst', 'vol':'1.0', 'mlt':'1.0'})
 		if is_gen:
-			self.root = ET.Element('instrument')
 			note = ET.SubElement(self.root, 'note',{'from': 'all'})
 			ET.SubElement(note,'template',{'type':'None'})
 			ET.SubElement(note,'method')
 		else:
-			self.root = ET.Element('instrument')
 			notes = []
 			for tag in ['la','la#','si','do','do#','re','re#','mi','fa','fa#','sol','sol#']:
 				notes.append(ET.SubElement(self.root, 'note',{'from': tag}))
 			for note in notes:
 				ET.SubElement(note,'template',{'type':'None'})
 				ET.SubElement(note,'method')
+
+	def set_metadata(self, name, vol, mlt):
+		self.root.set('name','{}'.format(name))
+		self.root.set('vol','{:.2f}'.format(vol))
+		self.root.set('mlt','{:.2f}'.format(mlt))
 	def set_template(self, tag, type_t, val):
 		subject = self.root.find("./note[@from='{}']/template[@type='{}']/amplitude".format(tag, type_t))
 		if subject != None:
@@ -70,16 +74,15 @@ class XML_Manager():
 	def del_all_ops(self, tag):
 		for sub in self.root.findall("./note[@from='{}']/method/".format(tag)):
 			self.root.find("./note[@from='{}']/method".format(tag)).remove(sub)
-
-	def read_ops(self, tag, index):
-		sub = self.root.findall("./note[@from='{}']/method/".format(tag))[index]
-		return [sub.get('type'),sub.get('amp'),sub.get('frq'),sub.get('vam'),sub.get('vfq'),sub.get('det')]
 	def read_temp(self, tag):
 		type_t = self.root.find("./note[@from='{}']/template".format(tag))
 		if(type_t.get('type') == 'None'):
 			return ['None','0.0','0.0','0.0','0.0','0.0','0.0','0.0']
 		sub = self.root.find("./note[@from='{}']/template/amplitude".format(tag))
 		return [type_t.get('type'), sub.get('att'),sub.get('dec'),sub.get('sus'),sub.get('rel'),sub.get('pic'),sub.get('stb'),sub.get('res')]
+	def read_ops(self, tag, index):
+		sub = self.root.findall("./note[@from='{}']/method/".format(tag))[index]
+		return [sub.get('type'),sub.get('amp'),sub.get('frq'),sub.get('vam'),sub.get('vfq'),sub.get('det')]
 	def read_all_ops(self, tag):
 		xml_data = []
 		for sub in self.root.findall("./note[@from='{}']/method/".format(tag)):
@@ -90,6 +93,8 @@ class XML_Manager():
 		return len(self.root.findall("./note[@from='{}']/method/".format(tag)))
 	def get_mode(self):
 		return self.root.find("./note[@from='all']") != None
+	def get_metadata(self):
+		return [self.root.get('name'),self.root.get('vol'),self.root.get('mlt')]
 
 	def bake(self):
 		ET.indent(self.root)

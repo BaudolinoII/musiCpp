@@ -12,16 +12,16 @@
 
 #define FTYPE double
 //			C						D					   E						F						G			A						B		
-const BYTE DO = 0x40, DO_M = 0x41, RE = 0x42, RE_M = 0x43, MI = 0x44, MI_M = 0x45, FA = 0x46, FA_M = 0x47, SOL = 0x48, LA = 0x49, LA_M = 0x50, SI = 0x51, SI_M = 0x52;
+const BYTE DO = 0x41, DO_M = 0x42, RE = 0x43, RE_M = 0x44, MI = 0x45, MI_M = 0x46, FA = 0x47, FA_M = 0x48, SOL = 0x49, LA = 0x4A, LA_M = 0x4B, SI = 0x4C, SI_M = 0x4D;
 const BYTE RD = 0x80, BL = 0x40, NG = 0x20, CH = 0x10, SH = 0x08;
 const BYTE SINGLE = 0x40, CHORD = 0xC0, SILEN = 0x00, FIN = 0xBF;
 
 /*
-  | |   |   |   |   | |   |   |   |   | |   | |   |   |   |
-  | |Do#|   |   |Mi#| |Fa#|   |   |La#| |Si#| |Do#|   |   |
+  | | S |   |   | F | | G |   |   | J | | K | | L |   |   |
+  | |La#|   |   |Do#| |Re#|   |   |Fa#| |Sl#| |La#|   |   |
 __| |___|   |   |___| |___|   |   |___| |___| |___|   |   |__
-|     |     |     |     |     |     |     |     |     |     |
-|  Do |  Re |  Mi |  Fa | Sol |  La |  Si |  Do |  Re |  Mi |
+|   Z |   X |   C |   V |   B |  N  |  M  |  ;  |  :  |  _  |
+|La 4院  Si |  Do |  Re |  Mi |  Fa | Sol |La 5院  Si |  Do |
 |_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|*/
 
 std::vector<stl::note> vecNotes;
@@ -82,11 +82,11 @@ int main() {
 
 	// Se imprime una visual del teclado
 	std::wcout << std::endl <<
-		"|   |   |   |   |   | |   |   |   |   | |   | |   |   |   |" << std::endl <<
-		"|   |Do#|   |   |Mi#| |Fa#|   |   |La#| |Si#| |Do#|   |   |" << std::endl <<
-		"|   |___|   |   |___| |___|   |   |___| |___| |___|   |   |__" << std::endl <<
-		"|     |     |     |     |     |     |     |     |     |     |" << std::endl <<
-		"|  Do |  Re |  Mi |  Fa | Sol |  La |  Si |  Do |  Re |  Mi |" << std::endl <<
+		"  | | S |   |   | F | | G |   |   | J | | K | | L |   |   |" << std::endl <<
+		"  | |La#|   |   |Do#| |Re#|   |   |Fa#| |Sl#| |La#|   |   |" << std::endl <<
+		"__| |___|   |   |___| |___|   |   |___| |___| |___|   |   |__" << std::endl <<
+		"|   Z |   X |   C |   V |   B |  N  |  M  |  ;  |  :  |  _  |" << std::endl <<
+		"|La 4院  Si |  Do |  Re |  Mi |  Fa | Sol |La 5院  Si |  Do |" << std::endl <<
 		"|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|" << std::endl << std::endl;
 
 	// se construye la m嫭uina de sonido con un muestreo de 44100, un canal, bloques de tama隳 8 y 512 en total
@@ -179,11 +179,11 @@ int main() {
 
 			// Para evitar 2 notas del mismo tipo, se revisa
 			muxNotes.lock();
-			std::vector<stl::note>::iterator noteFound = find_if(vecNotes.begin(), vecNotes.end(), [&k](stl::note const& item) { return item.id == k + 64 && item.channel == &instBell; });
+			std::vector<stl::note>::iterator noteFound = find_if(vecNotes.begin(), vecNotes.end(), [&k](stl::note const& item) { return item.id == k + 70 && item.channel == &instBell; });
 			if (noteFound == vecNotes.end()) { // Si no encuentra la nota en el vector
 				if (nKeyState & 0x8000) { // Procede a crear la nota detectada
 					stl::note n;
-					n.id = k + 64;
+					n.id = k + 70;
 					n.on = dTimeNow;
 					n.life = 0;
 					n.channel = &instBell;//Instrumento a tocar

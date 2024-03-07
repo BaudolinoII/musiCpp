@@ -22,9 +22,9 @@ class Application(tk.Frame):
 
 		self.fig, self.ax = plt.subplots()
 		self.cv_main = FigureCanvasTkAgg(self.fig, master=self.master)
-		self.txb_e = tk.Entry(self.master)
 		self.scroll_x = tk.Scrollbar(self.master)
 		self.scroll_y = tk.Scrollbar(self.master)
+		self.txb_e = tk.Entry(self.master)
 		self.txb_ab = tk.Entry(self.master)
 		self.txb_at = tk.Entry(self.master)
 		self.txb_sb = tk.Entry(self.master)
@@ -340,10 +340,10 @@ class Application(tk.Frame):
 			i = 0
 		xml_data = self.xman.read_ops(self.curr_note.get(), i)
 		self.curr_expr.set(self.get_co(xml_data[0]))
-		self.value_a.set(xml_data[1])
-		self.value_b.set(xml_data[2])
-		self.value_c.set(xml_data[3])
-		self.value_d.set(xml_data[4])
+		self.value_a.set('{:.2f}'.format(xml_data[1]))
+		self.value_b.set('{:.2f}'.format(xml_data[2]))
+		self.value_c.set('{:.2f}'.format(xml_data[3]))
+		self.value_d.set('{:.2f}'.format(xml_data[4]))
 		self.value_e.set(xml_data[5])
 		self.update_lb_meth()
 		self.update_cold_data()
@@ -354,6 +354,7 @@ class Application(tk.Frame):
 		if file_inst:
 			if file_inst.find('.xml') == -1:
 				file_inst += '.xml'
+			self.xman.set_metadata(self.value_name.get(), float(self.value_vol.get()), float(self.value_durM.get()))
 			self.xman.set_path(file_inst)
 			self.xman.bake()
 	def load_xml_file(self):
@@ -361,6 +362,10 @@ class Application(tk.Frame):
 		if file_inst:
 			self.xman.load_archive(file_inst)
 			self.mode_note.set(self.xman.get_mode())
+			mtdt = self.xman.get_metadata()
+			self.value_name.set(mtdt[0])
+			self.value_vol.set(mtdt[1])
+			self.value_durM.set(mtdt[2])
 			self.update_cold_data()
 			self.refresh_screen()
 
@@ -569,8 +574,11 @@ class Application(tk.Frame):
 		self.show_cold = tk.BooleanVar(value=False)
 		self.show_temp = tk.BooleanVar(value=False)
 		self.show_four = tk.BooleanVar(value=False)
+		#Variables Metadatos
+		self.value_name = tk.StringVar(value='Instrumento')
+		self.value_vol = tk.StringVar(value='0.8')
+		self.value_durM = tk.StringVar(value='3.0')
 		
-
 		self.curr_note.trace('w',self.update_lb_meth)
 		self.curr_expr.trace('w',self.expr_listener)
 		self.mode_note.trace('w',self.update_xml_format)
@@ -644,6 +652,18 @@ class Application(tk.Frame):
 		self.btn_swc_mn.grid(column=1, row=0, sticky='N')
 		self.btn_agn = tk.Button(self.fr_xml, text="Rellenar Notas", command=self.ask_for_cf_params, width=25)#width=110
 		self.btn_agn.grid(column=1, row=1, sticky='N')
+		self.lbl_name = tk.Label(self.fr_xml, text='Nombre del Instrumento')
+		self.lbl_name.grid(column=3,row=0,sticky='N')
+		self.txb_name = tk.Entry(self.fr_xml, textvariable=self.value_name)
+		self.txb_name.grid(column=2,row=0,sticky='N')
+		self.lbl_vol = tk.Label(self.fr_xml, text='Volumen')
+		self.lbl_vol.grid(column=3,row=1,sticky='N')
+		self.txb_vol = tk.Entry(self.fr_xml, textvariable=self.value_vol)
+		self.txb_vol.grid(column=2,row=1,sticky='N')
+		self.lbl_durM = tk.Label(self.fr_xml, text='Duración MAX de Nota')
+		self.lbl_durM.grid(column=3,row=2,sticky='N')
+		self.txb_durM = tk.Entry(self.fr_xml, textvariable=self.value_durM)
+		self.txb_durM.grid(column=2,row=2,sticky='N')
 		#Opciones del Lienzo
 		self.chb_hot = tk.Checkbutton(self.fr_draw, text="Actual", fg='red', variable=self.show_hot, onvalue=True, offvalue=False)
 		self.chb_hot.grid(column = 0, row = 0, sticky='N')
