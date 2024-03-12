@@ -104,10 +104,9 @@ class olcNoiseMaker{
 		}
 	}
 
-	public: olcNoiseMaker(){}
-	/*public: olcNoiseMaker(std::wstring sOutputDevice, size_t nSampleRate = 44100, size_t nChannels = 1, size_t nBlocks = 8, size_t nBlockSamples = 512) {
+	public: olcNoiseMaker(std::wstring sOutputDevice, size_t nSampleRate = 44100, size_t nChannels = 1, size_t nBlocks = 8, size_t nBlockSamples = 512) {
 		Create(sOutputDevice, nSampleRate, nChannels, nBlocks, nBlockSamples);
-	}*/
+	}
 	public:	~olcNoiseMaker(){
 		Destroy();
 	}

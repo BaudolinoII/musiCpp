@@ -38,7 +38,7 @@ class Note {
         this->active = false;
         this->channel = nullptr;
     }
-   };
+ };
 
 namespace Oscillador {
     const std::vector<std::string> occ_scale = { "si", "do","do#","re","re#","mi","fa","fa#","sol","sol#","la","la#" };
@@ -126,23 +126,26 @@ class Sound_Model {
         FTYPE life_time = dTime - startTime;
         FTYPE pend = (this->temp_val[4] / this->temp_val[0]);
         FTYPE org = 0.0;
-        if (dTime > endTime) {
-            if (life_time < this->temp_val[0])//Attack
-                return life_time * pend + org;
+         
+        if (life_time < this->temp_val[0])//Attack
+            return life_time * pend + org;
+            
+        pend = (this->temp_val[5] - this->temp_val[4]) / this->temp_val[1];
+        org = this->temp_val[5] - pend * (this->temp_val[0] + this->temp_val[1]);
 
-            pend = (this->temp_val[5] - this->temp_val[4]) / this->temp_val[1];
-            org = this->temp_val[4] - pend * this->temp_val[0];
-            if (life_time < (this->temp_val[1] + this->temp_val[0]))//Decay
-                return life_time * pend + org;
+        if (life_time < (this->temp_val[1] + this->temp_val[0]))//Decay
+            return life_time * pend + org;
 
-            pend = (this->temp_val[6] - this->temp_val[5]) / this->temp_val[2];
-            org = this->temp_val[5] - pend * this->temp_val[1];
-            if (life_time < (this->temp_val[2] + this->temp_val[1] + this->temp_val[0]))//Sustain
-                return life_time * pend + org;
+        pend = (this->temp_val[6] - this->temp_val[5]) / this->temp_val[2];
+        org = this->temp_val[6] - pend * (this->temp_val[0] + this->temp_val[1] + this->temp_val[2]);
+        if (life_time < (this->temp_val[2] + this->temp_val[1] + this->temp_val[0]))//Sustain
+            return life_time * pend + org;
+        
+        if (endTime == 0.0)
             return this->temp_val[6];
-        }
+        
         pend = -this->temp_val[6] / this->temp_val[3];
-        org = this->temp_val[6] - pend * this->temp_val[2];
+        org = -pend * (this->temp_val[3] + this->temp_val[2] + this->temp_val[1] + this->temp_val[0]);
         FTYPE res = life_time * pend + org;
         if (res > 0.0)
             return res;
@@ -161,7 +164,7 @@ class Sound_Model {
         bNoteFinished = (dMLT > 0.0 && (dTime - note.on) >= dMLT) || (ampl <= 0.0);
         FTYPE sound = 0.0;
         for (std::pair<char, FTYPE*>op : this->ops_val) {
-            size_t id_base = Oscillador::ident_note(op.second[1]) + (note.id - 64);
+            size_t id_base = Oscillador::ident_note(op.second[1]) + (note.id);
             sound += op.second[0] * Oscillador::osc(dTime, Oscillador::scale(id_base), op.first, op.second[2], op.second[3], op.second[4]);
         }   
         return sound * ampl;

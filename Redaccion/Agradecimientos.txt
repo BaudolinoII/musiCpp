@@ -1,0 +1,27 @@
+\begin{minipage}{.7\textwidth}
+		\flushright
+		\vspace{10pt}
+		\center{
+			\large{AGRADECIMIENTOS}
+			\hrulefill\\[1cm]
+		}
+	\end{minipage}\vspace{4mm}
+	
+	Sabiendo son mis últimos pasos de este largo camino, no tengo nada más por hacer sino expresar mis agradecimientos a tantas personas, voluntades y circunstancias quienes me han permitido llegar, un sentimiento exhaustivo me recorre al contemplar el tiempo y recorrido, más solo puedo expresar mi júbilo ante la superación personal y por eso dedicaré siguientes palabras:\vspace{2mm}
+	
+	\begin{multicols}{2}
+		\section*{Para mi Madre}
+		Me diste la vida y me enseñaste el como dirigirla, espero haberme ganado mi libertad para vivir dignamente. Finalmente concluyo este camino por mis propias convicciones, realmente me he convertido en el orgullo al cual siempre viste desde el primer momento.
+		\section*{A mi Padre}
+		Por enseñarme a luchar con la claridad de pensamiento y fuerza de voluntad, siguiendo mi pasión ante cualquier cosa trivial. Decir la verdad aunque acarré la desgracia siendo firme y digno.
+		\section*{Para Tíos y primos}
+		A todas sus ayudas sinceras o interesadas, separados por políticas absurdas ó de convivencias constantes, son la gran familia con quienes comparto mis momentos fragmentados y reunidos.
+		\section*{Quienes ya no están}
+		Lamento cuanto tiempo he demorado, aun así lo conseguí ante mis propias dudas, gracias por acompañarme en todo momento.
+		\section*{Por mis Amigos}
+		Han sido los hermanos y hermanas quienes he elegido, más valioso por cualquier enlace horizontal pintado en un árbol familiar. Armando Román, Fernando Arredondo, Daniel Flores, Víctor Barriera,  Maricela Cortés, Juan Bedolla, Humberto...
+		\section*{Hacia mis Profesores}
+		Les aprecio el tiempo invertido conmigo, por obligación o genuino compromiso, aún cuando sus enseñanzas académicas no sean mencionadas, si me han forjado para este momento
+		\section*{Ante mi Persona Especial}
+		Finalmente he dejado de arrepentirme del pasado, por eso continuaré para brindar la mejor versión de mi persona y productos, estuviste cuando más lo necesité y estaré DETERMINADO a estar contigo.
+	\end{multicols}
