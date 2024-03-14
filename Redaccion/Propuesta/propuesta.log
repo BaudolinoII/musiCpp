@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (MiKTeX 23.1) (preloaded format=pdflatex 2023.11.9)  12 MAR 2024 12:54
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (MiKTeX 23.1) (preloaded format=pdflatex 2023.11.9)  13 MAR 2024 14:44
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**./tesis.tex
-(tesis.tex
+**./propuesta.tex
+(propuesta.tex
 LaTeX2e <2022-11-01> patch level 1
 L3 programming layer <2023-02-07>
 (C:\Users\espin\AppData\Local\Programs\MiKTeX\tex/latex/base\book.cls
@@ -309,11 +309,11 @@ tex.def
 File: l3backend-pdftex.def 2023-01-16 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count291
 \l__pdf_internal_box=\box100
-) (tesis.aux
+) (propuesta.aux
 LaTeX Info: Redefining \. on input line 8.
 LaTeX Info: Redefining \% on input line 8.
 )
-\openout1 = `tesis.aux'.
+\openout1 = `propuesta.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 12.
 LaTeX Font Info:    ... okay on input line 12.
@@ -363,178 +363,85 @@ Package caption Info: listings package is loaded.
 Package caption Info: End \AtBeginDocument code.
 \big@size=\dimen170
 \c@lstlisting=\count298
-<Assets/images/escudo_unam.png, id=1, 246.6816pt x 277.2759pt>
-File: Assets/images/escudo_unam.png Graphic file (type png)
-<use Assets/images/escudo_unam.png>
-Package pdftex.def Info: Assets/images/escudo_unam.png  used on input line 18.
-(pdftex.def)             Requested size: 86.33984pt x 97.048pt.
-<Assets/images/escudo_fi.jpg, id=3, 79.7379pt x 94.4328pt>
-File: Assets/images/escudo_fi.jpg Graphic file (type jpg)
-<use Assets/images/escudo_fi.jpg>
-Package pdftex.def Info: Assets/images/escudo_fi.jpg  used on input line 29.
-(pdftex.def)             Requested size: 79.7377pt x 94.43256pt.
-LaTeX Font Info:    Trying to load font information for OT1+ztmcm on input line
- 31.
- (C:\Users\espin\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ot1ztmcm.fd
-File: ot1ztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OT1/ztmcm.
-)
-LaTeX Font Info:    Trying to load font information for OML+ztmcm on input line
- 31.
- (C:\Users\espin\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\omlztmcm.fd
-File: omlztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OML/ztmcm.
-)
-LaTeX Font Info:    Trying to load font information for OMS+ztmcm on input line
- 31.
-
-(C:\Users\espin\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\omsztmcm.fd
-File: omsztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMS/ztmcm.
-)
-LaTeX Font Info:    Trying to load font information for OMX+ztmcm on input line
- 31.
-
-(C:\Users\espin\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\omxztmcm.fd
-File: omxztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMX/ztmcm.
-)
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 31.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7.4> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 31.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <6> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 31.
-
-Overfull \hbox (16.90002pt too wide) in paragraph at lines 15--69
-[]$[]$ $[]$ 
- []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
  [1
 
 
-{C:/Users/espin/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map} <./Assets/ima
-ges/escudo_unam.png> <./Assets/images/escudo_fi.jpg>]
+{C:/Users/espin/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [2]
-<Assets/images/musiC++_Diagram.pdf, id=14, 793.04276pt x 546.12032pt>
-File: Assets/images/musiC++_Diagram.pdf Graphic file (type pdf)
-<use Assets/images/musiC++_Diagram.pdf>
-Package pdftex.def Info: Assets/images/musiC++_Diagram.pdf  used on input line 
-107.
-(pdftex.def)             Requested size: 431.25pt x 296.97551pt.
+[3]
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
-Overfull \hbox (86.25pt too wide) in paragraph at lines 107--108
+ [4]
+<../Assets/images/musiC++_Diagram_cut.pdf, id=17, 743.8992pt x 415.5525pt>
+File: ../Assets/images/musiC++_Diagram_cut.pdf Graphic file (type pdf)
+<use ../Assets/images/musiC++_Diagram_cut.pdf>
+Package pdftex.def Info: ../Assets/images/musiC++_Diagram_cut.pdf  used on inpu
+t line 42.
+(pdftex.def)             Requested size: 431.25pt x 240.90648pt.
+
+Overfull \hbox (86.25pt too wide) in paragraph at lines 42--43
 [][] 
  []
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [3 <./Assets/images/musiC++_Diagram.pdf>]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [4]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [5]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [6]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [7]
-(C:\Users\espin\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstlang1.sty
-File: lstlang1.sty 2020/03/24 1.8d listings language file
-)
-(C:\Users\espin\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstmisc.sty
-File: lstmisc.sty 2020/03/24 1.8d (Carsten Heinz)
-)
-(Assets/code/main4.cpp
-consecutive:
-LaTeX Font Info:    Trying to load font information for OMS+ptm on input line 3
-81.
-(C:\Users\espin\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\omsptm.fd
-File: omsptm.fd 
-)
-LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <5> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 381.
-LaTeX Font Info:    Trying to load font information for OML+ptm on input line 3
-82.
-
-(C:\Users\espin\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\omlptm.fd
-File: omlptm.fd 
-)
-LaTeX Font Info:    Font shape `OML/ptm/m/n' in size <5> not available
-(Font)              Font shape `OML/cmm/m/it' tried instead on input line 382.
-LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 3
-91.
-
-(C:\Users\espin\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ts1ptm.fd
-File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
-))
-(Assets/code/main4.cpp
-consecutive:
-
-Overfull \hbox (12.00363pt too wide) in paragraph at lines 204--205
-[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][
-][][] 
- []
-
-)
-Underfull \vbox (badness 10000) has occurred while \output is active []
+ [5 <../Assets/images/musiC++_Diagram_cut.pdf>] [6] [7]
+Underfull \vbox (badness 2150) has occurred while \output is active []
 
  [8]
-(Assets/code/olcNoiseMaker.h
-consecutive:
-
-Overfull \hbox (30.00381pt too wide) in paragraph at lines 206--207
-[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
+Overfull \hbox (21.42854pt too wide) in paragraph at lines 69--70
+[]\OT1/ptm/m/n/14.4 Correspondientes al plan de es-tu-dios de In-ge-nier[]^^Pa 
+en Compu-
  []
 
-
-Overfull \hbox (9.0036pt too wide) in paragraph at lines 231--232
-[][][][][][][][][][][][][][][][][][] 
- []
-
-
-Overfull \hbox (15.00366pt too wide) in paragraph at lines 238--239
-[][][][][][][][][][][][][][][][][][][][][][][][][][] 
- []
-
-
-Overfull \hbox (24.00375pt too wide) in paragraph at lines 240--241
-[][][][][][][][][][][][][][][][][][][][][][][][][][] 
- []
-
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <5> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 250.
-)
+[9]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [9]
-[10] (tesis.aux
+ [10]
+[11]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [12]
+Overfull \hbox (13.08345pt too wide) in paragraph at lines 130--131
+[]\OT1/ptm/m/n/14.4 Nuevo For-ma-to de Al-ma-ce-na-mien-to de in-for-ma-ci[]on 
+orien-
+ []
+
+
+Overfull \hbox (5.98285pt too wide) in paragraph at lines 131--132
+[]\OT1/ptm/m/n/14.4 Modelos Ins-tru-men-ta-les di-gi-ta-les uti-li-za-bles en o
+tros pro-
+ []
+
+[13]
+<../Assets/images/cronograma.png, id=62, 782.925pt x 320.99925pt>
+File: ../Assets/images/cronograma.png Graphic file (type png)
+<use ../Assets/images/cronograma.png>
+Package pdftex.def Info: ../Assets/images/cronograma.png  used on input line 14
+3.
+(pdftex.def)             Requested size: 345.0pt x 141.45071pt.
+ [14 <../Assets/images/cronograma.png>] (propuesta.aux
 LaTeX Info: Redefining \. on input line 8.
 LaTeX Info: Redefining \% on input line 8.
 ) ) 
 Here is how much of TeX's memory you used:
- 7420 strings out of 476339
- 121639 string characters out of 5788119
- 1947340 words of memory out of 5000000
- 27741 multiletter control sequences out of 15000+600000
- 541649 words of font info for 79 fonts, out of 8000000 for 9000
+ 6698 strings out of 476339
+ 112392 string characters out of 5788119
+ 1858340 words of memory out of 5000000
+ 27072 multiletter control sequences out of 15000+600000
+ 523153 words of font info for 46 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 69i,7n,79p,1346b,1440s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 69i,7n,79p,851b,365s stack positions out of 10000i,1000n,20000p,200000b,200000s
 {C:/Users/espin/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc}<C
-:/Users/espin/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi
-5.pfb><C:/Users/espin/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts
-/cm/cmsy5.pfb><C:/Users/espin/AppData/Local/Programs/MiKTeX/fonts/type1/urw/tim
-es/utmb8a.pfb><C:/Users/espin/AppData/Local/Programs/MiKTeX/fonts/type1/urw/tim
-es/utmr8a.pfb><C:/Users/espin/AppData/Local/Programs/MiKTeX/fonts/type1/urw/tim
-es/utmri8a.pfb>
-Output written on tesis.pdf (10 pages, 482398 bytes).
+:/Users/espin/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmb8a.pfb><C
+:/Users/espin/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C
+:/Users/espin/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmri8a.pfb>
+Output written on propuesta.pdf (14 pages, 169521 bytes).
 PDF statistics:
- 81 PDF objects out of 1000 (max. 8388607)
+ 83 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 16 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 11 words of extra memory for PDF output out of 10000 (max. 10000000)
 

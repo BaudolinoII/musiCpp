@@ -127,7 +127,7 @@ class Application(tk.Frame):
 		b, a_sim = ut.round_i(self.begin_audio * self.rate_sample), ut.round_i(self.time_audio * self.rate_sample)
 		if(self.time_audio > self.fou.get_duration_time()):
 			a_sim = ut.round_i(self.fou.get_duration_time() * self.rate_sample)
-		self.fou.set_sample_area_at_sample(begin = b, lenght_sam = self.a_sim, bs=self.begin_spectre, spectre=self.lenght_spectre)
+		self.fou.set_sample_area_at_sample(begin = b, lenght_sam = a_sim, bs=self.begin_spectre, spectre=self.lenght_spectre)
 		self.audio_data = self.fou.get_amp_sample()
 		self.f_audio_data = self.fou.get_fft_sample()
 		self.f_audio_data = self.f_audio_data / max(self.f_audio_data)
@@ -319,32 +319,22 @@ class Application(tk.Frame):
 		self.update_cold_data()
 		self.refresh_screen()
 	def del_method(self):
-		i = 0
-		try:
-			i = self.lb_sum.curselection()[0]
-		except IndexError:
-			if self.xman.get_size_ops(self.curr_note.get()) == 0:	
-				return 0
-			i = 0
-		self.xman.del_ops(self.curr_note.get(), i)
+		for item in self.lb_sum.curselection():
+			self.xman.del_ops(self.curr_note.get(), item)
+			print(item)
 		self.update_lb_meth()
 		self.update_cold_data()
 		self.refresh_screen()	
 	def mod_method(self):
-		i = 0
-		try:
-			i = self.lb_sum.curselection()[0]
-		except IndexError:
-			if self.xman.get_size_ops(self.curr_note.get()) == 0:	
-				return 0
-			i = 0
-		xml_data = self.xman.read_ops(self.curr_note.get(), i)
-		self.curr_expr.set(self.get_co(xml_data[0]))
-		self.value_a.set('{:.2f}'.format(xml_data[1]))
-		self.value_b.set('{:.2f}'.format(xml_data[2]))
-		self.value_c.set('{:.2f}'.format(xml_data[3]))
-		self.value_d.set('{:.2f}'.format(xml_data[4]))
-		self.value_e.set(xml_data[5])
+		for item in self.lb_sum.curselection():
+			xml_data = self.xman.read_ops(self.curr_note.get(), item)
+			self.xman.del_ops(self.curr_note.get(), item)
+			self.curr_expr.set(self.get_co(xml_data[0]))
+			self.value_a.set(xml_data[1])
+			self.value_b.set(xml_data[2])
+			self.value_c.set(xml_data[3])
+			self.value_d.set(xml_data[4])
+			self.value_e.set(xml_data[5])
 		self.update_lb_meth()
 		self.update_cold_data()
 		self.refresh_screen()

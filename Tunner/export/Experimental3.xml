@@ -1,14 +1,14 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version='1.0' encoding='utf8'?>
 <instrument name="Experimental" vol="0.80" mlt="2.00">
   <note from="all">
     <method>
-	  <operation type="s" amp="1.0" frq="161.269894386544" vam="0.125" vfq="0.001" det="15" />
+      <operation type="s" amp="1.0" frq="161.269894386544" vam="0.125" vfq="0.001" det="15" />
       <operation type="s" amp="0.5" frq="322.53978877308765" vam="0.25" vfq="0.001" det="10" />
       <operation type="s" amp="0.25" frq="645.0795775461753" vam="0.5" vfq="0.001" det="10" />
       <operation type="s" amp="0.125" frq="1290.1591550923506" vam="1.0" vfq="0.001" det="10" />
     </method>
     <template type="ADSR">
-      <amplitude att="0.2" dec="0.1" sus="0.4" rel="0.6" pic="1.0" stb="0.6" res="0.4" />
+      <amplitude att="0.08" dec="0.05" sus="0.31" rel="0.15" pic="0.8" stb="0.5" res="0.35" />
     </template>
   </note>
 </instrument>
