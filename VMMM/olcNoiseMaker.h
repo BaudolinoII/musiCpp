@@ -31,7 +31,7 @@ class olcNoiseMaker{
 
 	private: T* m_pBlockMemory = nullptr;
 	private: WAVEHDR* m_pWaveHeaders = nullptr;
-	private: HWAVEOUT m_hwDevice = nullptr;
+	private: HWAVEOUT m_hwDevice = NULL;
 
 	private: std::thread m_thread;
 	private: std::atomic<bool> m_bReady = false;
@@ -104,11 +104,9 @@ class olcNoiseMaker{
 		}
 	}
 
+	public: olcNoiseMaker(){}
 	public: olcNoiseMaker(std::wstring sOutputDevice, size_t nSampleRate = 44100, size_t nChannels = 1, size_t nBlocks = 8, size_t nBlockSamples = 512) {
 		Create(sOutputDevice, nSampleRate, nChannels, nBlocks, nBlockSamples);
-	}
-	public:	~olcNoiseMaker(){
-		Destroy();
 	}
 	
 	public: bool Create(std::wstring sOutputDevice, size_t nSampleRate = 44100, size_t nChannels = 1, size_t nBlocks = 8, size_t nBlockSamples = 512){
@@ -141,18 +139,18 @@ class olcNoiseMaker{
 
 			// Open Device if valid
 			if (waveOutOpen(&m_hwDevice, nDeviceID, &waveFormat, (DWORD_PTR)waveOutProcWrap, (DWORD_PTR)this, CALLBACK_FUNCTION) != S_OK)
-				return Destroy();
+				return false;
 		}
 
 		// Allocate Wave|Block Memory
 		m_pBlockMemory = new T[m_nBlockCount * m_nBlockSamples];
 		if (m_pBlockMemory == nullptr)
-			return Destroy();
+			return false;
 		ZeroMemory(m_pBlockMemory, sizeof(T) * m_nBlockCount * m_nBlockSamples);
 
 		m_pWaveHeaders = new WAVEHDR[m_nBlockCount];
 		if (m_pWaveHeaders == nullptr)
-			return Destroy();
+			return false;
 		ZeroMemory(m_pWaveHeaders, sizeof(WAVEHDR) * m_nBlockCount);
 
 		// Link headers to block memory
@@ -170,9 +168,6 @@ class olcNoiseMaker{
 		m_cvBlockNotZero.notify_one();
 
 		return true;
-	}
-	public: bool Destroy(){
-		return false;
 	}
 	public: void Stop(){
 		m_bReady = false;

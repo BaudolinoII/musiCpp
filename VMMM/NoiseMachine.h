@@ -79,7 +79,7 @@ const BIT8 SINGLE = 0x40, CHORD = 0xC0, SILEN = 0x00, FIN = 0xBF;
 	seq.bRepeat = true;
 	*/
 
-namespace admin {
+/*namespace admin {
 	std::vector<Note> vecNotes;
 	std::mutex muxNotes;
 	Instrument_xml inst;
@@ -110,14 +110,51 @@ namespace admin {
 		safe_remove<std::vector<Note>>(vecNotes, [](Note const& item) { return item.active; });//Se descarta la nota del vector
 		return dMixedOutput * 0.2;
 	}
-}
+}*/
 
 class VMMM {
 	private: std::chrono::steady_clock::time_point clock_old_time, clock_real_time;
 	private: FTYPE dElapsedTime = 0, dWallTime = 0, dSaveTime = 0;
+	private: std::wstring curr_device;
+
+	private: olcNoiseMaker<short> sound;
+
+	private: static std::vector<Note> vecNotes;
+	private: static std::mutex muxNotes;
+	private: static Instrument_xml* inst;
+	private: typedef bool(*lambda)(Note const& item);
+	private: template<class T>
+			 static void safe_remove(T& v, lambda f) {
+				 auto n = v.begin();
+				 while (n != v.end())
+					 if (f(*n))//Nota activa
+						 ++n;//La deja pasar
+					 else//Nota inactiva
+						 n = v.erase(n);//Es eliminada
+			 }
+	private: static FTYPE MakeNoise(int nChannel, FTYPE dTime) {
+		std::unique_lock<std::mutex> lm(muxNotes);
+		FTYPE dMixedOutput = 0.0;
+		for (Note& n : vecNotes) {
+			bool bNoteFinished = false;
+			FTYPE dSound = 0;
+			// Reproduce cada nota con su correspondiente instrumento asignado
+			if (n.channel != nullptr)
+				dSound = n.channel->getSound(dTime, n, bNoteFinished);
+			// Adición a la mezcla del sonido
+			dMixedOutput += dSound;
+			if (bNoteFinished) //Si el tiempo sobrepasa la vida máxima o el tiempo activo a concluido
+				n.active = false;//Entonces esta ya no está activa
+		}
+		safe_remove<std::vector<Note>>(vecNotes, [](Note const& item) { return item.active; });//Se descarta la nota del vector
+		return dMixedOutput * 0.2;
+	}
 
 	private: void print_board() {
-		std::wcout << std::endl <<
+		std::cout << "VitalMusicMakerMachine V0.4.5 by JoGEHrt & OneLoneCoder" << std::endl << std::endl;
+		std::wcout << "Dispositivo en uso: " << this->curr_device << std::endl;
+		std::cout << "Instrumento en uso: " << this->inst->getName() << std::endl;
+		std::cout << std::endl <<
 		"  | | S |   |   | F | | G |   |   | J | | K | | L |   |   |" << std::endl <<
 		"  | |La#|   |   |Do#| |Re#|   |   |Fa#| |Sl#| |La#|   |   |" << std::endl <<
 		"__| |___|   |   |___| |___|   |   |___| |___| |___|   |   |__" << std::endl <<
@@ -139,6 +176,12 @@ class VMMM {
 		this->dWallTime += this->dElapsedTime;
 		this->dSaveTime += this->dElapsedTime;
 	}
+
+	public: VMMM(){
+		std::vector<std::wstring> devices = olcNoiseMaker<short>::Enumerate();
+		for (std::wstring d : devices) std::wcout << "Dispositivo de Salida Encontrado: " << d << std::endl;
+		this->curr_device = devices[0];
+	}
 	
 	// Actualizacion de la VMMM (genera las notas y las añade al vector principal) ======================================
 	//int newNotes = seq.Update(dElapsedTime);
@@ -148,16 +191,12 @@ class VMMM {
 		//vecNotes.emplace_back(seq.vecNotes[a]);
 	//}
 	//admin::muxNotes.unlock();
-	public: void KeyBoard_MainLoop(Instrument_xml *inst) {
-		std::wcout << "VitalMusicMakerMachine V0.2.1 by JoGEHrt & OneLoneCoder" << std::endl << std::endl;
-
-		std::vector<std::wstring> devices = olcNoiseMaker<short>::Enumerate();
-		for (std::wstring d : devices) std::wcout << "Dispositivo de Salida Encontrado: " << d << std::endl;
-		std::wcout << "Dispositivo en uso: " << devices[0] << std::endl;
-
-		olcNoiseMaker<short> sound(devices[0], 44100, 1, 8, 512);
-
-		sound.SetUserFunction(admin::MakeNoise);
+	public: void setInstrument(Instrument_xml* inst){
+		this->inst = inst;
+	}
+	public: void KeyBoard_MainLoop() {
+		this->sound.Create(this->curr_device, 44100, 1, 8, 512);
+		this->sound.SetUserFunction(this->MakeNoise);
 		this->setTime();
 		while (1) {
 			this->updateTime();
@@ -165,16 +204,16 @@ class VMMM {
 			for (int k = 0; k < 16; k++) {
 				short nKeyState = GetAsyncKeyState((unsigned char)("ZSXCFVGBNJMK\xbcL\xbe\xbf"[k]));
 				// Para evitar 2 notas del mismo tipo, se revisa
-				admin::muxNotes.lock();
-				std::vector<Note>::iterator noteFound = find_if(admin::vecNotes.begin(), admin::vecNotes.end(), [&k](Note const& item) { return item.id == k + 6; });
-				if (noteFound == admin::vecNotes.end()) { // Si no encuentra la nota en el vector
+				this->muxNotes.lock();
+				std::vector<Note>::iterator noteFound = find_if(this->vecNotes.begin(), this->vecNotes.end(), [&k](Note const& item) { return item.id == k + 6; });
+				if (noteFound == this->vecNotes.end()) { // Si no encuentra la nota en el vector
 					if (nKeyState & 0x8000) { // Procede a crear la nota detectada
 						Note n;
 						n.id = k + 6;
 						n.on = dTimeNow;
-						n.channel = inst;//Instrumento a tocar
+						n.channel = this->inst;//Instrumento a tocar
 						n.active = true;
-						admin::vecNotes.emplace_back(n);
+						this->vecNotes.emplace_back(n);
 					}
 				}
 				else { // Si la nota existe en el vector
@@ -191,20 +230,23 @@ class VMMM {
 						noteFound->off = dTimeNow;//Le suma el tiempo de vida que carga la nota
 					}
 				}
-				admin::muxNotes.unlock();
+				this->muxNotes.unlock();
 			}
 			
 			if (this->dSaveTime >= 1.0) {
 				system("cls");
 				this->print_board();
-				std::cout << "Notas simultaneas: " << admin::vecNotes.size() << std::endl;
+				std::cout << "Notas simultaneas: " << this->vecNotes.size() << std::endl;
 				std::cout << "Tiempo de simulacion: " << dTimeNow << std::endl;
 				this->dSaveTime -= 1.0;
 			}
 			
 			//this_thread::sleep_for(5ms);
 		}
-		sound.Stop();
-		sound.Destroy();
+		this->sound.Stop();
 	}
 };
+
+std::vector<Note> VMMM::vecNotes;
+std::mutex VMMM::muxNotes;
+Instrument_xml* VMMM::inst;

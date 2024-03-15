@@ -10,6 +10,7 @@ int main() {
 	}
 	std::cout << "Instrumento Cargado\n";
 	VMMM vm3;
-	vm3.KeyBoard_MainLoop(&inst);
+	vm3.setInstrument(&inst);
+	vm3.KeyBoard_MainLoop();
 	return 0;
 }
