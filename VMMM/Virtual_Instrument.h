@@ -87,8 +87,8 @@ class Oscillador {
 };
 std::string Oscillador::occ_scale[] = { "si", "do","do#","re","re#","mi","fa","fa#","sol","sol#","la","la#" };
 class Sound_Model {
-    private: std::vector<FTYPE> temp_val;
-    private: std::vector<std::pair<char, std::vector<FTYPE>>> ops_val;
+    private: FTYPE* temp_val;
+    private: std::vector<std::pair<char, FTYPE*>> ops_val;
     private: std::string note_name;
 
     public: Sound_Model(std::string note_name){
@@ -96,9 +96,10 @@ class Sound_Model {
     }
 
     public: void set_temp(std::string temp) {
+        this->temp_val = new FTYPE[7];
         size_t pos = temp.find_first_of(','), begin = 0, i = 0;
         while (pos != std::string::npos) {
-            this->temp_val.push_back(std::stod(temp.substr(begin, pos - (int)begin)));
+            this->temp_val[i] = std::stod(temp.substr(begin, pos - (int)begin));
             begin = pos + 1;
             pos = temp.find_first_of(',', begin);
             i++;
@@ -106,15 +107,15 @@ class Sound_Model {
 
     }
     public: void add_ops(std::string op) {
-        std::vector<FTYPE> vec;
+        FTYPE* vals = new FTYPE[5];
         size_t pos = op.find_first_of(',', 2), begin = 2, i = 0;
         while (pos != std::string::npos) {
-            vec.push_back(std::stod(op.substr(begin, pos - (int)begin)));
+            vals[i] = std::stod(op.substr(begin, pos - (int)begin));
             begin = pos + 1;
             pos = op.find_first_of(',', begin);
             i++;
         }
-        this->ops_val.push_back({op[0], vec});
+        this->ops_val.push_back({op[0], vals});
         //this->ops_val.back().second[i] = std::stod(op.substr(begin, op.size() - (int)begin));
     }
     public: bool identify(std::string note_name) {
@@ -154,7 +155,7 @@ class Sound_Model {
         FTYPE ampl = getAmplitude(dTime, note.on, note.off);
         bNoteFinished = (dMLT > 0.0 && (dTime - note.on) >= dMLT) || (ampl <= 0.0);
         FTYPE sound = 0.0;
-        for (std::pair<char, std::vector<FTYPE>>op : this->ops_val)
+        for (std::pair<char, FTYPE*> op : this->ops_val)
             sound += op.second[0] * Oscillador::osc(dTime, op.second[1], op.first, op.second[2], op.second[3], op.second[4]);
         return sound * ampl;
     }
@@ -162,10 +163,10 @@ class Sound_Model {
         FTYPE ampl = getAmplitude(dTime, note.on, note.off);
         bNoteFinished = (dMLT > 0.0 && (dTime - note.on) >= dMLT) || (ampl <= 0.0);
         FTYPE sound = 0.0;
-        for (std::pair<char, std::vector<FTYPE>>op : this->ops_val) {
-            size_t id_base = Oscillador::ident_note(op.second[1]) + (note.id);
+        for (std::pair<char, FTYPE*> op : this->ops_val) {
+            size_t id_base = Oscillador::ident_note(op.second[1]) + note.id;
             sound += op.second[0] * Oscillador::osc(dTime, Oscillador::scale(id_base), op.first, op.second[2], op.second[3], op.second[4]);
-        }   
+        }
         return sound * ampl;
     }
 };
