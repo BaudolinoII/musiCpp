@@ -1,0 +1,45 @@
+//Import debe funcionar como una palabra clave al entorno
+//se planea en un inicio conjuntar toda la información posible en un solo documento
+
+IMPORT '../address/other_package.mpp'
+IMPORT '../'
+
+//Comentarios
+
+/*
+Bloque
+de
+Comentarios
+*/
+
+PACKAGE nombre_paq{
+	<nombre_mel1 inst='piano' bps=4 scl=4>"Do Re8 MAY(Mi#5) Fa1 <sol la si>"
+
+	<nombre_mel2 inst='flauta' bps=4 scl=4>"Do Re4 MAY(Mi#5) Fa1 <sol la si>
+	re Do Mi fa Sol"
+
+	<nombre_mel3 inst='harpa' bps=4 scl=4>
+	"Do Re4 MAY(Mi#5) Fa1 <sol la si>"
+}
+
+INIT_SCRIPT{
+	<play start=0.0 volume=0.85 loop=3> nombre_mel1 </play>
+	<play at_finish='nombre_mel1' trigger_loop=1 volume=0.65 loop='true'> nombre_mel2 </play>
+	<play at_finish='nombre_mel2' trigger_loop=2 start=5.0 volume=0.45> nombre_mel3 other_package:nombre_mel4</play>
+	<stop start=60.0 set_time=0.0> ALL_TRACKS </stop>
+
+	<play start=0.0 volume=0.85 loop=3> nombre_mel1 </play>
+	<play at_finish='nombre_mel1' trigger_loop=1 volume=0.65 loop='true'> nombre_mel2 </play>
+	<play at_finish='nombre_mel2' trigger_loop=2 start=5.0 volume=0.45> nombre_mel3 other_package:nombre_mel4</play>
+	<pause start=45.0>nombre_mel2</pause>
+
+	<play start=45.0> SCRIPT:solo_piano </play>
+
+	//<end start=120.0/>
+	<end> SCRIPT:solo_piano </end>
+}
+
+SCRIPT solo_piano{
+	<play start=0.0 volume=0.85 loop=3> nombre_mel1 </play>
+	<stop start=60.0 set_time=0.0> ALL_TRACKS </stop>
+}

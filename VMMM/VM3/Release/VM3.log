@@ -1,0 +1,17 @@
+﻿  main.cpp
+C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\Virtual_Instrument.h(81,34): warning C4244: 'return': conversión de 'double' a 'size_t'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\Virtual_Instrument.h(82,29): warning C4244: 'return': conversión de 'double' a 'size_t'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\Virtual_Instrument.h(85,54): warning C4244: 'return': conversión de 'double' a 'size_t'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\Virtual_Instrument.h(159,123): warning C4244: 'argumento': conversión de 'double' a 'const size_t'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\Virtual_Instrument.h(168,137): warning C4244: 'argumento': conversión de 'double' a 'const size_t'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\NoiseMachine.h(213,22): warning C4018: '<': no coinciden signed/unsigned
+C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\olcNoiseMaker.h(135,1): warning C4267: '=': conversión de 'size_t' a 'WORD'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\olcNoiseMaker.h(112): message : al compilar la función del miembro clase plantilla "bool olcNoiseMaker<short>::Create(std::wstring,size_t,size_t,size_t,size_t)"
+C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\NoiseMachine.h(103): message : Vea la referencia a la creación de una instancia de la función plantilla "bool olcNoiseMaker<short>::Create(std::wstring,size_t,size_t,size_t,size_t)" que se está compilando
+C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\NoiseMachine.h(62): message : Vea la referencia a la creación de una instancia de clase plantilla "olcNoiseMaker<short>" que se está compilando
+  Generando código
+  13 of 1052 functions ( 1.2%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    1 functions had inline decision re-evaluated but remain unchanged
+  Generación de código finalizada
+  VM3.vcxproj -> C:\Users\espin\OneDrive\Documentos\Tesis\VM3\Release\VM3.exe
