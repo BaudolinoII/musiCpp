@@ -162,10 +162,12 @@ class Sound_Model {
     public: FTYPE getSound_by_id(const FTYPE dTime, const FTYPE dMLT, const Note note, bool& bNoteFinished) {
         FTYPE ampl = getAmplitude(dTime, note.on, note.off);
         bNoteFinished = (dMLT > 0.0 && (dTime - note.on) >= dMLT) || (ampl <= 0.0);
-        FTYPE sound = 0.0;
+        FTYPE sound = 0.0, ds = 0.0;
+        int fund_id = (int)12 * (Oscillador::ident_note(this->ops_val[0].second[1]) / 12);
         for (std::pair<char, FTYPE*> op : this->ops_val) {
-            size_t id_base = Oscillador::ident_note(op.second[1]) + note.id;
-            sound += op.second[0] * Oscillador::osc(dTime, Oscillador::scale(id_base), op.first, op.second[2], op.second[3], op.second[4]);
+            size_t id_base = Oscillador::ident_note(op.second[1]);
+            ds = Oscillador::scale(id_base) - op.second[1];
+            sound += op.second[0] * Oscillador::osc(dTime, Oscillador::scale(id_base + note.id - fund_id) + ds, op.first, op.second[2], op.second[3], op.second[4]);
         }
         return sound * ampl;
     }
@@ -216,7 +218,7 @@ class Instrument_xml {
             }
             this->models.push_back(sm);
         }
-        std::cout << "Modelo construido con éxito\n";
+        std::cout << "Modelo construido con exito\n";
         return 0;
     }
     public: FTYPE getSound(const FTYPE dTime, const Note note, bool& bNoteFinished) {

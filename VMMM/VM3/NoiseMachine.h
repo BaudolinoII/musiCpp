@@ -18,11 +18,6 @@
 #define BIT8 unsigned char
 #endif
 
-const BIT8 MI = 0x0D, FA = 0x0E, FA_M = 0x0F, SOL = 0x10, SOL_M = 0x11, LA = 0x06;
-const BIT8 LA_M = 0x07, SI = 0x08, DO = 0x09, DO_M = 0x0A, RE = 0x0B, RE_M = 0x0C;
-const BIT8 RD = 0x80, BL = 0x40, NG = 0x20, CH = 0x10, SH = 0x08;
-const BIT8 SINGLE = 0x40, CHORD = 0xC0, SILEN = 0x00, FIN = 0x7F;
-
 namespace VMMM{
 	class VMMM {
 		protected: std::chrono::steady_clock::time_point clock_old_time, clock_real_time;
@@ -150,7 +145,7 @@ namespace VMMM{
 		public: BIT8* melody;
 
 		public: size_t currBeat, repeat, times;
-		public: FTYPE tempo, accm_time, start;
+		public: FTYPE tempo, accm_time, start, lifeTime;
 
 		public: s_Track(Instrument_xml* inst, BIT8* melody, FTYPE tempo, FTYPE start, size_t repeat) {
 			this->inst = inst;
@@ -161,6 +156,7 @@ namespace VMMM{
 			this->accm_time = 0.0;
 			this->repeat = repeat;
 			this->times = 0;
+			this->lifeTime = 0.0;
 		}
 		public: bool isActive() {
 			if (this->repeat)
@@ -179,11 +175,17 @@ namespace VMMM{
 		public: FTYPE getTimeSec() {
 			return ((FTYPE)this->getTime() / 128.0) * (this->tempo / 60.0);
 		}
+		public: FTYPE getBeforeTimeSec() {
+			if (this->currBeat == 0)
+				return 0.0;
+			return ((FTYPE)this->melody[(currBeat - 1) * 3 + 2] / 128.0) * (this->tempo / 60.0);
+		}
 		public: void nextBeat() {
 			if (this->getStatus() != 0x7F)
 				this->currBeat++;
 		}
 	}Track;
+
 	class VirtualOrquesta : public VMMM{
 		private: std::vector<Track> tracks;
 		private: std::vector<Note> curr_notes;
@@ -197,7 +199,6 @@ namespace VMMM{
 		public: void setTrack(Instrument_xml* inst, BIT8* melody, FTYPE tempo = 60.0, FTYPE start = 0.0, size_t repeat = 1){
 			Track tr(inst, melody, tempo, start, repeat);
 			this->tracks.push_back(tr);
-			std::cout << "Track Generado Exitosamente\n";
 		}
 		public: void printInstTracks(){
 			for (Track track : this->tracks)
@@ -210,11 +211,12 @@ namespace VMMM{
 
 		public: size_t play(FTYPE dTime){
 			this->curr_notes.clear();
+			
 			for (int i = 0; i < this->tracks.size(); i++) //Recorriendo Todas las pistas
 				if (this->tracks[i].isActive()) {//Si esta se encuentra activa loops o no
 					this->tracks[i].accm_time += dTime;//Se añade tiempo transcurrido
-					while (this->tracks[i].accm_time > this->tracks[i].getTimeSec()) {//Mientras existan residuos del tiempo transcurrido
-						FTYPE lifeTime = this->tracks[i].getTimeSec();//Guardamos el último tiempo en caso de acorde, siempre vendrá la nota con el mayor tiempo primero
+					while (this->tracks[i].accm_time > this->tracks[i].lifeTime) {//Mientras existan residuos del tiempo transcurrido
+						this->tracks[i].lifeTime = this->tracks[i].getTimeSec();//Guardamos el último tiempo en caso de acorde, siempre vendrá la nota con el mayor tiempo primero
 						do {
 							if (this->tracks[i].getStatus() & 0x40) {//Si el estado no es de silencio
 								Note n;//Debe construirse la nota
@@ -230,7 +232,7 @@ namespace VMMM{
 							this->tracks[i].times++;//Señalamos el loop
 							this->tracks[i].currBeat = 0;//Reiniciamos el beat actual
 						}
-						this->tracks[i].accm_time -= lifeTime;//Restamos el tiempo
+						this->tracks[i].accm_time -= this->tracks[i].lifeTime;//Restamos el tiempo
 					}
 				}
 				else this->popTrack(i--);//Sino está activa, se descarta.

@@ -7,74 +7,73 @@
 #define BIT8 unsigned char
 #endif
 
-//San Francisco (Be Sure to Wear Some Flowers in Your Hair)
-//By Scott McKenzie
-//Size = 3n + 1	//Status, Note, Tempo
-BIT8* SanFrancisco = new BIT8[133]{ 
-	SILEN,SILEN,NG,
-	SINGLE,SOL,NG,
-	SINGLE,SOL,NG,//If
-	SINGLE,SOL,NG,//You're
-	SINGLE,MI,NG, //Go -
-	SINGLE,MI,BL, //ing
-	SINGLE,MI,NG, //to
-	SINGLE,RE,BL, //San
-	SINGLE,MI,BL, //Fran -
-	SINGLE,SI,BL, //cis -
-	SINGLE,LA,BL | NG, //co,
-	SILEN,SILEN,NG,
-	SINGLE,SOL,NG,//be
-	SINGLE,SOL,NG,//sure
-	SINGLE,SOL,NG,//to
-	SINGLE,MI,BL | NG, //wear
-	SINGLE,MI,NG, //some
-	SINGLE,RE,NG, //flow
-	SINGLE,MI,NG, //ers
-	SINGLE,RE,NG, //in
-	SINGLE,SI,NG, //your
-	SINGLE,LA,RD, //hair
-	SILEN,SILEN,BL,
-	SINGLE,SOL,NG, //If
-	SINGLE,LA,CH, //you're
-	SINGLE,SOL,CH,
-	SINGLE,RE,NG, //go -
-	SINGLE,SI,BL, //ing
-	SINGLE,LA,NG, //to
-	SINGLE,SOL,BL, //San
-	SINGLE,SOL,BL, //Fran-
-	SINGLE,MI,NG, //cis -
-	SINGLE,RE,BL | NG, //co
-	SILEN,SILEN,NG,
-	SINGLE,SOL,NG, //you're
-	SINGLE,SOL,NG, //gon
-	SINGLE,LA,NG, //na
-	SINGLE,SI,BL | NG, //meet
-	SINGLE,MI,NG, //some
-	SINGLE,RE,CH, //gen -
-	SINGLE,MI,CH, //tle
-	SINGLE,RE,BL, //peo -
-	SINGLE,SI,NG, //ple
-	SILEN,SILEN,RD,
-	FIN };
+
+
 
 int main() {
-	Instrument_xml inst;
-	if (0 > inst.load_document("./xml_samples/Experimental2.xml")) {
-		std::cout << "No se encontró el archivo" << std::endl;
+	Instrument_xml main_inst, perq;
+	if (0 > main_inst.load_document("./xml_samples/Experimental2.xml")) {
+		std::cout << "No se encontro el archivo" << std::endl;
 		return -1;
 	}
-	std::cout << "Instrumento Cargado\n";
+	if (0 > perq.load_document("./xml_samples/Experimental.xml")) {
+		std::cout << "No se encontro el archivo" << std::endl;
+		return -1;
+	}
+	std::cout << "Instrumentos Cargados\n";
 
 	/*VMMM::ConsoleSynth cs;
 	cs.KeyBoard_MainLoop(&inst);
 	std::cout << "Keyboard_MainLoop Finalizado\n";*/
 	
 	MelodyComp mc;
-	size_t size;
-	BIT8* test = mc.vitalComp("Do Do# Re Re# Mi_16 Fa.3 <Solb Sol La_1> La# Si silen", size);
+	/*Base de BAD APPLE [TOUHOU PROYECT] by ZUN*/
+	std::string partiture = "Re# Fa Fa# Sol# La#_2 "
+							"+Re# +Do# La#_2 Re#_2 "
+							"La# Sol# Fa# Fa "
 
+							"Re# Fa Fa# Sol# La#_2 "
+							"Sol# Fa# Fa Re# Fa Fa# "
+							"Fa Re# Re Fa , "
+
+							"Re# Fa Fa# Sol# La#_2 "
+							"+Re# +Do# La#_2 Re#_2 "
+							"La# Sol# Fa# Fa "
+
+							"Re# Fa Fa# Sol# La#_2 "
+							"Sol# Fa# Fa Fa# Sol# La# , "
+
+							"Re# Fa Fa# Sol# La#_2 "
+							"+Re# +Do# La#_2 Re#_2 "
+							"La# Sol# Fa# Fa "
+
+							"Re# Fa Fa# Sol# La#_2 "
+							"Sol# Fa# Fa silen Fa#_8 silen Sol#_8 "
+							"silen La#_2 <Re#_2 +Re#_2>";
+	//San Francisco (Be Sure to Wear Some Flowers in Your Hair)
+	//By Scott McKenzie
+	std::string partiture_right =
+		"silen_2 Sol Sol "
+		"+Mi.8 +Mi_2 +Mi_8"
+		"+Re_2 +Re_2 "
+		"Si_8 La_2"
+		"silen_2 Sol Sol Sol_8 "
+		;
+	std::string partiture_left =
+		"Mi_2 Mi Re "
+		"+Do_2 +Do_2 "
+		"Sol_2 Sol_2 "
+		"Re_2 Fa#_8 Sol La "
+		"Re_8 Mi_2 Mi Re"
+		;
+	BIT8* badApple_base = mc.vitalComp(partiture);
+	BIT8* sanFrancisco_right = mc.vitalComp(partiture_right, MelodyComp::C3);
+	BIT8* sanFrancisco_left = mc.vitalComp(partiture_left, MelodyComp::C2);
 	VMMM::VirtualOrquesta vs;
-	vs.setTrack(&inst, SanFrancisco, 120.0);
+	vs.setTrack(&main_inst, badApple_base, 50.0);
+	vs.setTrack(&perq, badApple_base, 50.0);
+	//vs.setTrack(&main_inst, sanFrancisco_right, 90.0);
+	//vs.setTrack(&perq, sanFrancisco_left, 90.0);
 	vs.Concert_MainLoop();
 	return 0;
 }

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (MiKTeX 23.1) (preloaded format=pdflatex 2023.11.9)  12 MAR 2024 12:54
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (MiKTeX 23.1) (preloaded format=pdflatex 2023.11.9)  1 APR 2024 12:47
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -299,7 +299,7 @@ File: dvipsnam.def 2016/06/17 v3.0m Driver-dependent file (DPC,SPQR)
 File: svgnam.def 2022/06/12 v2.14 Predefined colors according to SVG 1.1 (UK)
 ))
 LaTeX Font Info:    Trying to load font information for OT1+ptm on input line 1
-2.
+4.
 
 (C:\Users\espin\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ot1ptm.fd
 File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
@@ -315,22 +315,22 @@ LaTeX Info: Redefining \% on input line 8.
 )
 \openout1 = `tesis.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Info: Redefining \. on input line 12.
-LaTeX Info: Redefining \% on input line 12.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Info: Redefining \. on input line 14.
+LaTeX Info: Redefining \% on input line 14.
 
 (C:\Users\espin\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mk
 ii
@@ -366,43 +366,43 @@ Package caption Info: End \AtBeginDocument code.
 <Assets/images/escudo_unam.png, id=1, 246.6816pt x 277.2759pt>
 File: Assets/images/escudo_unam.png Graphic file (type png)
 <use Assets/images/escudo_unam.png>
-Package pdftex.def Info: Assets/images/escudo_unam.png  used on input line 18.
+Package pdftex.def Info: Assets/images/escudo_unam.png  used on input line 20.
 (pdftex.def)             Requested size: 86.33984pt x 97.048pt.
 <Assets/images/escudo_fi.jpg, id=3, 79.7379pt x 94.4328pt>
 File: Assets/images/escudo_fi.jpg Graphic file (type jpg)
 <use Assets/images/escudo_fi.jpg>
-Package pdftex.def Info: Assets/images/escudo_fi.jpg  used on input line 29.
+Package pdftex.def Info: Assets/images/escudo_fi.jpg  used on input line 31.
 (pdftex.def)             Requested size: 79.7377pt x 94.43256pt.
 LaTeX Font Info:    Trying to load font information for OT1+ztmcm on input line
- 31.
+ 33.
  (C:\Users\espin\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ot1ztmcm.fd
 File: ot1ztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OT1/ztmcm.
 )
 LaTeX Font Info:    Trying to load font information for OML+ztmcm on input line
- 31.
+ 33.
  (C:\Users\espin\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\omlztmcm.fd
 File: omlztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OML/ztmcm.
 )
 LaTeX Font Info:    Trying to load font information for OMS+ztmcm on input line
- 31.
+ 33.
 
 (C:\Users\espin\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\omsztmcm.fd
 File: omsztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMS/ztmcm.
 )
 LaTeX Font Info:    Trying to load font information for OMX+ztmcm on input line
- 31.
+ 33.
 
 (C:\Users\espin\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\omxztmcm.fd
 File: omxztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMX/ztmcm.
 )
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 31.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 33.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7.4> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 31.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 33.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <6> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 31.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 33.
 
-Overfull \hbox (16.90002pt too wide) in paragraph at lines 15--69
+Overfull \hbox (16.90002pt too wide) in paragraph at lines 17--70
 []$[]$ $[]$ 
  []
 
@@ -417,33 +417,67 @@ ges/escudo_unam.png> <./Assets/images/escudo_fi.jpg>]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [2]
-<Assets/images/musiC++_Diagram.pdf, id=14, 793.04276pt x 546.12032pt>
+[3] [4
+
+] (tesis.toc
+LaTeX Info: Redefining \. on input line 1.
+LaTeX Info: Redefining \% on input line 1.
+)
+\tf@toc=\write3
+\openout3 = `tesis.toc'.
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [5]
+Overfull \hbox (3.21674pt too wide) in paragraph at lines 107--107
+\OT1/ptm/m/n/10 En es-te se ex-pre-san me-dian-te ob-je-tos vir-tua-les cons-tr
+ui-dos so-bre c[]odi-go du-ro(Hardcode)
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+LaTeX Info: Redefining \. on input line 110.
+LaTeX Info: Redefining \% on input line 110.
+ [0]
+<Assets/images/musiC++_Diagram.pdf, id=28, 793.04276pt x 546.12032pt>
 File: Assets/images/musiC++_Diagram.pdf Graphic file (type pdf)
 <use Assets/images/musiC++_Diagram.pdf>
 Package pdftex.def Info: Assets/images/musiC++_Diagram.pdf  used on input line 
-107.
+123.
 (pdftex.def)             Requested size: 431.25pt x 296.97551pt.
 
-Overfull \hbox (86.25pt too wide) in paragraph at lines 107--108
+Overfull \hbox (86.25pt too wide) in paragraph at lines 123--124
 [][] 
  []
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [3 <./Assets/images/musiC++_Diagram.pdf>]
+LaTeX Info: Redefining \. on input line 128.
+LaTeX Info: Redefining \% on input line 128.
+ [1 <./Assets/images/musiC++_Diagram.pdf>]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
+LaTeX Info: Redefining \. on input line 147.
+LaTeX Info: Redefining \% on input line 147.
+ [2]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+LaTeX Info: Redefining \. on input line 155.
+LaTeX Info: Redefining \% on input line 155.
+ [3]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+LaTeX Info: Redefining \. on input line 164.
+LaTeX Info: Redefining \% on input line 164.
  [4]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
+LaTeX Info: Redefining \. on input line 168.
+LaTeX Info: Redefining \% on input line 168.
  [5]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [6]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [7]
 (C:\Users\espin\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstlang1.sty
 File: lstlang1.sty 2020/03/24 1.8d listings language file
 )
@@ -484,7 +518,9 @@ Overfull \hbox (12.00363pt too wide) in paragraph at lines 204--205
 )
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [8]
+LaTeX Info: Redefining \. on input line 173.
+LaTeX Info: Redefining \% on input line 173.
+ [6]
 (Assets/code/olcNoiseMaker.h
 consecutive:
 
@@ -512,29 +548,35 @@ LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <5> not available
 )
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [9]
-[10] (tesis.aux
+LaTeX Info: Redefining \. on input line 175.
+LaTeX Info: Redefining \% on input line 175.
+ [7]
+LaTeX Info: Redefining \. on input line 190.
+LaTeX Info: Redefining \% on input line 190.
+
+[8] (tesis.aux
 LaTeX Info: Redefining \. on input line 8.
 LaTeX Info: Redefining \% on input line 8.
 ) ) 
 Here is how much of TeX's memory you used:
- 7420 strings out of 476339
- 121639 string characters out of 5788119
- 1947340 words of memory out of 5000000
- 27741 multiletter control sequences out of 15000+600000
- 541649 words of font info for 79 fonts, out of 8000000 for 9000
+ 7439 strings out of 476339
+ 121934 string characters out of 5788119
+ 1948340 words of memory out of 5000000
+ 27755 multiletter control sequences out of 15000+600000
+ 544895 words of font info for 83 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 69i,7n,79p,1346b,1440s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 69i,7n,79p,1346b,1441s stack positions out of 10000i,1000n,20000p,200000b,200000s
 {C:/Users/espin/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc}<C
 :/Users/espin/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi
 5.pfb><C:/Users/espin/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts
 /cm/cmsy5.pfb><C:/Users/espin/AppData/Local/Programs/MiKTeX/fonts/type1/urw/tim
 es/utmb8a.pfb><C:/Users/espin/AppData/Local/Programs/MiKTeX/fonts/type1/urw/tim
 es/utmr8a.pfb><C:/Users/espin/AppData/Local/Programs/MiKTeX/fonts/type1/urw/tim
+es/utmr8a.pfb><C:/Users/espin/AppData/Local/Programs/MiKTeX/fonts/type1/urw/tim
 es/utmri8a.pfb>
-Output written on tesis.pdf (10 pages, 482398 bytes).
+Output written on tesis.pdf (14 pages, 499413 bytes).
 PDF statistics:
- 81 PDF objects out of 1000 (max. 8388607)
+ 99 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  16 words of extra memory for PDF output out of 10000 (max. 10000000)
 

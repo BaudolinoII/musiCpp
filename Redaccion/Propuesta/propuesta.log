@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (MiKTeX 23.1) (preloaded format=pdflatex 2023.11.9)  13 MAR 2024 14:44
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (MiKTeX 23.1) (preloaded format=pdflatex 2023.11.9)  20 MAR 2024 14:04
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -363,74 +363,87 @@ Package caption Info: listings package is loaded.
 Package caption Info: End \AtBeginDocument code.
 \big@size=\dimen170
 \c@lstlisting=\count298
+
+Underfull \vbox (badness 3260) has occurred while \output is active []
+
  [1
 
 
 {C:/Users/espin/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}]
+Overfull \hbox (14.28674pt too wide) in paragraph at lines 29--29
+[]\OT1/ptm/m/n/14.4 Enlazando am-bos con-cep-tos, pro-pon-go apli-car-los a un 
+[]ambi-
+ []
+
+
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [2]
-[3]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [4]
-<../Assets/images/musiC++_Diagram_cut.pdf, id=17, 743.8992pt x 415.5525pt>
+ [3]
+<../Assets/images/musiC++_Diagram_cut.pdf, id=14, 743.8992pt x 415.5525pt>
 File: ../Assets/images/musiC++_Diagram_cut.pdf Graphic file (type pdf)
 <use ../Assets/images/musiC++_Diagram_cut.pdf>
 Package pdftex.def Info: ../Assets/images/musiC++_Diagram_cut.pdf  used on inpu
-t line 42.
+t line 43.
 (pdftex.def)             Requested size: 431.25pt x 240.90648pt.
 
-Overfull \hbox (86.25pt too wide) in paragraph at lines 42--43
+Overfull \hbox (86.25pt too wide) in paragraph at lines 43--44
 [][] 
  []
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [5 <../Assets/images/musiC++_Diagram_cut.pdf>] [6] [7]
-Underfull \vbox (badness 2150) has occurred while \output is active []
+ [4 <../Assets/images/musiC++_Diagram_cut.pdf>] [5]
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [8]
-Overfull \hbox (21.42854pt too wide) in paragraph at lines 69--70
+ [6]
+[7]
+Overfull \hbox (21.42854pt too wide) in paragraph at lines 70--71
 []\OT1/ptm/m/n/14.4 Correspondientes al plan de es-tu-dios de In-ge-nier[]^^Pa 
 en Compu-
  []
 
-[9]
+[8]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [10]
-[11]
+ [9]
+[10]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [12]
-Overfull \hbox (13.08345pt too wide) in paragraph at lines 130--131
+ [11]
+Overfull \hbox (13.08345pt too wide) in paragraph at lines 131--132
 []\OT1/ptm/m/n/14.4 Nuevo For-ma-to de Al-ma-ce-na-mien-to de in-for-ma-ci[]on 
 orien-
  []
 
 
-Overfull \hbox (5.98285pt too wide) in paragraph at lines 131--132
+Overfull \hbox (5.98285pt too wide) in paragraph at lines 132--133
 []\OT1/ptm/m/n/14.4 Modelos Ins-tru-men-ta-les di-gi-ta-les uti-li-za-bles en o
 tros pro-
  []
 
-[13]
-<../Assets/images/cronograma.png, id=62, 782.925pt x 320.99925pt>
+
+Underfull \vbox (badness 1721) has occurred while \output is active []
+
+ [12]
+<../Assets/images/cronograma.png, id=58, 782.925pt x 320.99925pt>
 File: ../Assets/images/cronograma.png Graphic file (type png)
 <use ../Assets/images/cronograma.png>
 Package pdftex.def Info: ../Assets/images/cronograma.png  used on input line 14
-3.
+4.
 (pdftex.def)             Requested size: 345.0pt x 141.45071pt.
- [14 <../Assets/images/cronograma.png>] (propuesta.aux
+
+[13 <../Assets/images/cronograma.png>] (propuesta.aux
 LaTeX Info: Redefining \. on input line 8.
 LaTeX Info: Redefining \% on input line 8.
 ) ) 
 Here is how much of TeX's memory you used:
  6698 strings out of 476339
  112392 string characters out of 5788119
- 1858340 words of memory out of 5000000
+ 1856340 words of memory out of 5000000
  27072 multiletter control sequences out of 15000+600000
  523153 words of font info for 46 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -439,9 +452,9 @@ Here is how much of TeX's memory you used:
 :/Users/espin/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmb8a.pfb><C
 :/Users/espin/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C
 :/Users/espin/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmri8a.pfb>
-Output written on propuesta.pdf (14 pages, 169521 bytes).
+Output written on propuesta.pdf (13 pages, 169894 bytes).
 PDF statistics:
- 83 PDF objects out of 1000 (max. 8388607)
+ 80 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  11 words of extra memory for PDF output out of 10000 (max. 10000000)
 
