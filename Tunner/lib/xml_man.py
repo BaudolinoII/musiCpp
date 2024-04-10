@@ -4,6 +4,8 @@ class XML_Manager():
 	def __init__(self, path):
 		self.path = path
 		self.set_init()
+		self.armonics = []
+		self.fund_id = 0
 
 	def load_archive(self, path):
 		self.path = path
@@ -14,14 +16,14 @@ class XML_Manager():
 		if is_gen:
 			note = ET.SubElement(self.root, 'note',{'from': 'all'})
 			ET.SubElement(note,'template',{'type':'None'})
-			ET.SubElement(note,'method')
+			ET.SubElement(note,'method',{'fund':'0'})
 		else:
 			notes = []
 			for tag in ['la','la#','si','do','do#','re','re#','mi','fa','fa#','sol','sol#']:
 				notes.append(ET.SubElement(self.root, 'note',{'from': tag}))
 			for note in notes:
 				ET.SubElement(note,'template',{'type':'None'})
-				ET.SubElement(note,'method')
+				ET.SubElement(note,'method',{'fund':'0'})
 
 	def set_metadata(self, name, vol, mlt):
 		self.root.set('name','{}'.format(name))
@@ -50,6 +52,9 @@ class XML_Manager():
 										 'stb':'{}'.format(val[5]),
 										 'res':'{}'.format(val[6])})
 		return 0
+
+	def def_funds(self):
+		pass
 		
 	def add_ops(self, tag, op_type, val):
 		subject = self.root.find("./note[@from='{}']/method".format(tag))
@@ -59,18 +64,13 @@ class XML_Manager():
 											'vam':'{}'.format(val[2]),
 											'vfq':'{}'.format(val[3]),
 											'det':'{}'.format(val[4])})
-	def mod_ops(self, tag, index, op_type, val):
-		subject = self.root.findall("./note[@from='{}']/method/".format(tag))[index]
-		subject.set('type','{}'.format(op_type))
-		subject.set('amp','{}'.format(val[0]))
-		subject.set('frq','{}'.format(val[1]))
-		subject.set('vam','{}'.format(val[2]))
-		subject.set('vfq','{}'.format(val[3]))
-		subject.set('det','{}'.format(val[4]))
+		self.armonics.append({val[0]:val[1]})
+		self.def_funds()
 	def del_ops(self, tag, index):
 		subject = self.root.findall("./note[@from='{}']/method/".format(tag))[index]
 		self.root.find("./note[@from='{}']/method".format(tag)).remove(subject)
-		
+		self.armonics.delete(index)
+		self.def_funds()	
 	def del_all_ops(self, tag):
 		for sub in self.root.findall("./note[@from='{}']/method/".format(tag)):
 			self.root.find("./note[@from='{}']/method".format(tag)).remove(sub)

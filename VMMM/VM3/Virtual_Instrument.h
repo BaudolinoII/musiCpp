@@ -4,6 +4,7 @@
 #include<vector>
 #include<cmath>
 #include "xml_lib/pugixml.hpp"
+#include "Oscillador.h"
 
 #ifndef FTYPE
 #define FTYPE double
@@ -40,63 +41,22 @@ class Note {
     }
  };
 
-class Oscillador {
-    public: static std::string occ_scale[]; 
-    public: static FTYPE scale(size_t id, size_t id_scale = 0) {
-            switch (id_scale) {
-                case 0:
-                    return pow(2.0, (FTYPE)(36 + id) / 12.0);//Frecuencia
-                default:
-                    return 0.0;
-            }
-        }
-    public: static FTYPE w(FTYPE dHertz) {
-            return dHertz * 2.0 * PI;
-        }
-    public: static FTYPE osc(FTYPE dt, FTYPE fq, BIT8 tp = 's', FTYPE vfq = 0.0, FTYPE vam = 0.0, const size_t det = 10) {
-            FTYPE dFreq = w(fq) * dt + vam * fq * (sin(w(vfq) * dt));// osc(dTime, dLFOHertz, OSC_SINE);
-            switch (tp) {
-            case 's': // Sine wave bewteen -1 and +1
-                return sin(dFreq);
-            case 'q': // Square wave between -1 and +1
-                return sin(dFreq) > 0 ? 1.0 : -1.0;
-            case 't': // Triangle wave between -1 and +1
-                return asin(sin(dFreq)) * (2.0 / PI);
-            case 'a': {// Saw wave (analogue / warm / slow)
-                FTYPE dOutput = 0.0;
-                for (size_t n = 1; n < det; n++)
-                    dOutput += (sin(dFreq * (FTYPE)n)) / (FTYPE)n;
-                return dOutput * (2.0 / PI);
-            }
-            case 'o':
-                return (2.0 / PI) * (fq * PI * fmod(dt, 1.0 / fq) - (PI / 2.0));
-            case 'n':
-                return 2.0 * ((FTYPE)rand() / (FTYPE)RAND_MAX) - 1.0;
-            default:
-                return 0.0;
-            }
-        }
-    public: static size_t round_i(FTYPE n) {
-            if (std::abs(n) - std::abs(std::floor(n)) < 0.5)
-                return std::floor(n);
-            return std::ceil(n);
-        }
-    public: static size_t ident_note(FTYPE freq) {
-            return std::ceil(12.0 * std::log2(freq)) - 36;
-        }
-};
-std::string Oscillador::occ_scale[] = { "si", "do","do#","re","re#","mi","fa","fa#","sol","sol#","la","la#" };
+
 class Sound_Model {
-    private: FTYPE* temp_val;
+    private: FTYPE* temp_val, *val_mb;
+    private: char scale;
     private: std::vector<std::pair<char, FTYPE*>> ops_val;
     private: std::string note_name;
 
     public: Sound_Model(std::string note_name){
         this->note_name = note_name;
+        this->temp_val = new FTYPE[7];
+        this->val_mb = new FTYPE[6];
     }
 
     public: void set_temp(std::string temp) {
         this->temp_val = new FTYPE[7];
+        this->val_mb = new FTYPE[6];
         size_t pos = temp.find_first_of(','), begin = 0, i = 0;
         while (pos != std::string::npos) {
             this->temp_val[i] = std::stod(temp.substr(begin, pos - (int)begin));
@@ -104,8 +64,16 @@ class Sound_Model {
             pos = temp.find_first_of(',', begin);
             i++;
         }
-
+        this->val_mb[0] = (this->temp_val[4] / this->temp_val[0]); //Pendiente Attack
+        this->val_mb[1] = (this->temp_val[5] - this->temp_val[4]) / this->temp_val[1];//Pendiente Decay
+        this->temp_val[1] += this->temp_val[0];
+        this->val_mb[2] = this->temp_val[5] - this->val_mb[1] * (this->temp_val[1]);//Origen Decay
+        this->val_mb[3] = (this->temp_val[6] - this->temp_val[5]) / this->temp_val[2];//Pendiente Sustain
+        this->temp_val[2] += this->temp_val[1];
+        this->val_mb[4] = this->temp_val[6] - this->val_mb[3] * (this->temp_val[2]);//Origen Sustain
+        this->val_mb[5] = -this->temp_val[6] / this->temp_val[3];//Pendiente Release
     }
+    public: void set_scale(char scale) { this->scale = scale; }
     public: void add_ops(std::string op) {
         FTYPE* vals = new FTYPE[5];
         size_t pos = op.find_first_of(',', 2), begin = 2, i = 0;
@@ -122,52 +90,34 @@ class Sound_Model {
         return !this->note_name.compare(note_name);
     }
 
-    public: FTYPE getAmplitude(const FTYPE dTime, const FTYPE startTime, const FTYPE endTime) {
-        FTYPE life_time = dTime - startTime;
-        FTYPE pend = (this->temp_val[4] / this->temp_val[0]);
-        FTYPE org = 0.0;
-         
+    public: FTYPE getAmplitude(const FTYPE dTime, const FTYPE startTime, const FTYPE endTime, const FTYPE dMLT) {
+        FTYPE life_time = dTime - startTime;//Tiempo que lleva viva la nota
+
+        if (dTime > endTime && endTime > 0.0)//Se ha alcanzado el final programado
+            return (life_time - (this->temp_val[3] + endTime - startTime)) * val_mb[5];
+
+        if (life_time >= (dMLT - this->temp_val[3]))//Esta por sobrepasar el tiempo maximo de vida
+            return (life_time - dMLT) * val_mb[5];
+
         if (life_time < this->temp_val[0])//Attack
-            return life_time * pend + org;
-            
-        pend = (this->temp_val[5] - this->temp_val[4]) / this->temp_val[1];
-        org = this->temp_val[5] - pend * (this->temp_val[0] + this->temp_val[1]);
+            return life_time * val_mb[0];
 
-        if (life_time < (this->temp_val[1] + this->temp_val[0]))//Decay
-            return life_time * pend + org;
+        if (life_time < this->temp_val[1])//Decay
+            return life_time * val_mb[1] + val_mb[2];
 
-        pend = (this->temp_val[6] - this->temp_val[5]) / this->temp_val[2];
-        org = this->temp_val[6] - pend * (this->temp_val[0] + this->temp_val[1] + this->temp_val[2]);
-        if (life_time < (this->temp_val[2] + this->temp_val[1] + this->temp_val[0]))//Sustain
-            return life_time * pend + org;
-        
-        if (endTime == 0.0)
-            return this->temp_val[6];
-        
-        pend = -this->temp_val[6] / this->temp_val[3];
-        org = -pend * (this->temp_val[3] + this->temp_val[2] + this->temp_val[1] + this->temp_val[0]);
-        FTYPE res = life_time * pend + org;
-        if (res > 0.0)
-            return res;
-        return 0.0;
+        if (life_time < this->temp_val[2])//Sustain
+            return life_time * val_mb[3] + val_mb[4];
+
+        return this->temp_val[6];//Keep Sustaining
     }
     public: FTYPE getSound(const FTYPE dTime, const FTYPE dMLT, const Note note, bool& bNoteFinished) {
-        FTYPE ampl = getAmplitude(dTime, note.on, note.off);
-        bNoteFinished = (dMLT > 0.0 && (dTime - note.on) >= dMLT) || (ampl <= 0.0);
-        FTYPE sound = 0.0;
-        for (std::pair<char, FTYPE*> op : this->ops_val)
-            sound += op.second[0] * Oscillador::osc(dTime, op.second[1], op.first, op.second[2], op.second[3], op.second[4]);
-        return sound * ampl;
-    }
-    public: FTYPE getSound_by_id(const FTYPE dTime, const FTYPE dMLT, const Note note, bool& bNoteFinished) {
-        FTYPE ampl = getAmplitude(dTime, note.on, note.off);
-        bNoteFinished = (dMLT > 0.0 && (dTime - note.on) >= dMLT) || (ampl <= 0.0);
+        FTYPE ampl = getAmplitude(dTime, note.on, note.off, dMLT);
+        bNoteFinished = (ampl <= 0.0);//LA nota acabará si él máxmimo de vida es alcanzado y su amplitud es > 0
         FTYPE sound = 0.0, ds = 0.0;
-        int fund_id = (int)12 * (Oscillador::ident_note(this->ops_val[0].second[1]) / 12);
         for (std::pair<char, FTYPE*> op : this->ops_val) {
             size_t id_base = Oscillador::ident_note(op.second[1]);
             ds = Oscillador::scale(id_base) - op.second[1];
-            sound += op.second[0] * Oscillador::osc(dTime, Oscillador::scale(id_base + note.id - fund_id) + ds, op.first, op.second[2], op.second[3], op.second[4]);
+            sound += op.second[0] * Oscillador::osc(dTime, Oscillador::scale(id_base + note.id - scale) + ds, op.first, op.second[2], op.second[3], op.second[4]);
         }
         return sound * ampl;
     }
@@ -182,7 +132,6 @@ class Instrument_xml {
     private: std::vector<Sound_Model> models;
 
     public: int load_document(const std::string path) {
-        
         if (!this->doc.load_file(path.c_str())) return -1;
         
         pugi::xml_node notes = this->doc.child("instrument");
@@ -203,6 +152,7 @@ class Instrument_xml {
             Sound_Model sm(note.attribute("from").value());
             sm.set_temp(note_temp);
             pugi::xml_node ops = note.child("method");
+            sm.set_scale(std::stoi(ops.attribute("fund").value()));
             std::string note_meth;
             for (pugi::xml_node op = ops.first_child(); op; op = op.next_sibling()) {
                if(!op.attributes().empty())
@@ -218,12 +168,11 @@ class Instrument_xml {
             }
             this->models.push_back(sm);
         }
-        std::cout << "Modelo construido con exito\n";
         return 0;
     }
     public: FTYPE getSound(const FTYPE dTime, const Note note, bool& bNoteFinished) {
         if (this->isUniversal) 
-            return this->models[0].getSound_by_id(dTime, this->dMLT, note, bNoteFinished);
+            return this->models[0].getSound(dTime, this->dMLT, note, bNoteFinished);
         return models[(note.id % 12)].getSound(dTime, this->dMLT, note, bNoteFinished);
     }
     public: void print_attribs() {

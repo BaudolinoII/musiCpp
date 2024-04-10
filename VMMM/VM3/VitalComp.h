@@ -1,6 +1,7 @@
 #pragma once
 #include<iostream>
 #include<string>
+#include<fstream>
 #include<vector>
 
 #ifndef BIT8
@@ -205,6 +206,18 @@ class MelodyComp {
 		}
 	}
 
+	public: BIT8* compileFile(std::string path) {
+		std::ifstream file(path);
+		if (!file.is_open())
+			return NULL;
+		std::string buffer="", args = "";
+		while (std::getline(file, buffer)) {
+			if (!buffer.empty())
+				args.append(buffer+" ");
+		}
+		//Construir un metodo para leer directivas de compilación//
+		return vitalComp(args);
+	}
 	public: BIT8* vitalComp(std::string str, size_t& size, BIT8 scale = C4, size_t nBeats = 4, BIT8 bUnit = NG) {
 		std::vector<BIT8> vec;
 		toUpperCase(str);

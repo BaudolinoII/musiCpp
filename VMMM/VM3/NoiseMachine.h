@@ -19,6 +19,8 @@
 #endif
 
 namespace VMMM{
+	static const BIT8 C0 = 0x00, C1 = 0x0C, C2 = 0x18, C3 = 0x24, C4 = 0x30, C5 = 0x3C;
+	BIT8 scale = 0x24;
 	class VMMM {
 		protected: std::chrono::steady_clock::time_point clock_old_time, clock_real_time;
 		protected: FTYPE dElapsedTime = 0, dWallTime = 0, dSaveTime = 0;
@@ -74,18 +76,22 @@ namespace VMMM{
 	std::vector<Note> VMMM::vecNotes;
 	std::mutex VMMM::muxNotes;
 
-	class ConsoleSynth : public VMMM{
+	class ConsoleSynth : public VMMM{	
+		private: bool ctl_right = true, ctl_left = true;
 		private: void print_board() {
-			std::cout << "VitalMusicMakerMachine V0.4.5 by JoGEHrt & OneLoneCoder" << std::endl << std::endl;
+			std::cout << "VitalMusicMakerMachine V0.6.5 by JoGEHrt & OneLoneCoder" << std::endl << std::endl;
 			std::wcout << "Dispositivo en uso: " << this->curr_device << std::endl;
 			
 			std::cout << std::endl <<
 				"|ESC| = exit" << std::endl << std::endl <<
-				"  | |La#|   |   |Do#| |Re#|   |   |Fa#| |Sl#| |La#|   |   |" << std::endl <<
-				"__| |___|   |   |___| |___|   |   |___| |___| |___|   |   |__" << std::endl <<
-				"|   Z |   X |   C |   V |   B |  N  |  M  |  ;  |  :  |  _  |" << std::endl <<
-				"|La 4°|  Si |  Do |  Re |  Mi |  Fa | Sol |La 5°|  Si |  Do |" << std::endl <<
-				"|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|" << std::endl << std::endl;
+				"<- Disminuir Escala      Aumentar Escala ->" << std::endl <<
+				"  C" << (scale / 0x0C) << std::endl <<
+				"|   | S | | D |   |   | G | | H | | J |   |" << std::endl <<
+				"|   |Do#| |Re#|   |   |Fa#| |Sl#| |La#|   |" << std::endl <<
+				"|   |___| |___|   |   |___| |___| |___|   |" << std::endl <<
+				"|  Z  |  X  |  C  |  V  |  B  |  N  |  M  |" << std::endl <<
+				"|  Do |  Re |  Mi |  Fa | Sol |  La |  Si |" << std::endl <<
+				"|_____|_____|_____|_____|_____|_____|_____|" << std::endl << std::endl;
 		}
 		
 		public: ConsoleSynth() {
@@ -98,31 +104,44 @@ namespace VMMM{
 			this->sound.Create(this->curr_device, 44100, 1, 8, 512);
 			this->sound.SetUserFunction(this->MakeNoise);
 			this->setTime();
-			while (!GetAsyncKeyState(27)) {//Presione ESC para salir
+			while (!GetAsyncKeyState(VK_ESCAPE)) {//Presione ESC para salir
 				this->updateTime();
 				FTYPE dTimeNow = sound.GetTime();
-				for (int k = 0; k < 16; k++) {
-					short nKeyState = GetAsyncKeyState((unsigned char)("ZSXCFVGBNJMK\xbcL\xbe\xbf"[k]));
+
+				if (ctl_right && GetAsyncKeyState(VK_RIGHT) & 0x8000) {
+					scale = (scale + 0x0C) % 0x48;
+					ctl_right = false;
+				} else if (GetAsyncKeyState(VK_RIGHT) == 0)
+					ctl_right = true;
+
+				if (ctl_left && GetAsyncKeyState(VK_LEFT) & 0x8000) {
+					scale = (scale ? scale - 0x0C : 0x3C);
+					ctl_left = false;
+				} else if (GetAsyncKeyState(VK_LEFT) == 0)
+					ctl_left = true;
+
+				for (int k = 0; k < 12; k++) {
+					short nKeyState = GetAsyncKeyState((unsigned char)("ZSXDCVGBHNJM"[k]));
 					// Para evitar 2 notas del mismo tipo, se revisa
 					this->muxNotes.lock();
-					std::vector<Note>::iterator noteFound = find_if(this->vecNotes.begin(), this->vecNotes.end(), [&k](Note const& item) { return item.id == k + 6; });
-					if (noteFound == this->vecNotes.end())  // Si no encuentra la nota en el vector
+					std::vector<Note>::iterator noteFound = find_if(this->vecNotes.begin(), this->vecNotes.end(), [&k](Note const& item) { return item.id == k + scale; });
+					if (noteFound == this->vecNotes.end()){  // Si no encuentra la nota en el vector
 						if (nKeyState & 0x8000) { // Procede a crear la nota detectada
 							Note n;
-							n.id = k + 6;
+							n.id = k + scale;
 							n.on = dTimeNow;
 							n.channel = inst;//Instrumento a tocar
 							n.active = true;
 							this->vecNotes.emplace_back(n);
 						}
-					else if (nKeyState & 0x8000)  // La nota está siendo presionada
-						if (noteFound->off > noteFound->on) {//En caso de Ya haberse asignado un final
-							noteFound->on = dTimeNow;// Esta reiniciará su valor permaneciendo activa
-							noteFound->off = 0.0;//Se vuelve cero para sostenerse
+					} else if (nKeyState & 0x8000) {// Si ha encontrado la nota y la tecla es presionada
+						if (noteFound->off > noteFound->on) { //Si la nota cuenta con un final
+							noteFound->on = dTimeNow; //Esta reiniciará el tiempo
+							noteFound->off = 0.0;
 							noteFound->active = true;
-						}
-					else noteFound->off = dTimeNow;//Le suma el tiempo de vida que carga la nota
-						
+						} 
+					} else if (noteFound->off < noteFound->on) // Cuando es liberado, se le asigna este tiempo como fin
+						noteFound->off = dTimeNow;
 					
 					this->muxNotes.unlock();
 				}
