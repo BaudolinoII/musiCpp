@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='utf8'?>
+<instrument name="Instrumento" vol="0.80" mlt="3.00">
+  <note from="all">
+    <method fund="0">
+      <operation type="s" amp="1.0" frq="130.84" vam="0.0" vfq="0.0" det="10" />
+      <operation type="s" amp="0.41" frq="234.56" vam="0.0" vfq="0.0" det="10" />
+      <operation type="s" amp="0.42" frq="261.68" vam="0.0" vfq="0.0" det="10" />
+      <operation type="s" amp="0.29" frq="200.0" vam="0.0" vfq="0.0" det="0" />
+    </method>
+    <template type="ADSR">
+      <amplitude att="0.2" dec="0.2" sus="0.4" rel="0.2" pic="1.0" stb="0.6" res="0.4" />
+    </template>
+  </note>
+</instrument>

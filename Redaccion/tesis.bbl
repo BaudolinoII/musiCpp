@@ -1,0 +1,80 @@
+\begin{thebibliography}{10}
+% this bibliography was produced with the style dinat.bst v2.5
+\makeatletter
+\newcommand{\dinatlabel}[1]%
+{\ifNAT@numbers\else\NAT@biblabelnum{#1}\hspace{2\labelsep}\fi}
+\makeatother
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+\expandafter\ifx\csname url\endcsname\relax\def\url#1{\texttt{#1}}\fi
+
+\bibitem[Boschet(2023)]{edadMedia}
+\dinatlabel{Boschet 2023} \textsc{Boschet}, Raphael:
+\newblock \emph{Guido d'Arezzo, el monje que inventó las notas musicales}.
+\newblock 2023. --
+\newblock URL \url{https://es.la-croix.com/glosario/guido-d-arezzo-el-monje-que
+  -invento-las-notas-musicales}
+
+\bibitem[Castrillón~López und Domínguez(2013)]{teoriasescalas2013}
+\dinatlabel{Castrillón~López und Domínguez 2013}
+  \textsc{Castrillón~López}, Marco~; \textsc{Domínguez}, Manuel:
+\newblock Un encuentro entre las matemáticas y la teoría de escalas
+  musicales: Escalas bien formadas(Traducido).
+\newblock
+\newblock (2013)
+
+\bibitem[El~Gamal(2012)]{edadDigital}
+\dinatlabel{El~Gamal 2012} \textsc{El~Gamal}, Ashraf:
+\newblock The evolution of the music industry in the post-internet era.
+\newblock
+\newblock (2012)
+
+\bibitem[Faure~Carvallo u.\,a.(2020)Faure~Carvallo, Gustems~Carnicer und
+  Navarro~Calafell]{produccion2020}
+\dinatlabel{Faure~Carvallo u.\,a. 2020} \textsc{Faure~Carvallo}, Adrien~;
+  \textsc{Gustems~Carnicer}, Josep~; \textsc{Navarro~Calafell}, Mercé:
+\newblock Producción musical y mercado discográfico: homogeneización entre
+  adolescentes y reto para la educación.
+\newblock In: \emph{Revista Electrónica de LEEME, 2020, num. 45, p. 69-87}
+\newblock (2020)
+
+\bibitem[Fauvel u.\,a.(2006)Fauvel, Flood und Wilson]{musichistory}
+\dinatlabel{Fauvel u.\,a. 2006} \textsc{Fauvel}, John~; \textsc{Flood},
+  Raymond~; \textsc{Wilson}, Robin~J.:
+\newblock \emph{Music and Mathematics: From Pythagoras to Fractals}.
+\newblock Oxford University Press, USA, 2006. --
+\newblock 9--18~S
+
+\bibitem[Gunther(2012)]{physicsmusiccolor}
+\dinatlabel{Gunther 2012} \textsc{Gunther}, Leon:
+\newblock \emph{The physics of music and color}.
+\newblock Springer, 2012
+
+\bibitem[ifpi(2021)]{ifpi2020}
+\dinatlabel{ifpi 2021} \textsc{ifpi}:
+\newblock \emph{Informe Mundial de la música de IFPI 2021}.
+\newblock 2021. --
+\newblock URL \url{https://ifpilatina.org/blog/GLOBAL-MUSIC-REPORT-2022}
+
+\bibitem[Lopez~L(2016)]{renacimiento}
+\dinatlabel{Lopez~L 2016} \textsc{Lopez~L}, Verdecia~M.:
+\newblock \emph{Análisis de la historia social de la música en el
+  Renacimiento}.
+\newblock 2016. --
+\newblock URL
+  \url{https://revistas.ug.edu.ec/index.php/rug/article/view/451/1430}
+
+\bibitem[López~Chango(2017)]{lopez2017diseno}
+\dinatlabel{López~Chango 2017} \textsc{López~Chango}, Pamela~A.:
+\newblock \emph{Diseño e implementación de un prototipo de audífono para
+  obtener el espectro de frecuencias audibles a un oído humano}.
+\newblock Universidad Politécnica Salesiana, campus Quito, 2017. --
+\newblock 16~S
+
+\bibitem[Mosqueda~B(2019)]{claudeShannon}
+\dinatlabel{Mosqueda~B 2019} \textsc{Mosqueda~B}, Buenrostro~R.:
+\newblock \emph{Claude Shannon: El hombre que sentó las bases de la
+  revolución tecnológica}.
+\newblock 2019. --
+\newblock URL \url{https://telematicanet.ucol.mx/blog/?p=225}
+
+\end{thebibliography}

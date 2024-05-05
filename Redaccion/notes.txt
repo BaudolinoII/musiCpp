@@ -1,0 +1,25 @@
+Estas notas cuentan con la finalidad de tener un "tarjetero" de la sinopsis para cada cosa que pueda servir el libro:
+
+1.- "Music and Mathematics: From Pythagoras to Fractals" de John Fauvel, Raymond Flood y Robin Wilson.
+	Este escrito ofrece una introducción y retroinspección de la historia de la música y como desde sus inicios se ha
+	abordado desde un punto de vista matemático, donde figuras importantes como Pitágoras, Euclides y Boecio, al estudio
+	de la música y las proporciones matemáticas subyacentes a la armonía musical. Luego, examina el desarrollo de la 
+	teoría musical en la Edad Media y el Renacimiento, destacando el papel crucial de figuras como Guido d'Arezzo y 
+	Johannes Kepler en la comprensión de la relación entre la música y las matemáticas.
+
+	Además de proporcionar un panorama histórico de la relación entre la música y las matemáticas, el libro también aborda 
+	temas contemporáneos, como la aplicación de algoritmos matemáticos en la composición musical y la creación de música 
+	generada por computadora.
+
+2.- "Music, Physics and Engineering" de Harry F. Olson.
+	Aborda la relación entre la música, la física y la ingeniería. Escrito por uno de los pioneros en el campo de la acústica
+	y la electroacústica, el libro ofrece una visión detallada de los principios físicos y tecnológicos que subyacen a la 
+	producción, grabación y reproducción del sonido en el contexto musical.
+
+	El libro introduce a los fundamentos físicos del sonido, incluyendo la naturaleza ondulatoria del sonido, la propagación 
+	del sonido en diferentes medios y la relación entre la frecuencia, la amplitud y la longitud de onda. Luego, explora cómo 
+	estos principios físicos se aplican en la ingeniería de sistemas de audio, desde micrófonos y altavoces hasta equipos de 
+	grabación y estudio.
+
+	
+3.- "The Physics of Music and Color" de Leon Gunther.

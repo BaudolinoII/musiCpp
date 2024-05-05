@@ -1,2 +1,34 @@
 \babel@toc {spanish}{}\relax 
-\contentsline {section}{Introducción}{\es@scroman {}}{}%
+\contentsline {section}{Introducción}{\es@scroman {ii}}{}%
+\contentsline {subsection}{Contexto Histórico}{\es@scroman {iii}}{}%
+\contentsline {subsection}{Planteamiento del Problema}{\es@scroman {v}}{}%
+\contentsline {subsection}{Estado del Arte}{\es@scroman {vi}}{}%
+\contentsline {subsection}{Fundamentos de la Organización Musical}{\es@scroman {vii}}{}%
+\contentsline {section}{Análisis y Procesamiento de Audio}{\es@scroman {xii}}{}%
+\contentsline {subsection}{Definición Técnica del Audio}{\es@scroman {xii}}{}%
+\contentsline {subsection}{Captura de Información}{\es@scroman {xii}}{}%
+\contentsline {subsection}{Procesamiento de Señal}{\es@scroman {xii}}{}%
+\contentsline {subsection}{Métodos de Aproximación}{\es@scroman {xii}}{}%
+\contentsline {section}{Construcción del NoiseMachine}{\es@scroman {xii}}{}%
+\contentsline {subsection}{Estudio del Proyecto olcSynth}{\es@scroman {xii}}{}%
+\contentsline {subsection}{Aporte de Propuesta}{\es@scroman {xii}}{}%
+\contentsline {subsection}{Cambios y Pruebas del Software}{\es@scroman {xii}}{}%
+\contentsline {subsection}{Implementación y Proyecciones a Futuro}{\es@scroman {xii}}{}%
+\contentsline {section}{Construcción del Tuner}{\es@scroman {xii}}{}%
+\contentsline {subsection}{Estrategia y Diseño}{\es@scroman {xii}}{}%
+\contentsline {subsection}{Manejo de Excepciones}{\es@scroman {xii}}{}%
+\contentsline {subsection}{Capacidades Fundamentales}{\es@scroman {xii}}{}%
+\contentsline {subsection}{Oportunidades de Innovación}{\es@scroman {xii}}{}%
+\contentsline {section}{Diseños de los Instrumentos Virtuales}{\es@scroman {xii}}{}%
+\contentsline {subsection}{Resumen de XML}{\es@scroman {xii}}{}%
+\contentsline {subsection}{Propuesta de Convención}{\es@scroman {xii}}{}%
+\contentsline {subsection}{Proyecciones con musiC++}{\es@scroman {xii}}{}%
+\contentsline {subsection}{Comparación contra Formatos Estandarizados}{\es@scroman {xii}}{}%
+\contentsline {section}{Guía de Usuario}{\es@scroman {xii}}{}%
+\contentsline {subsection}{Paso 1: Recolección de Muestra}{\es@scroman {xii}}{}%
+\contentsline {subsection}{Paso 2: Afinar el Instrumento Virtual}{\es@scroman {xii}}{}%
+\contentsline {subsection}{Paso 3: Prueba de Sonido}{\es@scroman {xii}}{}%
+\contentsline {subsection}{Paso 4: Exportación a otros Productos}{\es@scroman {xii}}{}%
+\contentsline {section}{Conclusiones}{\es@scroman {xii}}{}%
+\contentsline {section}{Bibliografía}{\es@scroman {xiii}}{}%
+\contentsline {section}{Anexos}{\es@scroman {xiv}}{}%

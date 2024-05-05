@@ -1,0 +1,19 @@
+﻿  main.cpp
+C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\Virtual_Instrument.h(81,34): warning C4244: 'return': conversión de 'double' a 'size_t'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\Virtual_Instrument.h(82,29): warning C4244: 'return': conversión de 'double' a 'size_t'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\Virtual_Instrument.h(85,54): warning C4244: 'return': conversión de 'double' a 'size_t'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\Virtual_Instrument.h(157,123): warning C4244: 'argumento': conversión de '_Ty' a 'const size_t'; posible pérdida de datos
+          with
+          [
+              _Ty=double
+          ]
+C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\Virtual_Instrument.h(166,137): warning C4244: 'argumento': conversión de '_Ty' a 'const size_t'; posible pérdida de datos
+          with
+          [
+              _Ty=double
+          ]
+C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\olcNoiseMaker.h(134,1): warning C4267: '=': conversión de 'size_t' a 'WORD'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\olcNoiseMaker.h(111): message : al compilar la función del miembro clase plantilla "bool olcNoiseMaker<short>::Create(std::wstring,size_t,size_t,size_t,size_t)"
+C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\olcNoiseMaker.h(108): message : Vea la referencia a la creación de una instancia de la función plantilla "bool olcNoiseMaker<short>::Create(std::wstring,size_t,size_t,size_t,size_t)" que se está compilando
+C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\NoiseMachine.h(188): message : Vea la referencia a la creación de una instancia de clase plantilla "olcNoiseMaker<short>" que se está compilando
+  VM3.vcxproj -> C:\Users\espin\OneDrive\Documentos\Tesis\VM3\Debug\VM3.exe
