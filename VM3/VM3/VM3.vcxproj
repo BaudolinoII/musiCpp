@@ -164,13 +164,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="NoiseMachine.cpp" />
+    <ClCompile Include="NoiseMaker.cpp" />
+    <ClCompile Include="Oscillador.cpp" />
+    <ClCompile Include="VirtualInstrument.cpp" />
+    <ClCompile Include="VitalComp.cpp" />
     <ClCompile Include="xml_lib\pugixml.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="NoiseMachine.h" />
-    <ClInclude Include="olcNoiseMaker.h" />
-    <ClInclude Include="Virtual_Instrument.h" />
-    <ClInclude Include="VitalComp.h" />
+    <ClInclude Include="NoiseMachine.hpp" />
+    <ClInclude Include="NoiseMaker.hpp" />
+    <ClInclude Include="Oscillador.hpp" />
+    <ClInclude Include="VirtualInstrument.hpp" />
+    <ClInclude Include="VitalComp.hpp" />
     <ClInclude Include="xml_lib\pugiconfig.hpp" />
     <ClInclude Include="xml_lib\pugixml.hpp" />
   </ItemGroup>

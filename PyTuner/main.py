@@ -68,8 +68,8 @@ class Application(tk.Frame):
 		self.occ_cat = ['la','la#','si','do','do#','re','re#','mi','fa','fa#','sol','sol#']
 		self.occ_ang = ['a','a#','b','c','c#','d','d#','e','f','f#','g','g#']
 
-		self.signal = dict(Sine=s,Square=q,Triangle=t,Saw=w,Noise=n)
-		self.signal_inv = dict(s=Sine,q=Square,t=Triangle,w=Saw,n=Noise)
+		self.signal = dict(Sine="s",Square="q",Triangle="t",Saw="w",Noise="n")
+		self.signal_inv = dict(s="Sine",q="Square",t="Triangle",w="Saw",n="Noise")
 
 		self.create_vars()
 		self.create_widgets()
@@ -80,7 +80,7 @@ class Application(tk.Frame):
 		self.ax.plot(np.arange(0.0, float(len(data)), 1.0) / scalar, data, color=color_grap)
 	def get_co(self, exp):
 		key = self.signal.get(exp, "None")
-		if(key == "None")
+		if(key == "None"):
 			key = self.signal_inv.get(exp, "None")
 		return 'None'
 
@@ -287,7 +287,7 @@ class Application(tk.Frame):
 					args = "{:.2f}{}({:.2f}wt)".format(float(x[1]), self.get_co(x[0]), float(x[2]))
 			elif(x[0] == "n"):
 				time_rand = ""
-				if(float(x[4]) > 0)
+				if(float(x[4]) > 0):
 					time_rand = "; Duration => {:.2f}".format(float(x[4]))
 				args = "{:.2f}Noise({}); Begin => {:.2f}{}".format(float(x[1]), int(x[2]), float(x[3]),time_rand)
 			self.lb_sum.insert(self.lb_sum.size(), args)

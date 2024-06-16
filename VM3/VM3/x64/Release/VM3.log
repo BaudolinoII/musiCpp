@@ -1,27 +1,232 @@
 ﻿  main.cpp
-C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\Virtual_Instrument.h(81,34): warning C4244: 'return': conversión de 'double' a 'size_t'; posible pérdida de datos
-C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\Virtual_Instrument.h(82,29): warning C4244: 'return': conversión de 'double' a 'size_t'; posible pérdida de datos
-C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\Virtual_Instrument.h(85,54): warning C4244: 'return': conversión de 'double' a 'size_t'; posible pérdida de datos
-C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\Virtual_Instrument.h(159,123): warning C4244: 'argumento': conversión de 'double' a 'const size_t'; posible pérdida de datos
-C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\Virtual_Instrument.h(168,137): warning C4244: 'argumento': conversión de 'double' a 'const size_t'; posible pérdida de datos
-C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\olcNoiseMaker.h(129,18): warning C4244: 'inicializando': conversión de '__int64' a 'int'; posible pérdida de datos
-C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\olcNoiseMaker.h(111): message : al compilar la función del miembro clase plantilla "bool olcNoiseMaker<short>::Create(std::wstring,size_t,size_t,size_t,size_t)"
-C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\olcNoiseMaker.h(108): message : Vea la referencia a la creación de una instancia de la función plantilla "bool olcNoiseMaker<short>::Create(std::wstring,size_t,size_t,size_t,size_t)" que se está compilando
-C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\main.cpp(96): message : Vea la referencia a la creación de una instancia de clase plantilla "olcNoiseMaker<short>" que se está compilando
-C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\olcNoiseMaker.h(132,1): warning C4267: '=': conversión de 'size_t' a 'DWORD'; posible pérdida de datos
-C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\olcNoiseMaker.h(134,1): warning C4267: '=': conversión de 'size_t' a 'WORD'; posible pérdida de datos
-C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\olcNoiseMaker.h(157,1): warning C4267: '=': conversión de 'size_t' a 'DWORD'; posible pérdida de datos
-C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\olcNoiseMaker.h(83,1): warning C4267: 'inicializando': conversión de 'size_t' a 'int'; posible pérdida de datos
-C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\olcNoiseMaker.h(59): message : al compilar la función del miembro clase plantilla "void olcNoiseMaker<short>::MainThread(void)"
-C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\olcNoiseMaker.h(163): message : Vea la referencia a la creación de una instancia de la función plantilla "void olcNoiseMaker<short>::MainThread(void)" que se está compilando
-C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\olcNoiseMaker.h(89,1): warning C4267: 'argumento': conversión de 'size_t' a 'int'; posible pérdida de datos
-C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\olcNoiseMaker.h(91,1): warning C4267: 'argumento': conversión de 'size_t' a 'int'; posible pérdida de datos
-C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\olcNoiseMaker.h(53,1): warning C4312: 'conversión de tipo': conversión de 'DWORD' a 'olcNoiseMaker<short> *' de mayor tamaño
-C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\olcNoiseMaker.h(52): message : al compilar la función del miembro clase plantilla "void olcNoiseMaker<short>::waveOutProcWrap(HWAVEOUT,UINT,DWORD,DWORD,DWORD)"
-C:\Users\espin\OneDrive\Documentos\Tesis\VM3\VM3\olcNoiseMaker.h(140): message : Vea la referencia a la creación de una instancia de la función plantilla "void olcNoiseMaker<short>::waveOutProcWrap(HWAVEOUT,UINT,DWORD,DWORD,DWORD)" que se está compilando
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(34,24): error C2143: error de sintaxis: falta ';' delante de '*'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(34,24): error C4430: falta el especificador de tipo; se presupone int. Nota: C++ no admite default-int
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(34,33): error C2238: símbolos (token) inesperados delante de ';'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(29,12): error C2011: 'Note': nueva definición del tipo 'class'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(29): message : vea la declaración de 'Note'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(39,19): error C2011: 'Sound_Model': nueva definición del tipo 'class'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(39): message : vea la declaración de 'Sound_Model'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(57,22): error C2011: 'Instrument_xml': nueva definición del tipo 'class'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(57): message : vea la declaración de 'Instrument_xml'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.hpp(42,12): error C3861: 'v': no se encontró el identificador
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.hpp(28,44): message : Diagnóstico en la función 'void VMMM::VMMM::safe_remove(T &,VMMM::VMMM::lambda)' generada por el compilador
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.hpp(43,15): error C3861: 'v': no se encontró el identificador
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.hpp(28,44): message : Diagnóstico en la función 'void VMMM::VMMM::safe_remove(T &,VMMM::VMMM::lambda)' generada por el compilador
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.hpp(47,9): error C3861: 'v': no se encontró el identificador
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.hpp(28,44): message : Diagnóstico en la función 'void VMMM::VMMM::safe_remove(T &,VMMM::VMMM::lambda)' generada por el compilador
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\main.cpp(11,17): error C2079: 'main_inst' utiliza class 'Instrument_xml' sin definir
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\main.cpp(21,34): error C2664: 'void VMMM::ConsoleSynth::KeyBoard_MainLoop(Instrument_xml *)': el argumento 1 no puede convertirse de 'int *' a 'Instrument_xml *'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\main.cpp(21,24): message : Los tipos señalados no están relacionados; la conversión requiere reinterpret_cast, conversión de estilo de C o conversión de estilo de función
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.hpp(56,16): message : vea la declaración de 'VMMM::ConsoleSynth::KeyBoard_MainLoop'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\main.cpp(32,46): error C2664: 'void VMMM::VirtualOrquesta::setTrack(Instrument_xml *,unsigned char *,double,double,size_t)': el argumento 1 no puede convertirse de 'int *' a 'Instrument_xml *'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\main.cpp(32,14): message : Los tipos señalados no están relacionados; la conversión requiere reinterpret_cast, conversión de estilo de C o conversión de estilo de función
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.hpp(82,16): message : vea la declaración de 'VMMM::VirtualOrquesta::setTrack'
+  NoiseMachine.cpp
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(34,24): error C2143: error de sintaxis: falta ';' delante de '*'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(34,24): error C4430: falta el especificador de tipo; se presupone int. Nota: C++ no admite default-int
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(34,33): error C2238: símbolos (token) inesperados delante de ';'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(56,2): error C2953: 'olcNoiseMaker': ya se ha definido la plantilla de clase
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(23): message : vea la declaración de 'olcNoiseMaker'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(59,1): error C2244: 'olcNoiseMaker::waveOutProc': no se puede hacer coincidir la definición de función con una declaración existente
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(59): message : vea la declaración de 'olcNoiseMaker::waveOutProc'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(59,1): message : definición
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(59,1): message : 'void olcNoiseMaker::waveOutProc(HWAVEOUT,UINT,DWORD,DWORD)'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(59,1): message : declaraciones existentes
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(59,1): message : 'void olcNoiseMaker<T>::waveOutProc(HWAVEOUT,UINT,DWORD,DWORD)'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(67,1): error C2244: 'olcNoiseMaker::waveOutProcWrap': no se puede hacer coincidir la definición de función con una declaración existente
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(67): message : vea la declaración de 'olcNoiseMaker::waveOutProcWrap'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(67,1): message : definición
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(67,1): message : 'void olcNoiseMaker::waveOutProcWrap(HWAVEOUT,UINT,DWORD,DWORD,DWORD)'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(67,1): message : declaraciones existentes
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(67,1): message : 'void olcNoiseMaker<T>::waveOutProcWrap(HWAVEOUT,UINT,DWORD,DWORD,DWORD)'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(71,1): error C2244: 'olcNoiseMaker::MainThread': no se puede hacer coincidir la definición de función con una declaración existente
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(71): message : vea la declaración de 'olcNoiseMaker::MainThread'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(71,1): message : definición
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(71,1): message : 'void olcNoiseMaker::MainThread(void)'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(71,1): message : declaraciones existentes
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(71,1): message : 'void olcNoiseMaker<T>::MainThread(void)'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(119,1): error C2244: 'olcNoiseMaker::olcNoiseMaker': no se puede hacer coincidir la definición de función con una declaración existente
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(119): message : vea la declaración de 'olcNoiseMaker::olcNoiseMaker'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(119,1): message : definición
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(119,1): message : 'olcNoiseMaker::olcNoiseMaker(void)'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(119,1): message : declaraciones existentes
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(119,1): message : 'olcNoiseMaker<T>::olcNoiseMaker(std::wstring,size_t,size_t,size_t,size_t)'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(119,1): message : 'olcNoiseMaker<T>::olcNoiseMaker(void)'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(121,1): error C2244: 'olcNoiseMaker::olcNoiseMaker': no se puede hacer coincidir la definición de función con una declaración existente
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(121): message : vea la declaración de 'olcNoiseMaker::olcNoiseMaker'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(121,1): message : definición
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(121,1): message : 'olcNoiseMaker::olcNoiseMaker(std::wstring,size_t,size_t,size_t,size_t)'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(121,1): message : declaraciones existentes
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(121,1): message : 'olcNoiseMaker<T>::olcNoiseMaker(std::wstring,size_t,size_t,size_t,size_t)'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(121,1): message : 'olcNoiseMaker<T>::olcNoiseMaker(void)'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(125,1): error C2244: 'olcNoiseMaker::Create': no se puede hacer coincidir la definición de función con una declaración existente
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(125): message : vea la declaración de 'olcNoiseMaker::Create'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(125,1): message : definición
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(125,1): message : 'bool olcNoiseMaker::Create(std::wstring,size_t,size_t,size_t,size_t)'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(125,1): message : declaraciones existentes
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(125,1): message : 'bool olcNoiseMaker<T>::Create(std::wstring,size_t,size_t,size_t,size_t)'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(186,1): error C2244: 'olcNoiseMaker::Stop': no se puede hacer coincidir la definición de función con una declaración existente
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(186): message : vea la declaración de 'olcNoiseMaker::Stop'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(186,1): message : definición
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(186,1): message : 'void olcNoiseMaker::Stop(void)'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(186,1): message : declaraciones existentes
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(186,1): message : 'void olcNoiseMaker<T>::Stop(void)'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(191,1): error C2244: 'olcNoiseMaker::UserProcess': no se puede hacer coincidir la definición de función con una declaración existente
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(191): message : vea la declaración de 'olcNoiseMaker::UserProcess'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(191,1): message : definición
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(191,1): message : 'double olcNoiseMaker::UserProcess(int,double)'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(191,1): message : declaraciones existentes
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(191,1): message : 'double olcNoiseMaker<T>::UserProcess(int,double)'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(195,1): error C2244: 'olcNoiseMaker::GetTime': no se puede hacer coincidir la definición de función con una declaración existente
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(195): message : vea la declaración de 'olcNoiseMaker::GetTime'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(195,1): message : definición
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(195,1): message : 'double olcNoiseMaker::GetTime(void)'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(195,1): message : declaraciones existentes
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(195,1): message : 'double olcNoiseMaker<T>::GetTime(void)'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(199,1): error C2244: 'olcNoiseMaker::Enumerate': no se puede hacer coincidir la definición de función con una declaración existente
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(199): message : vea la declaración de 'olcNoiseMaker::Enumerate'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(199,1): message : definición
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(199,1): message : 'std::vector<std::wstring,std::allocator<std::wstring>> olcNoiseMaker::Enumerate(void)'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(199,1): message : declaraciones existentes
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(199,1): message : 'std::vector<std::wstring,std::allocator<std::wstring>> olcNoiseMaker<T>::Enumerate(void)'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(209,1): error C2244: 'olcNoiseMaker::SetUserFunction': no se puede hacer coincidir la definición de función con una declaración existente
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(209): message : vea la declaración de 'olcNoiseMaker::SetUserFunction'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(209,1): message : definición
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(209,1): message : 'void olcNoiseMaker::SetUserFunction(double (__cdecl *)(int,double))'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(209,1): message : declaraciones existentes
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(209,1): message : 'void olcNoiseMaker<T>::SetUserFunction(double (__cdecl *)(int,double))'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(213,1): error C2244: 'olcNoiseMaker::clip': no se puede hacer coincidir la definición de función con una declaración existente
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(213): message : vea la declaración de 'olcNoiseMaker::clip'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(213,1): message : definición
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(213,1): message : 'double olcNoiseMaker::clip(double,double)'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(213,1): message : declaraciones existentes
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(213,1): message : 'double olcNoiseMaker<T>::clip(double,double)'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(29,12): error C2011: 'Note': nueva definición del tipo 'class'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(29): message : vea la declaración de 'Note'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(39,19): error C2011: 'Sound_Model': nueva definición del tipo 'class'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(39): message : vea la declaración de 'Sound_Model'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(57,22): error C2011: 'Instrument_xml': nueva definición del tipo 'class'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(57): message : vea la declaración de 'Instrument_xml'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.hpp(42,12): error C3861: 'v': no se encontró el identificador
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.hpp(28,44): message : Diagnóstico en la función 'void VMMM::VMMM::safe_remove(T &,VMMM::VMMM::lambda)' generada por el compilador
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.hpp(43,15): error C3861: 'v': no se encontró el identificador
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.hpp(28,44): message : Diagnóstico en la función 'void VMMM::VMMM::safe_remove(T &,VMMM::VMMM::lambda)' generada por el compilador
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.hpp(47,9): error C3861: 'v': no se encontró el identificador
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.hpp(28,44): message : Diagnóstico en la función 'void VMMM::VMMM::safe_remove(T &,VMMM::VMMM::lambda)' generada por el compilador
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(21,19): error C2512: 'olcNoiseMaker': no hay disponible un constructor predeterminado adecuado
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(23,7): message : vea la declaración de 'olcNoiseMaker'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(29,6): error C2027: uso del tipo 'Note' sin definir
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(29): message : vea la declaración de 'Note'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(30,14): error C2027: uso del tipo 'Note' sin definir
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(29): message : vea la declaración de 'Note'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(34,5): error C2027: uso del tipo 'Note' sin definir
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(29): message : vea la declaración de 'Note'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(36,64): error C2027: uso del tipo 'Note' sin definir
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(29): message : vea la declaración de 'Note'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(36,2): error C2672: 'VMMM::VMMM::safe_remove': no se encontró una función sobrecargada que coincida
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(36,87): error C2440: 'inicializando': no se puede realizar la conversión de 'VMMM::VMMM::MakeNoise::<lambda_3c9d7bfbbe8112eabe58df8d94be0985>' a 'VMMM::VMMM::lambda'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(36,86): message : No hay disponible ningún operador de conversión definido por el usuario que pueda realizar esta conversión, o bien no se puede llamar al operador
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(75,56): error C2662: 'bool olcNoiseMaker<T>::Create(std::wstring,size_t,size_t,size_t,size_t)': no se puede convertir el puntero 'this' de 'olcNoiseMaker' a 'olcNoiseMaker<T> &'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(75,56): message : Razón: no se puede realizar la conversión de 'olcNoiseMaker' a 'olcNoiseMaker<T>'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(75,6): message : La conversión requiere un segundo operador de conversión definido por el usuario o constructor
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(49,15): message : vea la declaración de 'olcNoiseMaker<T>::Create'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(76,45): error C2662: 'void olcNoiseMaker<T>::SetUserFunction(double (__cdecl *)(int,double))': no se puede convertir el puntero 'this' de 'olcNoiseMaker' a 'olcNoiseMaker<T> &'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(76,45): message : Razón: no se puede realizar la conversión de 'olcNoiseMaker' a 'olcNoiseMaker<T>'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(76,6): message : La conversión requiere un segundo operador de conversión definido por el usuario o constructor
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(54,15): message : vea la declaración de 'olcNoiseMaker<T>::SetUserFunction'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(80,34): error C2662: 'double olcNoiseMaker<T>::GetTime(void)': no se puede convertir el puntero 'this' de 'olcNoiseMaker' a 'olcNoiseMaker<T> &'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(80,34): message : Razón: no se puede realizar la conversión de 'olcNoiseMaker' a 'olcNoiseMaker<T>'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(80,20): message : La conversión requiere un segundo operador de conversión definido por el usuario o constructor
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(52,16): message : vea la declaración de 'olcNoiseMaker<T>::GetTime'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(99,121): error C2027: uso del tipo 'Note' sin definir
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(29): message : vea la declaración de 'Note'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(102,11): error C2079: 'n' utiliza class 'Note' sin definir
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(111,8): error C2027: uso del tipo 'Note' sin definir
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(29): message : vea la declaración de 'Note'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(112,18): error C2027: uso del tipo 'Note' sin definir
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(29): message : vea la declaración de 'Note'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(113,18): error C2027: uso del tipo 'Note' sin definir
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(29): message : vea la declaración de 'Note'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(114,18): error C2027: uso del tipo 'Note' sin definir
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(29): message : vea la declaración de 'Note'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(116,14): error C2027: uso del tipo 'Note' sin definir
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(29): message : vea la declaración de 'Note'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(117,17): error C2027: uso del tipo 'Note' sin definir
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(29): message : vea la declaración de 'Note'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(124,46): error C2027: uso del tipo 'Instrument_xml' sin definir
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(57): message : vea la declaración de 'Instrument_xml'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(130,19): error C2662: 'void olcNoiseMaker<T>::Stop(void)': no se puede convertir el puntero 'this' de 'olcNoiseMaker' a 'olcNoiseMaker<T> &'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(130,19): message : Razón: no se puede realizar la conversión de 'olcNoiseMaker' a 'olcNoiseMaker<T>'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(130,6): message : La conversión requiere un segundo operador de conversión definido por el usuario o constructor
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(50,15): message : vea la declaración de 'olcNoiseMaker<T>::Stop'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(182,26): error C2027: uso del tipo 'Instrument_xml' sin definir
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(57): message : vea la declaración de 'Instrument_xml'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(197,13): error C2079: 'n' utiliza class 'Note' sin definir
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(203,36): error C2664: 'void std::vector<Note,std::allocator<Note>>::push_back(const _Ty &)': el argumento 1 no puede convertirse de 'int' a 'const _Ty &'
+          with
+          [
+              _Ty=Note
+          ]
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(203,36): message : Razón: no se puede realizar la conversión de 'int' a 'const _Ty'
+          with
+          [
+              _Ty=Note
+          ]
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(203,36): message : Uso del tipo no definido 'Note'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(29,7): message : vea la declaración de 'Note'
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\vector(742,33): message : vea la declaración de 'std::vector<Note,std::allocator<Note>>::push_back'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(218,56): error C2662: 'bool olcNoiseMaker<T>::Create(std::wstring,size_t,size_t,size_t,size_t)': no se puede convertir el puntero 'this' de 'olcNoiseMaker' a 'olcNoiseMaker<T> &'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(218,56): message : Razón: no se puede realizar la conversión de 'olcNoiseMaker' a 'olcNoiseMaker<T>'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(218,6): message : La conversión requiere un segundo operador de conversión definido por el usuario o constructor
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(49,15): message : vea la declaración de 'olcNoiseMaker<T>::Create'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(219,45): error C2662: 'void olcNoiseMaker<T>::SetUserFunction(double (__cdecl *)(int,double))': no se puede convertir el puntero 'this' de 'olcNoiseMaker' a 'olcNoiseMaker<T> &'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(219,45): message : Razón: no se puede realizar la conversión de 'olcNoiseMaker' a 'olcNoiseMaker<T>'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(219,6): message : La conversión requiere un segundo operador de conversión definido por el usuario o constructor
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(54,15): message : vea la declaración de 'olcNoiseMaker<T>::SetUserFunction'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(226,23): error C2027: uso del tipo 'Note' sin definir
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(29): message : vea la declaración de 'Note'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(227,23): error C2027: uso del tipo 'Note' sin definir
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(29): message : vea la declaración de 'Note'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(238,19): error C2662: 'void olcNoiseMaker<T>::Stop(void)': no se puede convertir el puntero 'this' de 'olcNoiseMaker' a 'olcNoiseMaker<T> &'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(238,19): message : Razón: no se puede realizar la conversión de 'olcNoiseMaker' a 'olcNoiseMaker<T>'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMachine.cpp(238,6): message : La conversión requiere un segundo operador de conversión definido por el usuario o constructor
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(50,15): message : vea la declaración de 'olcNoiseMaker<T>::Stop'
+  NoiseMaker.cpp
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(68,1): warning C4312: 'conversión de tipo': conversión de 'DWORD' a 'olcNoiseMaker<double> *' de mayor tamaño
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(67): message : al compilar la función del miembro clase plantilla "void olcNoiseMaker<double>::waveOutProcWrap(HWAVEOUT,UINT,DWORD,DWORD,DWORD)"
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.cpp(3): message : Vea la referencia a la creación de una instancia de clase plantilla "olcNoiseMaker<double>" que se está compilando
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(95,1): warning C4267: 'inicializando': conversión de 'size_t' a 'int'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(71): message : al compilar la función del miembro clase plantilla "void olcNoiseMaker<double>::MainThread(void)"
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(101,1): warning C4267: 'argumento': conversión de 'size_t' a 'int'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(103,1): warning C4267: 'argumento': conversión de 'size_t' a 'int'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(143,17): warning C4244: 'inicializando': conversión de '__int64' a 'int'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(125): message : al compilar la función del miembro clase plantilla "bool olcNoiseMaker<double>::Create(std::wstring,size_t,size_t,size_t,size_t)"
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(122): message : Vea la referencia a la creación de una instancia de la función plantilla "bool olcNoiseMaker<double>::Create(std::wstring,size_t,size_t,size_t,size_t)" que se está compilando
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(146,1): warning C4267: '=': conversión de 'size_t' a 'DWORD'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(148,1): warning C4267: '=': conversión de 'size_t' a 'WORD'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(171,1): warning C4267: '=': conversión de 'size_t' a 'DWORD'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(68,1): warning C4312: 'conversión de tipo': conversión de 'DWORD' a 'olcNoiseMaker<float> *' de mayor tamaño
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(67): message : al compilar la función del miembro clase plantilla "void olcNoiseMaker<float>::waveOutProcWrap(HWAVEOUT,UINT,DWORD,DWORD,DWORD)"
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.cpp(4): message : Vea la referencia a la creación de una instancia de clase plantilla "olcNoiseMaker<float>" que se está compilando
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(68,1): warning C4312: 'conversión de tipo': conversión de 'DWORD' a 'olcNoiseMaker<int> *' de mayor tamaño
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(67): message : al compilar la función del miembro clase plantilla "void olcNoiseMaker<int>::waveOutProcWrap(HWAVEOUT,UINT,DWORD,DWORD,DWORD)"
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.cpp(5): message : Vea la referencia a la creación de una instancia de clase plantilla "olcNoiseMaker<int>" que se está compilando
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(68,1): warning C4312: 'conversión de tipo': conversión de 'DWORD' a 'olcNoiseMaker<char> *' de mayor tamaño
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.hpp(67): message : al compilar la función del miembro clase plantilla "void olcNoiseMaker<char>::waveOutProcWrap(HWAVEOUT,UINT,DWORD,DWORD,DWORD)"
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\NoiseMaker.cpp(6): message : Vea la referencia a la creación de una instancia de clase plantilla "olcNoiseMaker<char>" que se está compilando
+  Oscillador.cpp
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\Oscillador.cpp(35,36): warning C4267: 'argumento': conversión de 'size_t' a 'unsigned int'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\Oscillador.cpp(60,30): warning C4244: 'return': conversión de 'double' a 'size_t'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\Oscillador.cpp(61,25): warning C4244: 'return': conversión de 'double' a 'size_t'; posible pérdida de datos
+  VirtualInstrument.cpp
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(34,24): error C2143: error de sintaxis: falta ';' delante de '*'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(34,24): error C4430: falta el especificador de tipo; se presupone int. Nota: C++ no admite default-int
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.hpp(34,33): error C2238: símbolos (token) inesperados delante de ';'
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VirtualInstrument.cpp(94,39): warning C4244: 'argumento': conversión de 'double' a 'const unsigned char'; posible pérdida de datos
+  VitalComp.cpp
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VitalComp.cpp(93,12): warning C4267: 'return': conversión de 'size_t' a 'int'; posible pérdida de datos
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VitalComp.cpp(101,23): warning C4334: '<<': el resultado del desplazamiento de 32 bits se convirtió implícitamente en 64 bits (¿quería un desplazamiento de 64 bits?)
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VitalComp.cpp(150,20): warning C4334: '<<': el resultado del desplazamiento de 32 bits se convirtió implícitamente en 64 bits (¿quería un desplazamiento de 64 bits?)
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VitalComp.cpp(152,15): warning C4334: '<<': el resultado del desplazamiento de 32 bits se convirtió implícitamente en 64 bits (¿quería un desplazamiento de 64 bits?)
+C:\Users\espin\OneDrive\Documentos\Tesis\musiCpp-stable\VM3\VM3\VitalComp.cpp(374,42): warning C4267: '=': conversión de 'size_t' a 'int'; posible pérdida de datos
   pugixml.cpp
-  Generando código
-  Previous IPDB not found, fall back to full compilation.
-  All 790 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
-  Generación de código finalizada
-  VM3.vcxproj -> C:\Users\espin\OneDrive\Documentos\Tesis\VM3\x64\Release\VM3.exe
