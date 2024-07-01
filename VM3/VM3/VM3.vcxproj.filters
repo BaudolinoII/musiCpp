@@ -13,14 +13,14 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Archivos de encabezado\xml_lib">
+      <UniqueIdentifier>{06d07145-5113-4d75-b48e-da176471a983}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Archivos de recursos\xml_samples">
-      <UniqueIdentifier>{809ee996-6524-452a-90af-a8d820f51445}</UniqueIdentifier>
+      <UniqueIdentifier>{14d3bd3d-cebf-42ea-8c5b-26f5d4366d4c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Archivos de recursos\melodies">
-      <UniqueIdentifier>{1ce28db4-39d8-4310-9785-30ca332b2a5b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Archivos de encabezado\xml_lib">
-      <UniqueIdentifier>{28947843-334a-46fa-846f-8088f3f5c9ce}</UniqueIdentifier>
+      <UniqueIdentifier>{1eb6fffa-570d-4571-b9c0-9e5989054ae1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -30,29 +30,8 @@
     <ClCompile Include="xml_lib\pugixml.cpp">
       <Filter>Archivos de encabezado\xml_lib</Filter>
     </ClCompile>
-    <ClCompile Include="NoiseMachine.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
-    <ClCompile Include="NoiseMaker.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
-    <ClCompile Include="Oscillador.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
-    <ClCompile Include="VirtualInstrument.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
-    <ClCompile Include="VitalComp.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="xml_lib\pugiconfig.hpp">
-      <Filter>Archivos de encabezado\xml_lib</Filter>
-    </ClInclude>
-    <ClInclude Include="xml_lib\pugixml.hpp">
-      <Filter>Archivos de encabezado\xml_lib</Filter>
-    </ClInclude>
     <ClInclude Include="NoiseMachine.hpp">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
@@ -68,14 +47,14 @@
     <ClInclude Include="VitalComp.hpp">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
+    <ClInclude Include="xml_lib\pugiconfig.hpp">
+      <Filter>Archivos de encabezado\xml_lib</Filter>
+    </ClInclude>
+    <ClInclude Include="xml_lib\pugixml.hpp">
+      <Filter>Archivos de encabezado\xml_lib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="xml_samples\Experimental.xml">
-      <Filter>Archivos de recursos\xml_samples</Filter>
-    </Xml>
-    <Xml Include="xml_samples\Guitarra.xml">
-      <Filter>Archivos de recursos\xml_samples</Filter>
-    </Xml>
     <Xml Include="xml_samples\Experimental2.xml">
       <Filter>Archivos de recursos\xml_samples</Filter>
     </Xml>

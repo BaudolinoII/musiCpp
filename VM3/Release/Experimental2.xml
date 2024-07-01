@@ -1,18 +1,16 @@
 <?xml version='1.0' encoding='utf-8'?>
 <instrument name="Experimental" vol="0.80" mlt="2.00">
   <note from="all">
-    <method fund="440.0" scale="4">
-      <operation type="s" amp="0.5"        id="-12" va1="0.005" va2="0.01" va3="0.1" />
-      <operation type="s" amp="1.0"        id="0"   va1="0" va2="0" va3="0" />
-      <operation type="s" amp="0.5"        id="12"  va1="0" va2="0" va3="0" />
-        <operation type="s" amp="0.25"     id="24"  va1="0" va2="0" va3="0" />
-        <operation type="a" amp="0.125"    id="48"  va1="0" va2="0" va3="10" />
-        <operation type="q" amp="0.125"    id="96"  va1="0.5" va2="1" va3="0" />
-        <operation type="n" amp="0.0001"   id="255"  va1="0" va2="0" va3="0" />
-
+    <method base="440.0" adj_scale="0">
+	    <operation type="0" id="-12" amp="1.0" va1="0" va2="0" va3="0" />
+	    <operation type="2" id="0"   amp="0.5" va1="0" va2="0" va3="0" />
+	    <operation type="0" id="12"  amp="0.25" va1="0" va2="0" va3="0" />
+      <operation type="0" id="24"  amp="0.125" va1="0" va2="0" va3="0" />
+      <operation type="3" id="48"  amp="0.0625" va1="0" va2="0" va3="0" />
+      <operation type="0" id="96"  amp="0.04125" va1="0" va2="0" va3="0" />
     </method>
     <template type="ADSR">
-    <amplitude att="0.08" dec="0.05" sus="0.31" rel="0.15" pic="0.8" stb="0.5" res="0.35" />
+		<amplitude att="0.08" dec="0.05" sus="0.31" rel="0.15" pic="0.8" stb="0.5" res="0.35" />
     </template>
   </note>
 </instrument>

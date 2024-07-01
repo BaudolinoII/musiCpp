@@ -1,5 +1,3 @@
-#pragma comment(lib, "winmm.lib")
-
 #include <iostream>
 #include <cmath>
 #include <fstream>
@@ -9,7 +7,8 @@
 #include <atomic>
 #include <condition_variable>
 
-#include <Windows.h>
+#include <windows.h>
+#pragma comment(lib, "winmm.lib")
 
 #ifndef FTYPE
 #define FTYPE double
@@ -39,180 +38,154 @@ class olcNoiseMaker {
 	private: std::condition_variable m_cvBlockNotZero;
 	private: std::mutex m_muxBlockNotZero;
 
-	private: void waveOutProc(HWAVEOUT hWaveOut, UINT uMsg, DWORD dwParam1, DWORD dwParam2);
-	private: static void CALLBACK waveOutProcWrap(HWAVEOUT hWaveOut, UINT uMsg, DWORD dwInstance, DWORD dwParam1, DWORD dwParam2);
-	private: void MainThread();
+	private: void waveOutProc(HWAVEOUT hWaveOut, UINT uMsg, DWORD dwParam1, DWORD dwParam2){
+		if (uMsg != WOM_DONE)
+			return;
+		m_nBlockFree++;
+		std::unique_lock<std::mutex> lm(m_muxBlockNotZero);
+		m_cvBlockNotZero.notify_one();
+	}
+	private: static void CALLBACK waveOutProcWrap(HWAVEOUT hWaveOut, UINT uMsg, DWORD dwInstance, DWORD dwParam1, DWORD dwParam2){
+		((olcNoiseMaker*)dwInstance)->waveOutProc(hWaveOut, uMsg, dwParam1, dwParam2);
+	}
+	private: void MainThread() {
+		m_dGlobalTime = 0.0;
+		FTYPE dTimeStep = 1.0 / (FTYPE)m_nSampleRate;
 
-	public: olcNoiseMaker();
-	public: olcNoiseMaker(std::wstring sOutputDevice, size_t nSampleRate, size_t nChannels, size_t nBlocks, size_t nBlockSamples);
+		// Goofy hack to get maximum integer for a type at run-time
+		T nMaxSample = (T)pow(2, (sizeof(T) * 8) - 1) - 1;
+		FTYPE dMaxSample = (FTYPE)nMaxSample;
+		T nPreviousSample = 0;
 
-	public: bool Create(std::wstring sOutputDevice, size_t nSampleRate, size_t nChannels, size_t nBlocks, size_t nBlockSamples);
-	public: void Stop();
-	public: virtual FTYPE UserProcess(int nChannel, FTYPE dTime);
-	public: FTYPE GetTime();
-	public: static std::vector<std::wstring> Enumerate();
-	public: void SetUserFunction(FTYPE(*func)(int, FTYPE));
-	public: FTYPE clip(FTYPE dSample, FTYPE dMax);
-};
-
-template<class T>
-void olcNoiseMaker<T>::waveOutProc(HWAVEOUT hWaveOut, UINT uMsg, DWORD dwParam1, DWORD dwParam2) {
-	if (uMsg != WOM_DONE)
-		return;
-	m_nBlockFree++;
-	std::unique_lock<std::mutex> lm(m_muxBlockNotZero);
-	m_cvBlockNotZero.notify_one();
-}
-template<class T>
-void CALLBACK olcNoiseMaker<T>::waveOutProcWrap(HWAVEOUT hWaveOut, UINT uMsg, DWORD dwInstance, DWORD dwParam1, DWORD dwParam2) {
-	((olcNoiseMaker*)dwInstance)->waveOutProc(hWaveOut, uMsg, dwParam1, dwParam2);
-}
-template<class T>
-void olcNoiseMaker<T>::MainThread() {
-	m_dGlobalTime = 0.0;
-	FTYPE dTimeStep = 1.0 / (FTYPE)m_nSampleRate;
-
-	// Goofy hack to get maximum integer for a type at run-time
-	T nMaxSample = (T)pow(2, (sizeof(T) * 8) - 1) - 1;
-	FTYPE dMaxSample = (FTYPE)nMaxSample;
-	T nPreviousSample = 0;
-
-	while (m_bReady) {
-		// Wait for block to become available
-		if (m_nBlockFree == 0) {
-			std::unique_lock<std::mutex> lm(m_muxBlockNotZero);
-			m_cvBlockNotZero.wait(lm);
-		}
-
-		// Block is here, so use it
-		m_nBlockFree--;
-
-		// Prepare block for processing
-		if (m_pWaveHeaders[m_nBlockCurrent].dwFlags & WHDR_PREPARED)
-			waveOutUnprepareHeader(m_hwDevice, &m_pWaveHeaders[m_nBlockCurrent], sizeof(WAVEHDR));
-
-		T nNewSample = 0;
-		int nCurrentBlock = m_nBlockCurrent * m_nBlockSamples;
-
-		for (size_t n = 0; n < m_nBlockSamples; n += m_nChannels) {
-			for (size_t c = 0; c < m_nChannels; c++) {
-				// User Process
-				if (m_userFunction == nullptr)
-					nNewSample = (T)(clip(UserProcess(c, m_dGlobalTime), 1.0) * dMaxSample);
-				else
-					nNewSample = (T)(clip(m_userFunction(c, m_dGlobalTime), 1.0) * dMaxSample);
-
-				m_pBlockMemory[nCurrentBlock + n + c] = nNewSample;
-				nPreviousSample = nNewSample;
+		while (m_bReady) {
+			// Wait for block to become available
+			if (m_nBlockFree == 0) {
+				std::unique_lock<std::mutex> lm(m_muxBlockNotZero);
+				m_cvBlockNotZero.wait(lm);
 			}
-			m_dGlobalTime = m_dGlobalTime + dTimeStep;
+
+			// Block is here, so use it
+			m_nBlockFree--;
+
+			// Prepare block for processing
+			if (m_pWaveHeaders[m_nBlockCurrent].dwFlags & WHDR_PREPARED)
+				waveOutUnprepareHeader(m_hwDevice, &m_pWaveHeaders[m_nBlockCurrent], sizeof(WAVEHDR));
+
+			T nNewSample = 0;
+			int nCurrentBlock = m_nBlockCurrent * m_nBlockSamples;
+
+			for (size_t n = 0; n < m_nBlockSamples; n += m_nChannels) {
+				for (size_t c = 0; c < m_nChannels; c++) {
+					// User Process
+					if (m_userFunction == nullptr)
+						nNewSample = (T)(clip(UserProcess(c, m_dGlobalTime), 1.0) * dMaxSample);
+					else
+						nNewSample = (T)(clip(m_userFunction(c, m_dGlobalTime), 1.0) * dMaxSample);
+
+					m_pBlockMemory[nCurrentBlock + n + c] = nNewSample;
+					nPreviousSample = nNewSample;
+				}
+				m_dGlobalTime = m_dGlobalTime + dTimeStep;
+			}
+
+			// Send block to sound device
+			waveOutPrepareHeader(m_hwDevice, &m_pWaveHeaders[m_nBlockCurrent], sizeof(WAVEHDR));
+			waveOutWrite(m_hwDevice, &m_pWaveHeaders[m_nBlockCurrent], sizeof(WAVEHDR));
+			m_nBlockCurrent++;
+			m_nBlockCurrent %= m_nBlockCount;
+		}
+	}
+	public: olcNoiseMaker(){}
+	public: olcNoiseMaker(std::wstring sOutputDevice, size_t nSampleRate, size_t nChannels, size_t nBlocks, size_t nBlockSamples){
+		Create(sOutputDevice, nSampleRate, nChannels, nBlocks, nBlockSamples);
+	}
+
+	public: bool Create(std::wstring sOutputDevice, size_t nSampleRate, size_t nChannels, size_t nBlocks, size_t nBlockSamples) {
+		this->m_bReady = false;
+		this->m_nSampleRate = nSampleRate;
+		this->m_nChannels = nChannels;
+		this->m_nBlockCount = nBlocks;
+		this->m_nBlockSamples = nBlockSamples;
+		this->m_nBlockFree = m_nBlockCount;
+		this->m_nBlockCurrent = 0;
+		this->m_pBlockMemory = nullptr;
+		this->m_pWaveHeaders = nullptr;
+
+		m_userFunction = nullptr;
+
+		// Validate device
+		std::vector<std::wstring> devices = Enumerate();
+		auto d = std::find(devices.begin(), devices.end(), sOutputDevice);
+		if (d != devices.end()) {
+			// Device is available
+			int nDeviceID = distance(devices.begin(), d);
+			WAVEFORMATEX waveFormat;
+			waveFormat.wFormatTag = WAVE_FORMAT_PCM;
+			waveFormat.nSamplesPerSec = m_nSampleRate;
+			waveFormat.wBitsPerSample = sizeof(T) * 8;
+			waveFormat.nChannels = m_nChannels;
+			waveFormat.nBlockAlign = (waveFormat.wBitsPerSample / 8) * waveFormat.nChannels;
+			waveFormat.nAvgBytesPerSec = waveFormat.nSamplesPerSec * waveFormat.nBlockAlign;
+			waveFormat.cbSize = 0;
+
+			// Open Device if valid
+			if (waveOutOpen(&m_hwDevice, nDeviceID, &waveFormat, (DWORD_PTR)waveOutProcWrap, (DWORD_PTR)this, CALLBACK_FUNCTION) != S_OK)
+				return false;
 		}
 
-		// Send block to sound device
-		waveOutPrepareHeader(m_hwDevice, &m_pWaveHeaders[m_nBlockCurrent], sizeof(WAVEHDR));
-		waveOutWrite(m_hwDevice, &m_pWaveHeaders[m_nBlockCurrent], sizeof(WAVEHDR));
-		m_nBlockCurrent++;
-		m_nBlockCurrent %= m_nBlockCount;
-	}
-}
-template<class T>
-olcNoiseMaker<T>::olcNoiseMaker() {}
-template<class T>
-olcNoiseMaker<T>::olcNoiseMaker(std::wstring sOutputDevice, size_t nSampleRate, size_t nChannels, size_t nBlocks, size_t nBlockSamples) {
-	Create(sOutputDevice, nSampleRate, nChannels, nBlocks, nBlockSamples);
-}
-template<class T>
-bool olcNoiseMaker<T>::Create(std::wstring sOutputDevice, size_t nSampleRate, size_t nChannels, size_t nBlocks, size_t nBlockSamples) {
-	this->m_bReady = false;
-	this->m_nSampleRate = nSampleRate;
-	this->m_nChannels = nChannels;
-	this->m_nBlockCount = nBlocks;
-	this->m_nBlockSamples = nBlockSamples;
-	this->m_nBlockFree = m_nBlockCount;
-	this->m_nBlockCurrent = 0;
-	this->m_pBlockMemory = nullptr;
-	this->m_pWaveHeaders = nullptr;
-
-	m_userFunction = nullptr;
-
-	// Validate device
-	std::vector<std::wstring> devices = Enumerate();
-	auto d = std::find(devices.begin(), devices.end(), sOutputDevice);
-	if (d != devices.end()) {
-		// Device is available
-		int nDeviceID = distance(devices.begin(), d);
-		WAVEFORMATEX waveFormat;
-		waveFormat.wFormatTag = WAVE_FORMAT_PCM;
-		waveFormat.nSamplesPerSec = m_nSampleRate;
-		waveFormat.wBitsPerSample = sizeof(T) * 8;
-		waveFormat.nChannels = m_nChannels;
-		waveFormat.nBlockAlign = (waveFormat.wBitsPerSample / 8) * waveFormat.nChannels;
-		waveFormat.nAvgBytesPerSec = waveFormat.nSamplesPerSec * waveFormat.nBlockAlign;
-		waveFormat.cbSize = 0;
-
-		// Open Device if valid
-		if (waveOutOpen(&m_hwDevice, nDeviceID, &waveFormat, (DWORD_PTR)waveOutProcWrap, (DWORD_PTR)this, CALLBACK_FUNCTION) != S_OK)
+		// Allocate Wave|Block Memory
+		m_pBlockMemory = new T[m_nBlockCount * m_nBlockSamples];
+		if (m_pBlockMemory == nullptr)
 			return false;
+		ZeroMemory(m_pBlockMemory, sizeof(T) * m_nBlockCount * m_nBlockSamples);
+
+		m_pWaveHeaders = new WAVEHDR[m_nBlockCount];
+		if (m_pWaveHeaders == nullptr)
+			return false;
+		ZeroMemory(m_pWaveHeaders, sizeof(WAVEHDR) * m_nBlockCount);
+
+		// Link headers to block memory
+		for (size_t n = 0; n < m_nBlockCount; n++) {
+			m_pWaveHeaders[n].dwBufferLength = m_nBlockSamples * sizeof(T);
+			m_pWaveHeaders[n].lpData = (LPSTR)(m_pBlockMemory + (n * m_nBlockSamples));
+		}
+
+		m_bReady = true;
+
+		m_thread = std::thread(&olcNoiseMaker::MainThread, this);
+
+		// Start the ball rolling
+		std::unique_lock<std::mutex> lm(m_muxBlockNotZero);
+		m_cvBlockNotZero.notify_one();
+
+		return true;
 	}
-
-	// Allocate Wave|Block Memory
-	m_pBlockMemory = new T[m_nBlockCount * m_nBlockSamples];
-	if (m_pBlockMemory == nullptr)
-		return false;
-	ZeroMemory(m_pBlockMemory, sizeof(T) * m_nBlockCount * m_nBlockSamples);
-
-	m_pWaveHeaders = new WAVEHDR[m_nBlockCount];
-	if (m_pWaveHeaders == nullptr)
-		return false;
-	ZeroMemory(m_pWaveHeaders, sizeof(WAVEHDR) * m_nBlockCount);
-
-	// Link headers to block memory
-	for (size_t n = 0; n < m_nBlockCount; n++) {
-		m_pWaveHeaders[n].dwBufferLength = m_nBlockSamples * sizeof(T);
-		m_pWaveHeaders[n].lpData = (LPSTR)(m_pBlockMemory + (n * m_nBlockSamples));
+	public: void Stop(){
+		m_bReady = false;
+		m_thread.join();
 	}
-
-	m_bReady = true;
-
-	m_thread = std::thread(&olcNoiseMaker::MainThread, this);
-
-	// Start the ball rolling
-	std::unique_lock<std::mutex> lm(m_muxBlockNotZero);
-	m_cvBlockNotZero.notify_one();
-
-	return true;
-}
-template<class T>
-void olcNoiseMaker<T>::Stop() {
-	m_bReady = false;
-	m_thread.join();
-}
-template<class T>
-FTYPE olcNoiseMaker<T>::UserProcess(int nChannel, FTYPE dTime) {
-	return 0.0;
-}
-template<class T>
-FTYPE olcNoiseMaker<T>::GetTime() {
-	return m_dGlobalTime;
-}
-template<class T>
-std::vector<std::wstring> olcNoiseMaker<T>::Enumerate() {
-	int nDeviceCount = waveOutGetNumDevs();
-	std::vector<std::wstring> sDevices;
-	WAVEOUTCAPS woc;
-	for (int n = 0; n < nDeviceCount; n++)
-		if (waveOutGetDevCaps(n, &woc, sizeof(WAVEOUTCAPS)) == S_OK)
-			sDevices.push_back(woc.szPname);
-	return sDevices;
-}
-template<class T>
-void olcNoiseMaker<T>::SetUserFunction(FTYPE(*func)(int, FTYPE)) {
-	m_userFunction = func;
-}
-template<class T>
-FTYPE olcNoiseMaker<T>::clip(FTYPE dSample, FTYPE dMax) {
-	if (dSample >= 0.0)
-		return fmin(dSample, dMax);
-	else
-		return fmax(dSample, -dMax);
-}
+	public: virtual FTYPE UserProcess(int nChannel, FTYPE dTime){
+		return 0.0;
+	}
+	public: FTYPE GetTime(){
+		return m_dGlobalTime;
+	}
+	public: static std::vector<std::wstring> Enumerate(){
+		int nDeviceCount = waveOutGetNumDevs();
+		std::vector<std::wstring> sDevices;
+		WAVEOUTCAPS woc;
+		for (int n = 0; n < nDeviceCount; n++)
+			if (waveOutGetDevCaps(n, &woc, sizeof(WAVEOUTCAPS)) == S_OK)
+				sDevices.push_back(woc.szPname);
+		return sDevices;
+	}
+	public: void SetUserFunction(FTYPE(*func)(int, FTYPE)){
+		m_userFunction = func;
+	}
+	public: FTYPE clip(FTYPE dSample, FTYPE dMax){
+		if (dSample >= 0.0)
+			return fmin(dSample, dMax);
+		else
+			return fmax(dSample, -dMax);
+	}
+};
