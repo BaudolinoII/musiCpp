@@ -169,7 +169,7 @@ namespace VMMM {
 		}
 	};
 
-	typedef struct Track {
+	class Track {
 		public: Instrument_xml* inst;
 		public: BIT8* melody;
 

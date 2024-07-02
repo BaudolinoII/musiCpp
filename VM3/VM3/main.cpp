@@ -155,7 +155,7 @@ void mainMenu(int option) {
 
 }
 
-int main(int argc, char** argv) {
+int standar_protocol(int argc, char** argv) {
 	for (size_t i = 1; i < argc; i++) {
 		if (argv[i][0] == '-')
 			switch (argv[i][1]) {
@@ -171,13 +171,13 @@ int main(int argc, char** argv) {
 			}
 		else switch (getTypeOfDoc(argv[i])) {
 		case 1:
-			comp_file = argv[i]; 
+			comp_file = argv[i];
 			break;
 		case 2:
-			main_inst = argv[i]; 
+			main_inst = argv[i];
 			break;
 		case 3:
-			play = true; compile = false; 
+			play = true; compile = false;
 			break;
 		}
 	}
@@ -199,5 +199,19 @@ int main(int argc, char** argv) {
 		mainMenu(2);
 		return 0;
 	}
+	return 0;
+}
+
+int main(int argc, char** argv) {
+	std::string melody = "..\\VM3\\melodies\\BadApple.txt";
+	std::string inst = "..\\VM3\\xml_samples\\Experimental2.xml";
+	VMMM::VirtualOrquesta vo;
+	MelodyComp md;
+	Instrument_xml ixml;
+	ixml.load_document(inst);
+	BIT8* cmp = md.compileFile(melody);
+
+	vo.setTrack(&ixml, cmp, 60.0, 0.0, 1);
+	vo.Concert_MainLoop();
 	return 0;
 }

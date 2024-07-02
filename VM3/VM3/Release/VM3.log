@@ -1,7 +1,6 @@
 ﻿  main.cpp
 C:\Users\espin\OneDrive\Documentos\Cpp\VM3\VM3\Oscillador.hpp(71,30): warning C4244: 'return': conversión de 'double' a 'size_t'; posible pérdida de datos
 C:\Users\espin\OneDrive\Documentos\Cpp\VM3\VM3\Oscillador.hpp(72,25): warning C4244: 'return': conversión de 'double' a 'size_t'; posible pérdida de datos
-C:\Users\espin\OneDrive\Documentos\Cpp\VM3\VM3\NoiseMachine.hpp(216,3): warning C4091: 'typedef ': se ha omitido a la izquierda de 'VMMM::Track' cuando no hay ninguna variable declarada
 C:\Users\espin\OneDrive\Documentos\Cpp\VM3\VM3\NoiseMachine.hpp(243,22): warning C4018: '<': no coinciden signed/unsigned
 C:\Users\espin\OneDrive\Documentos\Cpp\VM3\VM3\VitalComp.hpp(105,14): warning C4018: '>': no coinciden signed/unsigned
 C:\Users\espin\OneDrive\Documentos\Cpp\VM3\VM3\VitalComp.hpp(155,10): warning C4018: '>=': no coinciden signed/unsigned
@@ -12,8 +11,8 @@ C:\Users\espin\OneDrive\Documentos\Cpp\VM3\VM3\NoiseMaker.hpp(103): message : al
 C:\Users\espin\OneDrive\Documentos\Cpp\VM3\VM3\NoiseMachine.hpp(112): message : Vea la referencia a la creación de una instancia de la función plantilla "bool olcNoiseMaker<short>::Create(std::wstring,size_t,size_t,size_t,size_t)" que se está compilando
 C:\Users\espin\OneDrive\Documentos\Cpp\VM3\VM3\NoiseMachine.hpp(55): message : Vea la referencia a la creación de una instancia de clase plantilla "olcNoiseMaker<short>" que se está compilando
   Generando código
-  8 of 1249 functions ( 0.6%) were compiled, the rest were copied from previous compilation.
+  7 of 1225 functions ( 0.6%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    4 functions had inline decision re-evaluated but remain unchanged
+    2 functions had inline decision re-evaluated but remain unchanged
   Generación de código finalizada
   VM3.vcxproj -> C:\Users\espin\OneDrive\Documentos\Cpp\VM3\Release\VM3.exe

@@ -14,7 +14,7 @@ class MelodyComp {
 	public: const std::string HEX = "0123456789ABCDEF";
 	public: const std::string splitMark = " \t\n\r";
 	public: const std::string splitCap = ",;:";
-	public: const BIT8 C0 = 0x00, C1 = 0x0C, C2 = 0x18, C3 = 0x24, C4 = 0x30, C5 = 0x3C;
+	public: const char C0 = -48, C1 = -36, C2 = -24, C3 = -12, C4 = 0, C5 = 12, C6 = 24, C7 = 36;
 	public: const BIT8 RN = 0x80, BL = 0x40, NG = 0x20, CH = 0x10, SH = 0x08, QH = 0x04, OH = 0x02, DH = 0x01;
 
 	public: bool existElement(const std::string str, const std::string arg) {
@@ -197,10 +197,11 @@ class MelodyComp {
 			return 0x0A + scale + adj;
 		if (existElement(arg, "MI"))
 			return 0x0C + scale + adj;
-		size_t pos = arg.find_first_of("SCDEFGHAB");
+		size_t pos = arg.find_first_of("SCDEFGHAB,");
 		if (pos == std::string::npos)
 			return 0;
 		switch (arg[pos]) {
+		case ',':
 		case 'S': return 0x00;
 		case 'A': return 0x01 + scale + adj;
 		case 'B': case 'H': return 0x03 + scale + adj;
@@ -219,7 +220,6 @@ class MelodyComp {
 		if ((pos + 1) == arg.size())
 			return bUnit + (arg[pos] == '.' ? bUnit >> 1 : 0x00);
 		size_t t = std::stoi(arg.substr(pos + 1, arg.size() - (int)pos - 1));
-		//std::cout << "Tiempo a analizar " << t << std::endl;
 		if (t < 2) return RN + (arg[pos] == '.' ? BL : 0x00);
 		if (t < 4) return BL + (arg[pos] == '.' ? NG : 0x00);
 		if (t < 8) return NG + (arg[pos] == '.' ? CH : 0x00);
@@ -296,7 +296,7 @@ class MelodyComp {
 		}
 		replaceElements(args, i, commChord);
 	}
-	public: void unpackChords(std::vector<std::string>& args, size_t nBeats, BIT8 scale, BIT8 bUnit) {
+	public: void unpackChords(std::vector<std::string>& args, size_t nBeats, BIT8 bUnit) {
 		size_t biggest = 0, begin = 0;
 		BIT8 lrChd = bUnit;
 		int accmTime = 0;
@@ -323,10 +323,9 @@ class MelodyComp {
 				BIT8 possible = atomize_time(args[i], bUnit);
 				if (possible > lrChd) { lrChd = possible; biggest = i; }
 			}
-			else if (!existAnyof(args[i], ";:<>")) {
+			else if (!existAnyof(args[i], ";:<>")) 
 				accmTime = (accmTime + atomize_time(args[i], bUnit)) % mbpC;
-				//std::cout << "Nodo: "<< args[i] << "\tACCM " << accmTime << "/" << mbpC << std::endl;
-			}
+			
 			makeChords(args, i, !activeChord);
 			if (existElement(args[i], '>')) {
 				std::string aux(args[i]);
@@ -335,13 +334,10 @@ class MelodyComp {
 				replaceElements(args, i, { ">", aux });
 				if (begin < biggest)
 					switchElements(args, begin, biggest);
-				//std::cout << "Tiempo mas alto " << args[i] << " extraido: " << (int)atomize_time(args[i], lrChd) << " vs " << (int)lrChd << std::endl;
 				accmTime = (accmTime + lrChd) % mbpC;
-				//std::cout << "ACCM = " << accmTime << "/" << mbpC << std::endl;
 				activeChord = false;
 			}
 			if (existElement(args[i], ';')) {
-				//std::cout << "Espacio en rellenar " << (mbpC - accmTime) << std::endl;
 				replaceElements(args, i, deconst2P(mbpC - accmTime));
 				accmTime = 0;
 			}
@@ -350,8 +346,9 @@ class MelodyComp {
 
 	public: BIT8* compileMelody(std::string str, BIT8 scale, size_t nBeats, BIT8 bUnit) {
 		std::vector<std::string> vec_str = split(str);
-		unpackChords(vec_str, nBeats, scale, bUnit);
+		unpackChords(vec_str, nBeats, bUnit);
 		std::vector<BIT8> vec; BIT8 currStatus = 0x40;
+		std::cout << "Begining Compiling process" << std::endl;
 		for (std::string arg : vec_str) {
 			if (update_status(arg, currStatus))
 				continue;
@@ -379,7 +376,6 @@ class MelodyComp {
 			if (!buffer.empty())//
 				args.append(buffer + " ");
 		}
-		//Construir un metodo para leer directivas de compilación//
 		return compileMelody(args, MelodyComp::C4, 4, MelodyComp::NG);
 	}
 };

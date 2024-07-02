@@ -21,4 +21,4 @@ La# Sol# Fa# Fa
 
 Re# Fa Fa# Sol# La#_2
 Sol# Fa# Fa, Fa#_8, Sol#_8
-silen La#_2 <Re#_2 +Re#_2>
+s La#_2 <Re#_2 +Re#_2>
