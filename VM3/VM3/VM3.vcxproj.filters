@@ -63,5 +63,11 @@
     <Text Include="melodies\BadApple.txt">
       <Filter>Archivos de recursos\melodies</Filter>
     </Text>
+    <Text Include="melodies\cancion.txt">
+      <Filter>Archivos de recursos\melodies</Filter>
+    </Text>
+    <Text Include="melodies\cancion2.txt">
+      <Filter>Archivos de recursos\melodies</Filter>
+    </Text>
   </ItemGroup>
 </Project>

@@ -1,131 +1,173 @@
 #pragma once
-#include<string>
-#include<vector>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <stdexcept>
+#include <regex>
+#include <vector>
+#include <stack>
 
 #ifndef BIT8
 #define BIT8 unsigned char
 #endif
 
-class MelodyComp {
-	public: BIT8 currStatus = 0x40;
+const std::regex regex_commentBlock("(//[^\\n]*)");
+const std::regex regex_commentLine("(/\\*[^*]*\\*/)");
+const std::regex regex_space("[^\\w\\d\\S]+");
+const std::regex regex_import("(IMPORT\\s+'([^']+)';)");
+const std::regex regex_path("'([^']+)'");
+const std::regex regex_varDec("VAR([^;]*);");
+const std::regex regex_inst("INST([^;]*);");
+const std::regex regex_args("\\s*(\\b\\w+\\b)\\s*");
+const std::regex regex_prop("([\\w]+)\\s*=\\s*'([^']*)'");
+const std::regex regex_group("GROUP\\s+(\\w+)\\s*\\{([^}]*)\\};");
+const std::regex regex_script("SCRIPT\\s+(\\w+)\\s*\\{([^}]*)\\};");
+const std::regex regex_mscript("MAIN_SCRIPT\\s*\\{([^}]*)\\};");
+const std::regex regex_melody("(MELODY\\s*\\<([^>]+)\\>\"([^\"]+)\"(\\([^)]*\\))?;)");
+const std::regex regex_event("(PLAY|PAUSE|STOP)\\s*\\<([^>]+)\\>;");
 
-	public: const std::vector<std::string> occ_scale12 = { "La", "La#", "Si", "Do", "Do#", "Re", "Re#", "Mi", "Fa", "Fa#", "Sol", "Sol#" };
-	public: const std::vector<std::string> chdCms = { "13M","13","11M","11","9M","9","#9","B9","7M","7","/6","6","MAY","MAJ","MIN","MEN","AUM","AUG","DIS","DIM","SUS","5","#5","B5","4","3","2" };
-	public: const std::string HEX = "0123456789ABCDEF";
-	public: const std::string splitMark = " \t\n\r";
-	public: const std::string splitCap = ",;:";
-	public: const char C0 = -48, C1 = -36, C2 = -24, C3 = -12, C4 = 0, C5 = 12, C6 = 24, C7 = 36;
-	public: const BIT8 RN = 0x80, BL = 0x40, NG = 0x20, CH = 0x10, SH = 0x08, QH = 0x04, OH = 0x02, DH = 0x01;
+const std::vector<std::string> occ_scale12 = { "La", "La#", "Si", "Do", "Do#", "Re", "Re#", "Mi", "Fa", "Fa#", "Sol", "Sol#" };
+const std::vector<std::string> chdCms = { "13M","13","11M","11","9M","9","#9","B9","7M","7","/6","6","MAY","MAJ","MIN","MEN","AUM","AUG","DIS","DIM","SUS","5","#5","B5","4","3","2" };
 
-	public: bool existElement(const std::string str, const std::string arg) {
-		if (!arg.size())
-			return false;
-		size_t size_arg = arg.size(), i = str.find_first_of(arg[0]);
-		while (i != std::string::npos && (i + size_arg) <= str.size()) {
-			if (!str.substr(i, size_arg).compare(arg))
-				return true;
-			i = str.find_first_of(arg[0], i + 1);
-		}
+const std::vector<std::string> ins_play = { "id", "type", "start", "loop", "scale"};
+const std::vector<std::string> ins_pause = { "id", "start", "duration" };
+const std::vector<std::string> ins_stop = { "id", "at" };
+
+const std::string HEX = "0123456789ABCDEF";
+const std::string splitMark = " \t\n\r";
+const std::string splitCap = ",;:";
+const char C0 = -48, C1 = -36, C2 = -24, C3 = -12, C4 = 0, C5 = 12, C6 = 24, C7 = 36;
+const BIT8 RN = 0x80, BL = 0x40, NG = 0x20, CH = 0x10, SH = 0x08, FS = 0x04, SF = 0x02, QF = 0x01;
+
+bool existElement(const std::string str, const std::string arg) {
+	if (!arg.size())
 		return false;
+	size_t size_arg = arg.size(), i = str.find_first_of(arg[0]);
+	while (i != std::string::npos && (i + size_arg) <= str.size()) {
+		if (!str.substr(i, size_arg).compare(arg))
+			return true;
+		i = str.find_first_of(arg[0], i + 1);
 	}
-	public: bool existAnyof(const std::string str, const std::string args){
-		return str.find(args) != std::string::npos;
-	}
-	public: bool existAllof(const std::string str, const std::string args) {
-		for (size_t i = 0; i < args.size(); i++)
-			if (str.find(args[i]) == std::string::npos)
-				return false;
-		return true;
-	}
-	public: bool existElement(const std::string str, const char arg) {
-		return str.find_first_of(arg) != std::string::npos;
-	}
+	return false;
+}
+bool existAnyof(const std::string str, const std::string args) {
+	return str.find(args) != std::string::npos;
+}
+bool existAllof(const std::string str, const std::string args) {
+	for (size_t i = 0; i < args.size(); i++)
+		if (str.find(args[i]) == std::string::npos)
+			return false;
+	return true;
+}
+bool existElement(const std::string str, const char arg) {
+	return str.find_first_of(arg) != std::string::npos;
+}
 
-	public: void printArr(BIT8* arr) {
-		for (size_t i = 0; arr[i] != 0x7F; i++)
-			std::cout << "0x" << HEX[arr[i] >> 4] << HEX[arr[i] & 15] << ((i + 1) % 3 ? ", " : "\n");
+int countElement(const std::string str, const char target) {
+	int count = 0;
+	size_t pos = str.find_first_of(target);
+	while (pos != std::string::npos) {
+		count++;
+		pos = str.find_first_of(target, pos + 1);
 	}
-	public: void toUpperCase(std::string& str) {
-		for (size_t i = 0; i < str.size(); i++)
-			if (str[i] > 0x60 && str[i] < 0x7A)
-				str[i] &= 0xDF;
-	}
-	public: void deleteElement(std::string& str, const std::string target) {
-		size_t pos = str.find_first_of(target);
-		while (pos != std::string::npos) {
-			str.erase(pos, 1);
-			pos = str.find_first_of(target);
-		}
-	}
-	public: void deleteChars(std::string& str, const std::string target) {
-		if (str.empty())
-			return;
-		int loc = locateElement(str, target, 0);
-		if (loc == -1)
-			return;
-		str.erase(loc, target.size());
-	}
-	public: void replaceElements(std::vector<std::string>& vec_str, size_t& index, const std::vector<std::string> vec_tar) {
-		vec_str.erase(vec_str.begin() + index);
-		for (std::string tar : vec_tar)
-			vec_str.insert(vec_str.begin() + index++, tar);
-		index--;
-	}
-	public: void switchElements(std::vector<std::string>& vec_str, size_t a, size_t b) {
-		std::string aux(vec_str[a]), bux(vec_str[b]);
-		vec_str.erase(vec_str.begin() + a);
-		vec_str.insert(vec_str.begin() + a, bux);
-		vec_str.erase(vec_str.begin() + b);
-		vec_str.insert(vec_str.begin() + b, aux);
-	}
-
-	public: int countElement(const std::string str, const char target) {
-		int count = 0;
-		size_t pos = str.find_first_of(target);
-		while (pos != std::string::npos) {
-			count++;
-			pos = str.find_first_of(target, pos + 1);
-		}
-		return count;
-	}
-	public: int locateElement(const std::string str, const std::string args, const size_t cap) {
-		if (!args.size())
-			return -1;
-		size_t size_arg = args.size(), i = str.find_first_of(args[0]), lim = (cap ? cap : str.size());
-		while (i != std::string::npos && (i + size_arg) <= lim) {
-			if (!str.substr(i, size_arg).compare(args))
-				return i;
-			i = str.find_first_of(args[0], i + 1);
-		}
+	return count;
+}
+int locateElement(const std::string str, const std::string args, const size_t cap) {
+	if (!args.size())
 		return -1;
+	size_t size_arg = args.size(), i = str.find_first_of(args[0]), lim = (cap ? cap : str.size());
+	while (i != std::string::npos && (i + size_arg) <= lim) {
+		if (!str.substr(i, size_arg).compare(args))
+			return i;
+		i = str.find_first_of(args[0], i + 1);
 	}
+	return -1;
+}
 
-	public: size_t near2P(const size_t num) {
-		size_t n = 0;
-		while (num > (1 << n)) n++;
-		return n;
+std::string getUpperCase(const std::string str) {
+	std::string upp = "";
+	for (size_t i = 0; i < str.size(); i++)
+		if (str[i] > 0x60 && str[i] < 0x7A)
+			upp.append(1, str[i] & 0xDF);
+		else
+			upp.append(1, str[i]);
+	return upp;
+}
+std::string stractBlock(std::string& str, const std::string begin, const std::string end) {
+	int pos_begin = locateElement(str, begin, 0);
+	if (pos_begin == -1)
+		return "NONE";
+	int pos_end = locateElement(str, end, 0);
+	if (pos_end == -1)
+		return "NONE";
+	std::string sub = str.substr(pos_begin + begin.size(), pos_end - pos_begin - (int)begin.size());
+	str.erase(pos_begin, pos_end - pos_begin + end.size());
+	return sub;
+}
+
+void clearString(std::string& str) {
+	std::string clearText = std::regex_replace(str, regex_commentLine, " ");
+	clearText = std::regex_replace(clearText, regex_commentBlock, " ");
+	clearText = std::regex_replace(clearText, regex_space, " ");
+	str = std::regex_replace(clearText, std::regex("^ +| +$|( ) +"), "$1");
+}
+void printArr(BIT8* arr) {
+	for (size_t i = 0; arr[i] != 0x7F; i++)
+		std::cout << "0x" << HEX[arr[i] >> 4] << HEX[arr[i] & 15] << ((i + 1) % 3 ? ", " : "\n");
+}
+void toUpperCase(std::string& str) {
+	for (size_t i = 0; i < str.size(); i++)
+		if (str[i] > 0x60 && str[i] < 0x7A)
+			str[i] &= 0xDF;
+}
+void deleteElement(std::string& str, const std::string target) {
+	size_t pos = str.find_first_of(target);
+	while (pos != std::string::npos) {
+		str.erase(pos, 1);
+		pos = str.find_first_of(target);
 	}
+}
+void deleteChars(std::string& str, const std::string target) {
+	if (str.empty())
+		return;
+	int loc = locateElement(str, target, 0);
+	if (loc == -1)
+		return;
+	str.erase(loc, target.size());
+}
+void replaceElements(std::vector<std::string>& vec_str, size_t& index, const std::vector<std::string> vec_tar) {
+	vec_str.erase(vec_str.begin() + index);
+	for (std::string tar : vec_tar)
+		vec_str.insert(vec_str.begin() + index++, tar);
+	index--;
+}
+void switchElements(std::vector<std::string>& vec_str, size_t a, size_t b) {
+	std::string aux(vec_str[a]), bux(vec_str[b]);
+	vec_str.erase(vec_str.begin() + a);
+	vec_str.insert(vec_str.begin() + a, bux);
+	vec_str.erase(vec_str.begin() + b);
+	vec_str.insert(vec_str.begin() + b, aux);
+}
 
-	public: std::string getUpperCase(const std::string str) {
-		std::string upp = "";
-		for (size_t i = 0; i < str.size(); i++)
-			if (str[i] > 0x60 && str[i] < 0x7A)
-				upp.append(1, str[i] & 0xDF);
-			else
-				upp.append(1, str[i]);
+size_t near2P(const size_t num) {
+	size_t n = 0;
+	while (num > (1 << n)) n++;
+	return n;
+}
 
-		return upp;
-	}
+BIT8* VtoA(std::vector<BIT8> vec) {
+	if (vec.size() == 0)
+		return nullptr;
+	BIT8* arr = new BIT8[vec.size()];
+	for (size_t i = 0; i < vec.size(); i++)
+		arr[i] = vec[i];
+	return arr;
+}
 
-	public: BIT8* VtoA(std::vector<BIT8> vec) {
-		if (vec.size() == 0)
-			return nullptr;
-		BIT8* arr = new BIT8[vec.size()];
-		for (size_t i = 0; i < vec.size(); i++)
-			arr[i] = vec[i];
-		return arr;
-	}
-	public: std::vector<std::string> split(const std::string args) {
+namespace MelodyComp {
+	std::vector<std::string> split(const std::string args) {
 		std::vector<std::string> splits; std::string splitter = splitMark + splitCap;
 		size_t pos = args.find_first_of(splitter), begin = 0;
 		while (pos != std::string::npos) {
@@ -143,7 +185,7 @@ class MelodyComp {
 		splits.push_back(args.substr(begin, args.size() - (int)begin));
 		return splits;
 	}
-	public: std::vector<std::string> deconst2P(const size_t num) {
+	std::vector<std::string> deconst2P(const size_t num) {
 		size_t z = num & 255, m = num >> 8, n = near2P(z) + 1;
 		std::vector<std::string> vec;
 		while (m) {
@@ -160,7 +202,7 @@ class MelodyComp {
 
 		return vec;
 	}
-	public: std::string extractChordTime(std::string& closeMark, BIT8 defaultTime) {
+	std::string extractChordTime(std::string& closeMark, BIT8 defaultTime) {
 		size_t pos = closeMark.find('>');
 		std::string aux(closeMark.substr(pos + 1));
 		closeMark.erase(pos + 1);
@@ -169,7 +211,47 @@ class MelodyComp {
 		return aux;
 	}
 
-	public: bool update_status(std::string arg, BIT8& status) {
+	BIT8 getValue(const std::string args){
+		if (args[0] == 'C') {
+			if (args[1] == '\0')
+				return 0;
+			BIT8 v = 0;
+			try {
+				v = std::stoi(args.substr(1));
+			}
+			catch (const std::invalid_argument& e) {
+				v = 0;
+				std::cout << "Excepción: cadena no contiene un número válido." << std::endl;
+			}
+			return 12 * (v - 4);
+		}
+		if (!args.compare("WHOLE"))
+			return RN;
+		if (!args.compare("HALF"))
+			return BL;
+		if (!args.compare("QUARTER"))
+			return NG;
+		if (!args.compare("EIGHT"))
+			return CH;
+		if (!args.compare("SIXTEEN"))
+			return SH;
+		if (!args.compare("FUSE"))
+			return FS;
+		if (!args.compare("HFUSE"))
+			return SF;
+		if (!args.compare("QFUSE"))
+			return QF;
+		BIT8 val = 0;
+		try {
+			val = std::stoi(args);
+		} catch (const std::invalid_argument& e) {
+			val = 0;
+			std::cout << "Excepción: cadena no contiene un número válido." << std::endl;
+		}
+		return 0;
+	}
+
+	bool update_status(std::string arg, BIT8& status) {
 		if (existElement(arg, '<')) {
 			status |= 0x80;
 			return true;
@@ -180,7 +262,7 @@ class MelodyComp {
 		}
 		return false;
 	}
-	public: BIT8 atomize_tone(std::string arg, BIT8 scale) {
+	BIT8 atomize_tone(std::string arg, char scale) {
 		int adj = 12 * countElement(arg, '+') + countElement(arg, '#') - (countElement(arg, 'b') + 12 * countElement(arg, '-'));
 		toUpperCase(arg);
 		if (existElement(arg, "LA"))
@@ -213,7 +295,7 @@ class MelodyComp {
 		default:  return 0x00;
 		}
 	}
-	public: BIT8 atomize_time(std::string arg, BIT8 bUnit) {
+	BIT8 atomize_time(std::string arg, BIT8 bUnit) {
 		size_t pos = arg.find_first_of("_.");
 		if (pos == std::string::npos)
 			return bUnit;
@@ -224,12 +306,12 @@ class MelodyComp {
 		if (t < 4) return BL + (arg[pos] == '.' ? NG : 0x00);
 		if (t < 8) return NG + (arg[pos] == '.' ? CH : 0x00);
 		if (t < 16) return CH + (arg[pos] == '.' ? SH : 0x00);
-		if (t < 32) return SH + (arg[pos] == '.' ? QH : 0x00);
-		if (t < 64) return QH + (arg[pos] == '.' ? OH : 0x00);
-		if (t < 128) return OH + (arg[pos] == '.' ? DH : 0x00);
-		return DH;
+		if (t < 32) return SH + (arg[pos] == '.' ? FS : 0x00);
+		if (t < 64) return FS + (arg[pos] == '.' ? SF : 0x00);
+		if (t < 128) return SF + (arg[pos] == '.' ? QF : 0x00);
+		return QF;
 	}
-	public: void makeChords(std::vector<std::string>& args, size_t& i, bool isNotOnChord) {
+	void makeChords(std::vector<std::string>& args, size_t& i, bool isNotOnChord) {
 		int j = -1; size_t lim = (args[i].find("_.") == std::string::npos ? 0 : args[i].find("_.")), index = 0;
 		std::string arg = "";
 		for (std::string com : chdCms) {
@@ -296,7 +378,7 @@ class MelodyComp {
 		}
 		replaceElements(args, i, commChord);
 	}
-	public: void unpackChords(std::vector<std::string>& args, size_t nBeats, BIT8 bUnit) {
+	void unpackChords(std::vector<std::string>& args, size_t nBeats, BIT8 bUnit) {
 		size_t biggest = 0, begin = 0;
 		BIT8 lrChd = bUnit;
 		int accmTime = 0;
@@ -323,9 +405,9 @@ class MelodyComp {
 				BIT8 possible = atomize_time(args[i], bUnit);
 				if (possible > lrChd) { lrChd = possible; biggest = i; }
 			}
-			else if (!existAnyof(args[i], ";:<>")) 
+			else if (!existAnyof(args[i], ";:<>"))
 				accmTime = (accmTime + atomize_time(args[i], bUnit)) % mbpC;
-			
+
 			makeChords(args, i, !activeChord);
 			if (existElement(args[i], '>')) {
 				std::string aux(args[i]);
@@ -344,7 +426,7 @@ class MelodyComp {
 		}
 	}
 
-	public: BIT8* compileMelody(std::string str, BIT8 scale, size_t nBeats, BIT8 bUnit) {
+	BIT8* compileMelody(std::string str, char scale, size_t nBeats, BIT8 bUnit) {
 		std::vector<std::string> vec_str = split(str);
 		unpackChords(vec_str, nBeats, bUnit);
 		std::vector<BIT8> vec; BIT8 currStatus = 0x40;
@@ -359,7 +441,7 @@ class MelodyComp {
 		vec.push_back(0x7F); vec.push_back(0); vec.push_back(0);
 		return VtoA(vec);
 	}
-	public: BIT8* compileFile(std::string path) {
+	BIT8* compileFile(std::string path) {
 		std::ifstream file(path);
 		if (!file.is_open())
 			return NULL;
@@ -376,6 +458,554 @@ class MelodyComp {
 			if (!buffer.empty())//
 				args.append(buffer + " ");
 		}
-		return compileMelody(args, MelodyComp::C4, 4, MelodyComp::NG);
+		return compileMelody(args, C4, 4, NG);
+	}
+};
+class Variable {
+	private: std::string id, value;
+
+	public: Variable(const std::string id, const std::string value) {
+		this->id = id;
+		this->value = value;
+	}
+	public: void setValue(const std::string value) {
+		this->value = value;
+	}
+	public: std::string getString() {
+		return this->value;
+	}
+	public: std::string getID() {
+		return this->id;
+	}
+	public: int getInt() {
+		try {
+			return std::stoi(this->value);
+		}
+		catch (const std::invalid_argument& e) {
+			std::cerr << "Error| Value: " << this->value << " Cannot be cast as Integer" << std::endl;
+		}
+		return 0;
+	}
+	public: float getFloat() {
+		try {
+			return std::stof(this->value);
+		}
+		catch (const std::invalid_argument& e) {
+			std::cerr << "Error| Value: " << this->value << " Cannot be cast as Float" << std::endl;
+		}
+		return 0.0f;
+	}
+	public: bool getBool() {
+		return !this->value.compare("true");
+	}
+	public: void print(size_t tabs) {
+		std::cout << std::string(tabs, '\t') << "Id: " << this->id << "\t Value: " << this->value << std::endl;
+	}
+};
+class Instruction {
+	private: char type;
+	private: std::vector<Variable> values;
+
+	public: Instruction(const char type) {
+		this->type = type;
+		switch(this->type){
+			case 0:
+				for (std::string p : ins_play) {
+					Variable v(p, "");
+					this->values.push_back(v);
+				}
+				break;
+			case 1:
+				for (std::string p : ins_pause) {
+					Variable v(p, "");
+					this->values.push_back(v);
+				}
+				break;
+			case 2:
+				for (std::string p : ins_stop) {
+					Variable v(p, "");
+					this->values.push_back(v);
+				}
+				break;
+		}
+	}
+
+	public: void setValue(const std::string id, const std::string value) {
+		for(Variable& v: this->values)
+			if (!v.getID().compare(id)) {
+				v.setValue(value);
+				return;
+			}
+	}
+	public: Variable getValue(const std::string id) {
+		for (Variable v : this->values) {
+			if (!v.getID().compare(id))
+				return v;
+		}
+		return null_var;
+	}
+	public: bool identify(const std::string comp) {
+		return !this->getValue("id").getString().compare(comp);
+	}
+	public: char getType() {
+		return this->type;
+	}
+	public: void print(size_t tabs) {
+		std::cout << std::string(tabs, '\t') << "Tipo de Instruccion: " << (int)type << std::endl << std::string(tabs, '\t') << "Values: " << std::endl;
+		for (Variable v : this->values)
+			v.print(tabs + 1);
+	}
+	};
+class MelodyInterface {
+	public: std::string id, scale, beats, compass, sequence, currSequence;
+	public: std::vector<std::string> vars;
+
+	public: MelodyInterface(const std::string propeties, const std::string sequence, const std::string arguments) {
+		this->sequence = sequence;
+		this->currSequence = sequence;
+		std::sregex_iterator sr_var = std::sregex_iterator(propeties.begin(), propeties.end(), regex_prop);
+		std::sregex_iterator sr_args = std::sregex_iterator(arguments.begin(), arguments.end(), regex_args);
+		std::sregex_iterator end = std::sregex_iterator();
+		std::smatch match;
+		this->id = "NONE";
+		this->scale = "0";
+		this->beats = "4";
+		this->compass = "4";
+		for (std::sregex_iterator i = sr_var; i != end; ++i) {
+			match = *i;
+			this->setPropierty(match[1].str(), match[2].str());
+		}
+		for (std::sregex_iterator i = sr_args; i != end; ++i) {
+			match = *i;
+			this->vars.push_back(match[1].str());
+		}
+	}
+	public: void setPropierty(const std::string prop, std::string value) {
+		if (value.empty())
+			return;
+		if (!prop.compare("id"))
+			this->id = value;
+		if (!prop.compare("scale"))
+			this->scale = value;
+		if (!prop.compare("beats"))
+			this->beats = value;
+		if (!prop.compare("compass"))
+			this->compass = value;
+	}
+	public: std::vector<std::string> getVarTags() {
+		return this->vars;
+	}
+	public: void replaceVars(std::vector<Variable> variables) {
+		size_t var_index = 0; this->currSequence.clear();
+		for (size_t i = 0; i < this->sequence.size(); i++)
+			if (this->sequence[i] == '$') {
+				if (var_index < variables.size())
+					this->currSequence += variables[var_index++].getString();
+				else
+					this->currSequence += "s";
+			}
+			else
+				this->currSequence += this->sequence[i];
+
+	}
+	public: std::string getID() {
+		return this->id;
+	}
+	public: void print(size_t tabs) {
+		std::cout << std::string(tabs, '\t') << "Propieties: " << std::endl;
+		std::cout << std::string(tabs, '\t') << "ID: " << id << std::endl;
+		std::cout << std::string(tabs, '\t') << "Scale: " << scale << std::endl;
+		std::cout << std::string(tabs, '\t') << "Beats: " << beats << std::endl;
+		std::cout << std::string(tabs, '\t') << "Compass: " << compass << std::endl;
+		std::cout << std::string(tabs, '\t') << "Sequence: " << sequence << std::endl;
+		std::cout << std::string(tabs, '\t') << "Variables: ";
+		for (std::string v : this->vars) std::cout << v << " ";
+		std::cout << std::endl;
+	}
+};
+
+const Variable null_var("null", "");
+const MelodyInterface null_melody("<id='null'>", "", "");
+
+class ExternalBlock {
+	public: std::string id;
+	public: std::vector<MelodyInterface> melodies;
+	public: std::vector<Variable> vars;
+	public: std::vector<Instruction> orders;
+
+	public: ExternalBlock(const std::string id, const std::string args) {
+		this->id = id;
+		std::sregex_iterator sr_var = std::sregex_iterator(args.begin(), args.end(), regex_varDec);
+		std::sregex_iterator sr_melody = std::sregex_iterator(args.begin(), args.end(), regex_melody);
+		std::sregex_iterator evn = std::sregex_iterator(args.begin(), args.end(), regex_event);
+		std::sregex_iterator end = std::sregex_iterator();
+		std::smatch match;
+
+		for (std::sregex_iterator i = sr_var; i != end; ++i) {
+			match = *i;
+			std::string content = match[1].str();
+			std::sregex_iterator prop_begin = std::sregex_iterator(content.begin(), content.end(), regex_prop);
+			for (std::sregex_iterator i = prop_begin; i != end; ++i) {
+				std::smatch mp = *i;
+				Variable var(mp[1].str(), mp[2].str());
+				this->vars.push_back(var);
+			}
+		}
+		for (std::sregex_iterator i = sr_melody; i != end; ++i) {
+			match = *i;
+			MelodyInterface mi(match[2].str(), match[3].str(), match[4].str());
+			this->melodies.push_back(mi);
+		}
+		for (std::sregex_iterator i = evn; i != end; ++i) {
+
+			match = *i; char type = 0;
+			if (!match[1].str().compare("PLAY")) {
+				type = 0;
+			}
+			if (!match[1].str().compare("PAUSE")) {
+				type = 1;
+			}
+			if (!match[1].str().compare("STOP")) {
+				type = 2;
+			}
+			std::string p = match[2].str();
+			Instruction in(type);
+			std::sregex_iterator arguments = std::sregex_iterator(p.begin(), p.end(), regex_prop);
+			for (std::sregex_iterator j = arguments; j != end; ++j) {
+				std::smatch prop = *j;
+				in.setValue(prop[1].str(), prop[2].str());
+			}
+			this->orders.push_back(in);
+		}
+	}
+	public: void print(size_t tabs) {
+		std::cout << std::string(tabs, '\t') << "Id: " << this->id << std::endl;
+		std::cout << std::string(tabs, '\t') << "Variables: " << std::endl;
+		for (Variable v : this->vars) v.print(tabs + 1);
+		std::cout << std::string(tabs, '\t') << "Melodies: " << std::endl;
+		for (MelodyInterface m : this->melodies) m.print(tabs + 1);
+		std::cout << std::string(tabs, '\t') << "Orders: " << this->orders.size() << std::endl;
+		for (Instruction i : this->orders) i.print(tabs + 1);
+	}
+
+	public: Variable getVariable(const std::string id) {
+		for (Variable v : this->vars)
+			if (!v.getID().compare(id))
+				return v;
+		return null_var;
+	}
+	public: MelodyInterface getMelody(const std::string id) {
+		for (MelodyInterface m : this->melodies)
+			if (!m.getID().compare(id))
+				return m;
+		return null_melody;
+	}
+};
+
+const ExternalBlock null_block("null", "");
+
+class FileReader {
+	public: std::string id;
+	public: std::vector<std::string> paths;
+	public: std::vector<Variable> variables, instruments;
+	public: std::vector<MelodyInterface> melodies;
+	public: std::vector<ExternalBlock> groups, scripts;
+
+	public: FileReader() {
+		this->resetData();
+	}
+	public: void detectExternalBlocks(std::string str) {
+		std::sregex_iterator grps = std::sregex_iterator(str.begin(), str.end(), regex_group);
+		std::sregex_iterator crpt = std::sregex_iterator(str.begin(), str.end(), regex_script);
+		std::sregex_iterator end = std::sregex_iterator();
+		std::smatch match;
+
+		for (std::sregex_iterator i = grps; i != end; ++i) {
+			match = *i;
+			ExternalBlock eb(match[1].str(), match[2].str());
+			groups.push_back(eb);
+		}
+		str = std::regex_replace(str, regex_group, "");
+		for (std::sregex_iterator i = crpt; i != end; ++i) {
+			match = *i;
+			ExternalBlock eb(match[1].str(), match[2].str());
+			scripts.push_back(eb);
+		}
+		str = std::regex_replace(str, regex_script, "");
+		if (std::regex_search(str, match, regex_mscript)) {
+			ExternalBlock ms("__init__", match[1].str());
+			scripts.push_back(ms);
+		}
+		str = std::regex_replace(str, regex_mscript, "");
+
+		std::sregex_iterator imports = std::sregex_iterator(str.begin(), str.end(), regex_import);
+		std::sregex_iterator ins = std::sregex_iterator(str.begin(), str.end(), regex_inst);
+		std::sregex_iterator mels = std::sregex_iterator(str.begin(), str.end(), regex_melody);
+		std::sregex_iterator vars = std::sregex_iterator(str.begin(), str.end(), regex_varDec);
+
+		for (std::sregex_iterator i = imports; i != end; ++i) {
+			if (std::regex_search(str, match, regex_path))
+				paths.push_back(match[1].str());
+		}
+		for (std::sregex_iterator i = ins; i != end; ++i) {
+			match = *i;
+			std::string content = match[1].str();
+			std::sregex_iterator prop_begin = std::sregex_iterator(content.begin(), content.end(), regex_prop);
+			for (std::sregex_iterator i = prop_begin; i != end; ++i) {
+				std::smatch mp = *i;
+				Variable ii(mp[1].str(), mp[2].str());
+				instruments.push_back(ii);
+			}
+		}
+		for (std::sregex_iterator i = vars; i != end; ++i) {
+			match = *i;
+			std::string content = match[1].str();
+			std::sregex_iterator prop_begin = std::sregex_iterator(content.begin(), content.end(), regex_prop);
+			for (std::sregex_iterator i = prop_begin; i != end; ++i) {
+				std::smatch mp = *i;
+				Variable var(mp[1].str(), mp[2].str());
+				variables.push_back(var);
+			}
+		}
+		for (std::sregex_iterator i = mels; i != end; ++i) {
+			match = *i;
+			MelodyInterface mi(match[2].str(), match[3].str(), match[4].str());
+			this->melodies.push_back(mi);
+		}
+	}
+	public: void compileFile(const std::string archive_path) {
+		std::ifstream archive(archive_path);
+		if (!archive.is_open()) {
+			std::cerr << "Error al abrir el archivo: " << archive_path << std::endl;
+			return;
+		}
+
+		int position = (int)archive_path.find_last_of("\\/");
+		if (position != std::string::npos)
+			this->id = archive_path.substr(position + 1, archive_path.find_last_of('.') - position - 1);
+		else
+			this->id = archive_path.substr(0, archive_path.find_last_of('.') - 1);
+
+		std::stringstream buffer;
+		buffer << archive.rdbuf();
+		archive.close();
+
+		std::string text = buffer.str();
+		clearString(text);
+		detectExternalBlocks(text);
+	}
+
+	public: void resetData() {
+		this->paths.clear();
+		this->variables.clear();
+		this->instruments.clear();
+		this->groups.clear();
+		this->scripts.clear();
+	}
+	public: void print() {
+		std::cout << "FileName: " << this->id << std::endl << "***Imports***" << std::endl;
+		for (std::string s : paths)
+			std::cout << s << std::endl;
+		std::cout << "***Instruments***" << std::endl;
+		for (Variable i : instruments)
+			i.print(1);
+		std::cout << std::endl << "***Global Melodies***" << std::endl;
+		for (MelodyInterface m : melodies)
+			m.print(1);
+		std::cout << std::endl << "***Global Variables***" << std::endl;
+		for (Variable v : variables)
+			v.print(1);
+		std::cout << std::endl << "***Groups***" << std::endl;
+		for (ExternalBlock g : groups)
+			g.print(1);
+		std::cout << std::endl << "***Scripts***" << std::endl;
+		for (ExternalBlock s : scripts)
+			s.print(1);
+	}
+
+	public: Variable getVariable(const std::string id, const std::string relative) {
+		if (!relative.empty()) {
+			for (ExternalBlock e : this->groups)
+				if (!e.id.compare(relative))
+					return e.getVariable(id);
+			return null_var;
+		}
+		switch (countElement(id, ':')) {
+		case 0:
+			for (Variable v : this->variables)
+				if (!v.getID().compare(id))
+					return v;
+			return null_var;
+		case 1: {
+			std::string idBlock = id.substr(0, id.find(':'));
+			std::string idVar = id.substr(id.find(':') + 1);
+			for (ExternalBlock e : this->groups)
+				if (!e.id.compare(idBlock))
+					return e.getVariable(idVar);
+			return null_var;
+		}
+		default:
+			return null_var;
+		}
+	}
+	public: MelodyInterface getMelody(const std::string id, const std::string relative) {
+		if (!relative.empty()) {
+			for (ExternalBlock e : this->groups)
+				if (!e.id.compare(relative))
+					return e.getMelody(id);
+			return null_melody;
+		}
+		switch (countElement(id, ':')) {
+		case 0:
+			for (MelodyInterface m : this->melodies)
+				if (!m.getID().compare(id))
+					return m;
+			return null_melody;
+		case 1: {
+			std::string idBlock = id.substr(0, id.find(':'));
+			std::string idVar = id.substr(id.find(':') + 1);
+			for (ExternalBlock e : this->groups)
+				if (!e.id.compare(idBlock))
+					return e.getMelody(idVar);
+			return null_melody;
+		}
+		default:
+			return null_melody;
+		}
+	}
+	public: ExternalBlock getExternalBlock(const std::string id){
+		for (ExternalBlock ex : this->scripts)
+			if (!ex.id.compare(id))
+				return ex;
+		return null_block;
+	}
+};
+
+class CompileMaster {
+	public: std::vector<FileReader> files;
+
+	public: void compileFile(const std::string init) {
+		std::stack<std::string> to_compile;
+		to_compile.push(init);
+		do {
+			FileReader fr;
+			fr.compileFile(to_compile.top());
+			to_compile.pop();
+			for (std::string s : fr.paths)
+				to_compile.push(s);
+			this->files.push_back(fr);
+		} while (!to_compile.empty());
+
+	}
+	public: void print() {
+		for (FileReader fr : this->files)
+			fr.print();
+	}
+	public: void updateMelody(MelodyInterface& mi){
+		std::vector<Variable> vars_of_mel;
+		for (std::string vt : mi.getVarTags()) {
+			Variable v = this->getVariable(vt, "");
+			if (v.getID().compare("null"))
+				vars_of_mel.push_back(v);
+		}
+		mi.replaceVars(vars_of_mel);
+	}
+	public: BIT8* compileMelody(const std::string id_mel) {
+		MelodyInterface melody = this->getMelody(id_mel, "");
+		updateMelody(melody);
+		std::cout << "Compiled Melody: " << melody.currSequence << std::endl;
+		return MelodyComp::compileMelody(melody.currSequence, MelodyComp::getValue(melody.scale), MelodyComp::getValue(melody.beats), MelodyComp::getValue(melody.compass));
+	}
+	public: Variable getVariable(const std::string id, const std::string relative) {
+		if (!relative.empty()) {
+			for (ExternalBlock e : this->files[0].groups)
+				if (!e.id.compare(relative))
+					return e.getVariable(id);
+			return null_var;
+		}
+		switch (countElement(id, ':')) {
+			case 0:
+				for (Variable v : this->files[0].variables)
+					if (!v.getID().compare(id))
+						return v;
+				return null_var;
+			case 1: {
+				std::string idBlock = id.substr(0, id.find_first_of(':'));
+				std::string idVar = id.substr(id.find_first_of(':') + 1);
+				for (ExternalBlock e : this->files[0].groups)
+					if (!e.id.compare(idBlock))
+						return e.getVariable(idVar);
+
+				for (FileReader fr : this->files)
+					if (!fr.id.compare(idBlock))
+						return fr.getVariable(idBlock, "");
+
+				return null_var;
+			}
+			case 2: {
+				std::string idBlock = id.substr(0, id.find_first_of(':'));
+				std::string idVar = id.substr(id.find_first_of(':') + 1);
+				for (FileReader fr : this->files)
+					if (!fr.id.compare(idBlock))
+						return fr.getVariable(idBlock, "");
+
+				return null_var;
+			}
+			default:
+				return null_var;
+		}
+	}
+	public: MelodyInterface getMelody(const std::string id, const std::string relative) {
+		if (!relative.empty()) {
+			for (ExternalBlock e : this->files[0].groups)
+				if (!e.id.compare(relative))
+					return e.getMelody(id);
+			return null_melody;
+		}
+		switch (countElement(id, ':')) {
+			case 0:
+				for (MelodyInterface m : this->files[0].melodies)
+					if (!m.getID().compare(id))
+						return m;
+				return null_melody;
+			case 1: {
+				std::string idBlock = id.substr(0, id.find_first_of(':'));
+				std::string idVar = id.substr(id.find_first_of(':') + 1);
+				for (ExternalBlock e : this->files[0].groups)
+					if (!e.id.compare(idBlock))
+						return e.getMelody(idVar);
+
+				for (FileReader fr : this->files)
+					if (!fr.id.compare(idBlock))
+						return fr.getMelody(idBlock, "");
+
+				return null_melody;
+			}
+			case 2: {
+				std::string idBlock = id.substr(0, id.find_first_of(':'));
+				std::string idVar = id.substr(id.find_first_of(':') + 1);
+				for (FileReader fr : this->files)
+					if (!fr.id.compare(idBlock))
+						return fr.getMelody(idBlock, "");
+			}
+		}
+		return null_melody;
+	}
+	public: ExternalBlock getBlock(const std::string id) {
+		switch (countElement(id, ':')) {
+			case 0:
+				for (ExternalBlock b : this->files[0].scripts)
+					if (!b.id.compare(id))
+						return b;
+				return null_block;
+			case 1: {
+				std::string idBlock = id.substr(0, id.find_first_of(':'));
+				std::string idVar = id.substr(id.find_first_of(':') + 1);
+				for (FileReader f : this->files)
+					if (!f.id.compare(idBlock))
+						return f.getExternalBlock(idVar);
+				return null_block;
+			}
+		}
 	}
 };

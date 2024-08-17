@@ -159,6 +159,8 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="melodies\BadApple.txt" />
+    <Text Include="melodies\cancion.txt" />
+    <Text Include="melodies\cancion2.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

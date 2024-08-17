@@ -81,10 +81,11 @@ void printHelp(char case_of) {
 			<< "-hS -> model sounds" << std::endl;;
 	}
 }
+
 void mainMenu(int option) {
 	VMMM::ConsoleSynth cs;
 	VMMM::VirtualOrquesta vs;
-	MelodyComp mc;
+	CompileMaster cm;
 	Instrument_xml main_instrument;
 	BIT8* melody = nullptr;
 	bool loop = true, no_first_time = false;
@@ -120,13 +121,18 @@ void mainMenu(int option) {
 				std::cout << "Enter the path and name of the melody.mpp or .cmp: " << std::endl;
 				std::getline(std::cin, exit_format);
 			}
-			melody = mc.compileFile(exit_format);
+			melody = MelodyComp::compileFile(exit_format);
 			if (0 > main_instrument.load_document(main_inst)) {
 				std::cout << "Instrument at " << main_inst << " not found" << std::endl;
 				break;
 			}
-			vs.setTrack(&main_instrument, melody, 60.0, 0.0, 1);
+			// _____________________________Proceso de Enlace Compilador VM3____________________________//
+			cm.compile(exit_format);
+			
+			// _____________________________Proceso de Enlace Compilador VM3____________________________//
+			vs.setTrack(&main_instrument,"", melody, 60.0, 0.0, 1);
 			vs.Concert_MainLoop();
+			//
 			std::cout << "Playing " << exit_format << std::endl;
 			break;
 		case 3:
@@ -206,12 +212,11 @@ int main(int argc, char** argv) {
 	std::string melody = "..\\VM3\\melodies\\BadApple.txt";
 	std::string inst = "..\\VM3\\xml_samples\\Experimental2.xml";
 	VMMM::VirtualOrquesta vo;
-	MelodyComp md;
 	Instrument_xml ixml;
 	ixml.load_document(inst);
-	BIT8* cmp = md.compileFile(melody);
+	BIT8* cmp = MelodyComp::compileFile(melody);
 
-	vo.setTrack(&ixml, cmp, 60.0, 0.0, 1);
+	vo.setTrack(&ixml,"", cmp, 60.0, 0.0, 1);
 	vo.Concert_MainLoop();
 	return 0;
 }

@@ -1,0 +1,28 @@
+IMPORT 'cancion2.txt';
+
+VAR var1='Eb', var2='A';
+INST inst='path/instrument.xml', inst2 = 'samepath/inst2.xml';
+
+MELODY <id='global' scale='C4' beats='4' compass='QUARTER'>"Do Re $ fa sol $ si"(var1,var2);
+/*Comentary at block*/
+//Comentary in line
+GROUP group1{
+	MELODY <id='melody1' scale='C4' beats='4' compass='QUARTER'>"Do Re $ fa sol $ si"(var2,var1);
+};
+GROUP group2{
+	VAR var4='silence';
+	MELODY <id='melody1' scale='C4' beats='4' compass='QUARTER'>"Do Re $ fa sol $ si"(var1,var4);
+};
+
+SCRIPT script1 {
+	PLAY <mel='group1:melody1' time='0.0' loop='once'>;
+};
+SCRIPT script2 {
+	PLAY <mel='group2:melody1' time='0.0' loop='once'>;
+};
+
+MAIN_SCRIPT {
+	PLAY<mel='group1:melody1' time='10.0' loop='once'>;
+	PLAY<mel='script1' time='20.0' loop='once'>;
+	STOP<mel='group1:melody1' time='25.0'>;
+};

@@ -1,0 +1,5 @@
+
+GROUP group2{
+	VAR var4='silence';
+	MELODY <id='melody1' scale='C4' beats='4' compass='HALF'>"Do Re $2 fa sol $1 si"('la',var1);
+};

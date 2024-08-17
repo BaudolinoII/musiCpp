@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <stack>
 #include <string>
 #include <atomic>
 #include <list>
@@ -9,6 +10,7 @@
 #include <sstream>
 
 #include "NoiseMaker.hpp"
+#include "VitalComp.hpp"
 #include "VirtualInstrument.hpp"
 
 #ifndef FTYPE
@@ -171,21 +173,32 @@ namespace VMMM {
 
 	class Track {
 		public: Instrument_xml* inst;
+		public: std::vector<std::pair<FTYPE, FTYPE>> pauses;
 		public: BIT8* melody;
+		public: std::string id;
 
-		public: size_t currBeat, repeat, times;
-		public: FTYPE tempo, accm_time, start, lifeTime;
+		public: size_t currBeat, repeat, times, index_pause, size_of_beats;
+		public: FTYPE tempo, accm_time, start, lifeTime, accm_total, endTime;
 
-		public: Track(Instrument_xml* inst, BIT8* melody, FTYPE tempo, FTYPE start, size_t repeat){
+		public: Track(Instrument_xml* inst, std::string id, BIT8* melody, FTYPE tempo, FTYPE start, size_t repeat){
 			this->inst = inst;
 			this->melody = melody;
-			this->currBeat = 0;
 			this->tempo = tempo;
 			this->start = start;
-			this->accm_time = 0.0;
 			this->repeat = repeat;
+			size_t i = 0;
+			for (; this->melody[i * 3] != 0x7F; i++);
+			this->size_of_beats = i;
+			this->reset();
+		}
+		public: void reset() {
+			this->accm_time = 0.0;
+			this->currBeat = 0;
 			this->times = 0;
 			this->lifeTime = 0.0;
+			this->endTime = 0.0;
+			this->index_pause = 0;
+			this->accm_total = 0.0;
 		}
 		public: bool isActive(){
 			if (this->repeat)
@@ -209,13 +222,126 @@ namespace VMMM {
 				return 0.0;
 			return ((FTYPE)this->melody[(currBeat - 1) * 3 + 2] / 128.0) * (this->tempo / 60.0);
 		}
+		public: FTYPE getTotalTime() {
+			FTYPE total = 0;
+			for (size_t i = 0; i < this->size_of_beats; i++) 
+				total += ((FTYPE)this->melody[i * 3 + 2] / 128.0) * (this->tempo / 60.0);
+			for (size_t i = 0; i < this->index_pause; i++)
+				total += this->pauses[i].second - this->pauses[i].first;
+			return (total > endTime ? total : endTime) + this->start;
+		}
+
+		public: void adjMelody(BIT8 adj){
+			for(size_t i = 0; i < this->size_of_beats; i++)
+				this->melody[i * 3 + 1] += adj;
+		}
+		public: void setPause(FTYPE begin, FTYPE time){
+			std::pair<FTYPE, FTYPE> pause(begin, begin + time);
+			this->pauses.push_back(pause);
+		}
+		public: bool tryPlay(FTYPE dTime){
+			this->accm_total += dTime;
+			if (this->endTime != 0.0 && this->endTime < this->accm_total) { //Si tiene un stop y este permite
+				this->times = this->repeat + 1;//Forzamos a expulsar de la cadena
+				return false;
+			}
+			if (this->index_pause == this->pauses.size()) //Sino cuenta con más pausas
+				return true;
+			if (pauses[index_pause].first < accm_total && pauses[index_pause].second > accm_total) //Si está en el periodo de pausa
+				return false;
+			if (pauses[index_pause].second > accm_total)//Si y solo si supera al periodo
+				index_pause++;//Aumenta
+			return true;
+		}
 		public: void nextBeat(){
 			if (this->getStatus() != 0x7F)
 				this->currBeat++;
 		}
 	};
+	class GroupTrack {
+		public: std::vector<std::pair<FTYPE, FTYPE>> pauses;
+		public: std::string id;
+		public: FTYPE start, endTime, accm_total;
+		public: size_t repeat, times, index_pause;
+		public: std::vector<Track> tracks, deactive_tracks;
 
+		public: GroupTrack(std::string id, FTYPE start, size_t repeat){
+			this->id = id;
+			this->start = start;
+			this->repeat = repeat;
+			this->times = 0;
+			this->reset();
+		}
+		public: void reset(){
+			this->endTime = 0.0;
+			this->accm_total = 0.0;
+			this->index_pause = 0;
+			this->tracks.swap(this->deactive_tracks);
+			for (Track& t : this->tracks)
+				t.reset();
+		}
+		public: bool isActive() {
+			if (this->repeat)
+				return this->times < this->repeat;
+			return true;
+		}
+		public: void setPause(FTYPE begin, FTYPE time) {
+			std::pair<FTYPE, FTYPE> pause(begin, begin + time);
+			this->pauses.push_back(pause);
+		}
+		public: bool tryPlay(FTYPE dTime) {
+			this->accm_total += dTime;
+			if (this->endTime != 0.0 && this->endTime < this->accm_total) { //Si tiene un stop y este permite
+				this->times = this->repeat + 1;//Forzamos a expulsar de la cadena
+				return false;
+			}
+			if (this->index_pause == this->pauses.size()) //Sino cuenta con más pausas
+				return true;
+			if (pauses[index_pause].first < accm_total && pauses[index_pause].second > accm_total) //Si está en el periodo de pausa
+				return false;
+			if (pauses[index_pause].second > accm_total)//Si y solo si supera al periodo
+				index_pause++;//Aumenta
+			return true;
+		}
+		public: void popTrack(size_t index) {
+			if (index < this->tracks.size()) {
+				this->deactive_tracks.push_back(this->tracks[index]);
+				this->tracks.erase(this->tracks.begin() + index);
+			}
+		}
+
+		public: void play(FTYPE dTime, std::vector<Note>& curr_notes){
+			dTime -= this->start;
+			for (int i = 0; i < this->tracks.size(); i++) //Recorriendo Todas las pistas
+				if (this->tracks[i].isActive()) {//Si esta se encuentra activa loops o no
+					if (this->tracks[i].tryPlay(dTime)) {
+						this->tracks[i].accm_time += dTime;//Se añade tiempo transcurrido
+						while (this->tracks[i].accm_time > this->tracks[i].lifeTime) {//Mientras existan residuos del tiempo transcurrido
+							this->tracks[i].lifeTime = this->tracks[i].getTimeSec();//Guardamos el último tiempo en caso de acorde, siempre vendrá la nota con el mayor tiempo primero
+							do {
+								if (this->tracks[i].getNote()) {//Si la nota no es de silencio
+									Note n;//Debe construirse la nota
+									n.channel = this->tracks[i].inst;
+									n.active = true;
+									n.id = (this->tracks[i].getNote() - 1) % 12;//De acuerdo a la nota tocada
+									n.scale = (char)((this->tracks[i].getNote() - 1) / 12);
+									n.off = this->tracks[i].getTimeSec(); //Le añadimos el tiempo a la nota final
+									curr_notes.push_back(n);
+								}
+								this->tracks[i].nextBeat();//Avanzamos
+							} while (this->tracks[i].getStatus() & 0x80);//Si el estado es de un Chord, almacenará las notas
+							if (this->tracks[i].getStatus() == 0x7F) {//Cuando llegue al final de la melodía
+								this->tracks[i].times++;//Señalamos el loop
+								this->tracks[i].currBeat = 0;//Reiniciamos el beat actual
+							}
+							this->tracks[i].accm_time -= this->tracks[i].lifeTime;//Restamos el tiempo
+						}
+					}
+				} else this->popTrack(i--);//Sino está activa, se descarta.
+		}
+	};
 	class VirtualOrquesta : public VMMM {
+		private: std::vector<GroupTrack> g_track;
 		private: std::vector<Track> tracks;
 		private: std::vector<Note> curr_notes;
 
@@ -225,9 +351,31 @@ namespace VMMM {
 			this->curr_device = devices[0];
 		}
 
-		public: void setTrack(Instrument_xml* inst, BIT8* melody, FTYPE tempo, FTYPE start, size_t repeat){
-			Track tr(inst, melody, tempo, start, repeat);
+		public: void setTrack(Instrument_xml* inst, std::string id, BIT8* melody, FTYPE tempo, FTYPE start, size_t repeat){
+			Track tr(inst, id, melody, tempo, start, repeat);
 			this->tracks.push_back(tr);
+		}
+		public: void setGroups(CompileMaster& cm){
+			std::stack<ExternalBlock> blocks;
+			ExternalBlock init = cm.getBlock("__id__");
+			if (!init.id.compare("null")) {
+				std::cout << "The main script was not established" << std::endl;
+				return;
+			}
+			blocks.push(init);
+			do {
+				for(Instruction ins : blocks.top().orders){
+					switch(ins.getType()){
+						case 0://play
+							if (!ins.getValue("type").getString().compare("mel")) {} else
+							if (!ins.getValue("type").getString().compare("scp")) {} else
+							if (!ins.getValue("type").getString().compare("file")) {}
+						case 1://pause
+						case 2://stop
+					}
+				}
+				blocks.pop();
+			} while (!blocks.empty());
 		}
 		public: void printInstTracks(){
 			for (Track track : this->tracks)
@@ -238,42 +386,25 @@ namespace VMMM {
 				this->tracks.erase(this->tracks.begin() + index);
 		}
 
-		public: size_t play(FTYPE dTime){
+		public: size_t playGroups(FTYPE dTime) {
 			this->curr_notes.clear();
-			for (int i = 0; i < this->tracks.size(); i++) //Recorriendo Todas las pistas
-				if (this->tracks[i].isActive()) {//Si esta se encuentra activa loops o no
-					this->tracks[i].accm_time += dTime;//Se añade tiempo transcurrido
-					while (this->tracks[i].accm_time > this->tracks[i].lifeTime) {//Mientras existan residuos del tiempo transcurrido
-						this->tracks[i].lifeTime = this->tracks[i].getTimeSec();//Guardamos el último tiempo en caso de acorde, siempre vendrá la nota con el mayor tiempo primero
-							do {
-								if (this->tracks[i].getNote()) {//Si la nota no es de silencio
-									Note n;//Debe construirse la nota
-									n.channel = this->tracks[i].inst;
-									n.active = true;
-									n.id = (this->tracks[i].getNote() - 1) % 12;//De acuerdo a la nota tocada
-									n.scale = (char)((this->tracks[i].getNote() - 1) / 12);
-									n.off = this->tracks[i].getTimeSec(); //Le añadimos el tiempo a la nota final
-									this->curr_notes.push_back(n);
-								}
-								this->tracks[i].nextBeat();//Avanzamos
-							} while (this->tracks[i].getStatus() & 0x80);//Si el estado es de un Chord, almacenará las notas
-							if (this->tracks[i].getStatus() == 0x7F) {//Cuando llegue al final de la melodía
-								this->tracks[i].times++;//Señalamos el loop
-								this->tracks[i].currBeat = 0;//Reiniciamos el beat actual
-							}
-							this->tracks[i].accm_time -= this->tracks[i].lifeTime;//Restamos el tiempo
-					}
-				} else this->popTrack(i--);//Sino está activa, se descarta.
-
-			return this->curr_notes.size();//Retorna el tamaño de las notas.
+			for (GroupTrack g : this->g_track) if (g.isActive()) if (g.tryPlay(dTime)) {
+				g.play(dTime, this->curr_notes);
+				if (g.tracks.empty()) {
+					g.reset();
+					g.times++;
+				}
+			}
+			return this->curr_notes.size();
 		}
+
 		public: void Concert_MainLoop(){
 			this->sound.Create(this->curr_device, 44100, 1, 8, 512);
 			this->sound.SetUserFunction(this->MakeNoise);
 			this->setTime();
 			while (this->tracks.size() && !GetAsyncKeyState(27)) {//Cuando no haya nada que tocar o no se presione ESC
 				this->updateTime();
-				size_t new_notes = this->play(this->dElapsedTime);
+				size_t new_notes = this->playGroups(this->dElapsedTime);
 				this->muxNotes.lock();
 				for (size_t i = 0; i < new_notes; i++) {
 					this->curr_notes[i].on = dWallTime;//Se le añade el tiempo que debería estar activa
@@ -292,3 +423,35 @@ namespace VMMM {
 		}
 	};
 };
+
+/*public: size_t play(FTYPE dTime) {
+			this->curr_notes.clear();
+			for (int i = 0; i < this->tracks.size(); i++) //Recorriendo Todas las pistas
+				if (this->tracks[i].isActive()) {//Si esta se encuentra activa loops o no
+					if (this->tracks[i].tryPlay(dTime)) {
+						this->tracks[i].accm_time += dTime;//Se añade tiempo transcurrido
+						while (this->tracks[i].accm_time > this->tracks[i].lifeTime) {//Mientras existan residuos del tiempo transcurrido
+							this->tracks[i].lifeTime = this->tracks[i].getTimeSec();//Guardamos el último tiempo en caso de acorde, siempre vendrá la nota con el mayor tiempo primero
+							do {
+								if (this->tracks[i].getNote()) {//Si la nota no es de silencio
+									Note n;//Debe construirse la nota
+									n.channel = this->tracks[i].inst;
+									n.active = true;
+									n.id = (this->tracks[i].getNote() - 1) % 12;//De acuerdo a la nota tocada
+									n.scale = (char)((this->tracks[i].getNote() - 1) / 12);
+									n.off = this->tracks[i].getTimeSec(); //Le añadimos el tiempo a la nota final
+									this->curr_notes.push_back(n);
+								}
+								this->tracks[i].nextBeat();//Avanzamos
+							} while (this->tracks[i].getStatus() & 0x80);//Si el estado es de un Chord, almacenará las notas
+							if (this->tracks[i].getStatus() == 0x7F) {//Cuando llegue al final de la melodía
+								this->tracks[i].times++;//Señalamos el loop
+								this->tracks[i].currBeat = 0;//Reiniciamos el beat actual
+							}
+							this->tracks[i].accm_time -= this->tracks[i].lifeTime;//Restamos el tiempo
+						}
+					}
+				} else this->popTrack(i--);//Sino está activa, se descarta.
+
+			return this->curr_notes.size();//Retorna el tamaño de las notas.
+		}*/
